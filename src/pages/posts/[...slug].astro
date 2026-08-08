@@ -1,0 +1,404 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { render } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import Toc from '../../components/Toc.astro'
+import CodeActions from '../../components/CodeActions.astro'
+import Comments from '../../components/Comments.astro'
+import CopyLink from '../../components/CopyLink.astro'
+import PostRow from '../../components/PostRow.astro'
+import {
+  getPosts,
+  getPostsByDate,
+  getRelated,
+  getSeries,
+  formatDate,
+  readingStats,
+  postUrl,
+  tagUrl,
+  categoryUrl,
+  type Post,
+} from '../../lib/posts'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getPosts()
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }))
+}
+
+const { post } = Astro.props as { post: Post }
+const { Content, headings } = await render(post)
+
+const { title, description, pubDate, updatedDate, tags, category, series } = post.data
+const body = post.body ?? ''
+const stats = readingStats(body)
+// 行内 $...$、块级 $$...$$，或 latex 环境。先剥掉代码块，避免 shell 里的 $ 误判
+const proseOnly = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+const hasMath = /\$\$[\s\S]+?\$\$|\$[^$\n]+\$|\\begin\{/.test(proseOnly)
+
+const chronological = await getPostsByDate() // 升序：越早越靠前
+const idx = chronological.findIndex((p) => p.id === post.id)
+const older = idx > 0 ? chronological[idx - 1] : null
+const newer = idx >= 0 && idx < chronological.length - 1 ? chronological[idx + 1] : null
+
+const related = await getRelated(post)
+const seriesPosts = series ? await getSeries(series) : []
+---
+
+<Base
+  title={title}
+  description={description}
+  type="article"
+  publishedAt={pubDate}
+  updatedAt={updatedDate}
+  hasMath={hasMath}
+>
+  <div class="layout">
+    <article class="article" data-article data-pagefind-body>
+      <header class="head">
+        <div class="crumbs mono">
+          <a href="/archive">posts</a>
+          <span class="sep">/</span>
+          <a href={categoryUrl(category)}>{category}</a>
+        </div>
+
+        <h1 class="title" data-pagefind-meta="title">{title}</h1>
+        <p class="lede">{description}</p>
+
+        <div class="meta mono">
+          <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+          {updatedDate && <span class="meta-up">updated {formatDate(updatedDate)}</span>}
+          <span class="dot">·</span>
+          <span>{stats.words} 字</span>
+          <span class="dot">·</span>
+          <span>约 {stats.minutes} 分钟</span>
+          <span class="dot">·</span>
+          <CopyLink />
+        </div>
+      </header>
+
+      <Toc headings={headings} variant="mobile" />
+
+      {
+        seriesPosts.length > 1 && (
+          <nav class="series" aria-label="系列文章">
+            <p class="series-head mono">
+              <span class="series-label">SERIES</span> {series}
+            </p>
+            <ol class="series-list">
+              {seriesPosts.map((p, i) => (
+                <li class:list={['series-item', { current: p.id === post.id }]}>
+                  <span class="mono series-n">{String(i + 1).padStart(2, '0')}</span>
+                  {p.id === post.id ? <span>{p.data.title}</span> : <a href={postUrl(p)}>{p.data.title}</a>}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <footer class="foot">
+        <div class="foot-tags mono">
+          {tags.map((t) => (
+            <a href={tagUrl(t)} class="foot-tag">#{t}</a>
+          ))}
+        </div>
+
+        <nav class="adjacent" aria-label="上下篇">
+          {
+            older ? (
+              <a href={postUrl(older)} class="adj adj-prev">
+                <span class="kicker">← older</span>
+                <span class="adj-title">{older.data.title}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            newer && (
+              <a href={postUrl(newer)} class="adj adj-next">
+                <span class="kicker">newer →</span>
+                <span class="adj-title">{newer.data.title}</span>
+              </a>
+            )
+          }
+        </nav>
+
+        {
+          related.length > 0 && (
+            <section class="related">
+              <h2 class="kicker">// related</h2>
+              <div class="related-list">
+                {related.map((p) => (
+                  <PostRow post={p} />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        <Comments />
+      </footer>
+    </article>
+
+    <aside class="rail">
+      <Toc headings={headings} variant="rail" />
+      <a href="#main" class="to-top mono">↑ back to top</a>
+    </aside>
+  </div>
+
+  <CodeActions />
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, var(--container-content)) 15rem;
+    gap: 4rem;
+    justify-content: center;
+  }
+
+  .head {
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--color-line);
+    margin-bottom: 2.5rem;
+  }
+
+  .crumbs {
+    font-size: 0.75rem;
+    color: var(--color-faint);
+    margin-bottom: 1.1rem;
+  }
+
+  .crumbs a {
+    color: var(--color-faint);
+    text-decoration: none;
+    transition: color 0.16s;
+  }
+
+  .crumbs a:hover {
+    color: var(--color-accent);
+  }
+
+  .sep {
+    margin-inline: 0.4rem;
+    opacity: 0.5;
+  }
+
+  .title {
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--color-text-strong);
+  }
+
+  .lede {
+    margin-top: 0.85rem;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--color-dim);
+  }
+
+  .meta {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-faint);
+  }
+
+  .meta :global(.copy-link) {
+    margin-left: 0.15rem;
+  }
+
+  .meta-up {
+    color: var(--color-warn);
+    opacity: 0.75;
+  }
+
+  .dot {
+    opacity: 0.45;
+  }
+
+  .series {
+    margin-bottom: 2.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-left: 2px solid var(--color-warn);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  .series-head {
+    font-size: 0.8rem;
+    color: var(--color-text);
+    margin-bottom: 0.6rem;
+  }
+
+  .series-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--color-warn);
+    border: 1px solid color-mix(in srgb, var(--color-warn) 40%, transparent);
+    border-radius: var(--radius-sm);
+    padding: 0.05rem 0.3rem;
+    margin-right: 0.4rem;
+  }
+
+  .series-item {
+    display: flex;
+    gap: 0.7rem;
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
+    color: var(--color-dim);
+  }
+
+  .series-n {
+    font-size: 0.72rem;
+    color: var(--color-faint);
+    padding-top: 0.15rem;
+  }
+
+  .series-item a {
+    color: var(--color-dim);
+    text-decoration: none;
+  }
+
+  .series-item a:hover {
+    color: var(--color-accent);
+  }
+
+  .series-item.current {
+    color: var(--color-accent);
+  }
+
+  .foot {
+    margin-top: 4rem;
+  }
+
+  .foot-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .foot-tag {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-dim);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition:
+      color 0.16s,
+      border-color 0.16s;
+  }
+
+  .foot-tag:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+  }
+
+  .adjacent {
+    margin-top: 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .adj {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    text-decoration: none;
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    transition:
+      border-color 0.2s,
+      background 0.2s;
+  }
+
+  .adj:hover {
+    border-color: var(--color-accent-soft);
+    background: var(--color-surface);
+  }
+
+  .adj-next {
+    text-align: right;
+  }
+
+  .adj-title {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+
+  .adj:hover .adj-title {
+    color: var(--color-accent);
+  }
+
+  .related {
+    margin-top: 3.5rem;
+  }
+
+  .related-list {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .rail {
+    position: sticky;
+    top: calc(var(--nav-offset, var(--nav-h)) + 2.5rem);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .to-top {
+    font-size: 0.75rem;
+    color: var(--color-faint);
+    text-decoration: none;
+    transition: color 0.18s;
+  }
+
+  .to-top:hover {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 1100px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: var(--container-content);
+      margin-inline: auto;
+    }
+    .rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adjacent {
+      grid-template-columns: 1fr;
+    }
+    .adj-next {
+      text-align: left;
+    }
+  }
+</style>

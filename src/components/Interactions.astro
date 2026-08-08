@@ -1,0 +1,106 @@
+---
+/**
+ * 全站点击涟漪。纯增强：不支持 PointerEvent 时只靠 CSS :active。
+ * 选择器覆盖导航、芯片、按钮、列表行等常见可点元素。
+ */
+---
+
+<script>
+  const SELECTOR = [
+    'button',
+    'summary',
+    '[data-press]',
+    '.chip',
+    '.nav-link',
+    '.mobile-link',
+    '.copy-link',
+    '.skill-item',
+    '.cat-item',
+    '.tag',
+    '.footer-link',
+    '.search-trigger',
+    '.menu-toggle',
+    '.adbg-btn',
+    '.code-copy',
+    '.code-expand',
+    '.name-btn',
+    '.term-tap',
+    '.shell-run',
+    '.feed-copy',
+    '.btn',
+    '.faq-q',
+    '.contact',
+    '.adj',
+    '.row',
+    '.toc-summary',
+  ].join(',')
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }
+
+  function burst(el: HTMLElement, x: number, y: number) {
+    if (prefersReducedMotion()) return
+
+    const rect = el.getBoundingClientRect()
+    const size = Math.max(rect.width, rect.height) * 1.35
+    const ripple = document.createElement('span')
+    ripple.className = 'press-ripple'
+    ripple.style.width = `${size}px`
+    ripple.style.height = `${size}px`
+    ripple.style.left = `${x - rect.left - size / 2}px`
+    ripple.style.top = `${y - rect.top - size / 2}px`
+
+    // 保证定位参考；列表行不裁切，避免箭头/阴影被 overflow 吃掉
+    const style = getComputedStyle(el)
+    if (style.position === 'static') el.dataset.pressPos = '1'
+    if (style.position === 'static') el.style.position = 'relative'
+    const clipSafe = !el.classList.contains('row') && !el.classList.contains('adj')
+    if (clipSafe && style.overflow === 'visible') {
+      el.dataset.pressOverflow = '1'
+      el.style.overflow = 'hidden'
+    }
+
+    el.appendChild(ripple)
+    let done = false
+    const cleanup = () => {
+      if (done) return
+      done = true
+      ripple.remove()
+      // 仍有涟漪在播时不要清定位
+      if (!el.querySelector('.press-ripple')) {
+        if (el.dataset.pressPos) {
+          el.style.position = ''
+          delete el.dataset.pressPos
+        }
+        if (el.dataset.pressOverflow) {
+          el.style.overflow = ''
+          delete el.dataset.pressOverflow
+        }
+      }
+    }
+    ripple.addEventListener('animationend', cleanup, { once: true })
+    // 兜底：部分 WebKit 上 animationend 不稳定
+    window.setTimeout(cleanup, 700)
+  }
+
+  function onPointerDown(e: PointerEvent) {
+    if (e.button !== 0 && e.pointerType !== 'touch' && e.pointerType !== 'pen') return
+    const el = (e.target as Element | null)?.closest?.(SELECTOR) as HTMLElement | null
+    if (!el || el.closest('input, textarea, select, a[download]')) return
+    // 链接整行命中时，涟漪打在 .row 上
+    burst(el, e.clientX, e.clientY)
+  }
+
+  function setup() {
+    if ((window as unknown as { __sleep4rPress?: boolean }).__sleep4rPress) return
+    ;(window as unknown as { __sleep4rPress?: boolean }).__sleep4rPress = true
+    document.addEventListener('pointerdown', onPointerDown, { passive: true })
+  }
+
+  setup()
+  document.addEventListener('astro:after-swap', () => {
+    // ClientRouter 换页后全局监听还在，只需确保标记仍在
+    ;(window as unknown as { __sleep4rPress?: boolean }).__sleep4rPress = true
+  })
+</script>

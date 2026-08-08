@@ -1,0 +1,238 @@
+---
+import Base from '../layouts/Base.astro'
+import TerminalHero from '../components/TerminalHero.astro'
+import PostRow from '../components/PostRow.astro'
+import { SITE } from '../consts'
+import { getPosts, getPostsByDate, getTags, getCategories, tagUrl, categoryUrl } from '../lib/posts'
+
+const posts = await getPosts()
+/** 按发布时间升序：越靠前越早（文章不多，首页全部列出） */
+const recent = await getPostsByDate()
+const tags = await getTags()
+const categories = await getCategories()
+
+const focus = ['frida', 'unidbg', 'ollvm', 'smali', 'elf', 'so-protect', 'hook', 'vmp']
+
+const heroLines = [
+  { cmd: 'whoami', out: SITE.subtitle },
+  {
+    cmd: 'cat ~/.focus',
+    html: focus.map((f) => `<span class="k">${f}</span>`).join('  '),
+  },
+  {
+    cmd: 'ls -l ~/posts | wc -l',
+    out: `${posts.length}`,
+  },
+]
+---
+
+<Base title={SITE.title} description={SITE.description}>
+  <h1 class="sr-only">{SITE.title} — {SITE.subtitle}</h1>
+
+  <TerminalHero lines={heroLines} />
+
+  <div class="grid">
+    <section class="col-main">
+      <header class="sec-head">
+        <h2 class="kicker">// recent posts</h2>
+        <a href="/archive" class="sec-more mono">all →</a>
+      </header>
+
+      <div class="list">
+        {recent.map((post, i) => <PostRow post={post} index={i} />)}
+        {
+          posts.length === 0 && (
+            <p class="empty mono">
+              还没有文章。在 <code>src/content/posts/</code> 里新建 .md 文件即可。
+            </p>
+          )
+        }
+      </div>
+    </section>
+
+    <aside class="col-side">
+      <div class="panel">
+        <h2 class="kicker">// categories</h2>
+        {
+          categories.length > 0 ? (
+            <ul class="cat-list">
+              {categories.map((c) => (
+                <li>
+                  <a href={categoryUrl(c.name)} class="cat-item">
+                    <span class="cat-name">{c.name}</span>
+                    <span class="cat-count mono">{String(c.count).padStart(2, '0')}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="side-empty mono">暂无分类</p>
+          )
+        }
+      </div>
+
+      <div class="panel">
+        <h2 class="kicker">// tags</h2>
+        {
+          tags.length > 0 ? (
+            <>
+              <div class="tag-cloud">
+                {tags.slice(0, 24).map((t) => (
+                  <a href={tagUrl(t.name)} class="tag mono">
+                    #{t.name}
+                    <span class="tag-n">{t.count}</span>
+                  </a>
+                ))}
+              </div>
+              <a href="/tags" class="panel-more mono">
+                查看全部 →
+              </a>
+            </>
+          ) : (
+            <p class="side-empty mono">写文章时加上 tags 就会出现在这里</p>
+          )
+        }
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .grid {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .sec-more,
+  .panel-more {
+    font-size: 0.75rem;
+    color: var(--color-faint);
+    text-decoration: none;
+    transition: color 0.18s;
+  }
+
+  .sec-more:hover,
+  .panel-more:hover {
+    color: var(--color-accent);
+  }
+
+  .empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--color-faint);
+    font-size: 0.85rem;
+  }
+
+  .empty code {
+    color: var(--color-accent);
+  }
+
+  .side-empty {
+    margin-top: 0.9rem;
+    font-size: 0.75rem;
+    color: var(--color-faint);
+    line-height: 1.6;
+  }
+
+  .col-side {
+    position: sticky;
+    top: calc(var(--nav-offset, var(--nav-h)) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+  }
+
+  .panel .kicker {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .cat-list {
+    margin-top: 0.6rem;
+  }
+
+  .cat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.15rem;
+    font-size: 0.85rem;
+    color: var(--color-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-line);
+    transition:
+      color 0.18s,
+      padding-left 0.2s var(--ease-out-expo);
+  }
+
+  .cat-item:hover {
+    color: var(--color-accent);
+    padding-left: 0.5rem;
+  }
+
+  .cat-count {
+    font-size: 0.72rem;
+    color: var(--color-faint);
+  }
+
+  .tag-cloud {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.73rem;
+    color: var(--color-dim);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition:
+      color 0.16s,
+      border-color 0.16s;
+  }
+
+  .tag:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+  }
+
+  .tag-n {
+    font-size: 0.62rem;
+    color: var(--color-faint);
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .col-side {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .panel {
+      flex: 1 1 16rem;
+    }
+  }
+</style>

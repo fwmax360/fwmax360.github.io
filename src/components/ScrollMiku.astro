@@ -1,0 +1,191 @@
+---
+/**
+ * 阅读进度：细轨贴导航，初音踩在进度条末端（进度头）。
+ * 素材：/images/miku-run.png · 单帧 64×80 · 8 帧横排 512×80
+ */
+interface Props {
+  height?: number
+  mikuScale?: number
+}
+
+const { height = 4, mikuScale = 0.7 } = Astro.props
+
+const FRAME_W = 64
+const FRAME_H = 80
+const SHEET_W = 512
+const displayW = Math.round(FRAME_W * mikuScale)
+const displayH = Math.round(FRAME_H * mikuScale)
+const sheetW = Math.round(SHEET_W * mikuScale)
+---
+
+<div
+  class="scroll-miku"
+  data-scroll-miku
+  style={`--sm-h:${height}px;--sm-miku-w:${displayW}px;--sm-miku-h:${displayH}px;--sm-sheet-w:${sheetW}px;height:${height}px;`}
+  aria-hidden="true"
+>
+  <div class="sm-track" data-sm-bar>
+    <div class="sm-fill" data-sm-fill></div>
+  </div>
+  <!-- 骑在进度头上：脚对齐 fill 末端，身体向上叠在内容上，不占文档流 -->
+  <div class="sm-runner" data-sm-runner></div>
+</div>
+
+<style>
+  .scroll-miku {
+    --sm-foot: calc(var(--sm-miku-w) * 0.58);
+    --cell: 7px;
+    --gap: 2px;
+    position: fixed;
+    top: var(--nav-offset, var(--nav-h));
+    left: 0;
+    right: 0;
+    /* 只占细轨高度；小人 absolute 溢出，不撑开顶栏 */
+    height: var(--sm-h);
+    max-height: var(--sm-h);
+    overflow: visible;
+    z-index: 51;
+    pointer-events: none;
+  }
+
+  .sm-track {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--color-line) 0 var(--cell),
+      transparent var(--cell) calc(var(--cell) + var(--gap))
+    );
+  }
+
+  .sm-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--color-accent) 0 var(--cell),
+      transparent var(--cell) calc(var(--cell) + var(--gap))
+    );
+  }
+
+  .sm-runner {
+    position: absolute;
+    /* 挂在进度头上：头贴细轨末端，身子伸进正文，不被导航盖住 */
+    left: 0;
+    top: 0;
+    width: var(--sm-miku-w);
+    height: var(--sm-miku-h);
+    background-image: url('/images/miku-run.png');
+    background-repeat: no-repeat;
+    background-size: var(--sm-sheet-w) var(--sm-miku-h);
+    background-position: 0 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform: translate3d(0, 0, 0);
+    transform-origin: var(--sm-foot) 0;
+    will-change: transform;
+    opacity: 0;
+    transition: opacity 0.2s;
+    animation: miku-run 0.55s steps(8) infinite;
+    animation-play-state: paused;
+  }
+
+  .scroll-miku[data-ready='1'] .sm-runner {
+    opacity: 1;
+  }
+
+  .scroll-miku[data-active='1'] .sm-runner {
+    animation-play-state: running;
+  }
+
+  @keyframes miku-run {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: calc(var(--sm-sheet-w) * -1) 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sm-runner {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  let ac: AbortController | null = null
+
+  function setupScrollMiku() {
+    ac?.abort()
+    ac = new AbortController()
+
+    const root = document.querySelector<HTMLElement>('[data-scroll-miku]')
+    const bar = document.querySelector<HTMLElement>('[data-sm-bar]')
+    const fill = document.querySelector<HTMLElement>('[data-sm-fill]')
+    const runner = document.querySelector<HTMLElement>('[data-sm-runner]')
+    if (!root || !bar || !fill || !runner) return
+
+    let ticking = false
+    let idle: ReturnType<typeof setTimeout> | undefined
+    let lastY = window.scrollY
+    let dir = 1
+
+    const progressOf = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      if (max <= 0) return 0
+      return Math.min(1, Math.max(0, window.scrollY / max))
+    }
+
+    const update = () => {
+      const pct = progressOf()
+      // 进度头 = fill 右端；角色水平中心对准这个点
+      const x = pct * bar.clientWidth - runner.offsetWidth * 0.5
+
+      fill.style.width = `${pct * 100}%`
+      const flip = dir < 0 ? ' scaleX(-1)' : ''
+      runner.style.transform = `translate3d(${x}px, 0, 0)${flip}`
+
+      if (pct > 0.01) root.dataset.ready = '1'
+      else delete root.dataset.ready
+
+      ticking = false
+    }
+
+    const wake = () => {
+      root.dataset.active = '1'
+      clearTimeout(idle)
+      idle = setTimeout(() => delete root.dataset.active, 1000)
+    }
+
+    const onScroll = () => {
+      const y = window.scrollY
+      if (Math.abs(y - lastY) > 0.5) {
+        dir = y > lastY ? 1 : -1
+        lastY = y
+      }
+      wake()
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true, signal: ac.signal })
+    window.addEventListener(
+      'resize',
+      () => {
+        ticking = false
+        update()
+      },
+      { passive: true, signal: ac.signal },
+    )
+    ac.signal.addEventListener('abort', () => clearTimeout(idle))
+    update()
+  }
+
+  setupScrollMiku()
+  document.addEventListener('astro:page-load', setupScrollMiku)
+</script>

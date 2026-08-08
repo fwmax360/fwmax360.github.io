@@ -1,0 +1,91 @@
+---
+import Base from './Base.astro'
+import PostRow from '../components/PostRow.astro'
+import type { Post } from '../lib/posts'
+
+interface Props {
+  kind: 'tag' | 'category'
+  name: string
+  posts: Post[]
+}
+
+const { kind, name, posts } = Astro.props
+const prefix = kind === 'tag' ? '#' : ''
+const desc = `${kind === 'tag' ? '标签' : '分类'} ${name} 下的 ${posts.length} 篇文章。`
+---
+
+<Base title={`${prefix}${name}`} description={desc}>
+  <header class="page-head">
+    <a href={kind === 'tag' ? '/tags' : '/tags#categories'} class="back mono">
+      ← {kind === 'tag' ? 'tags' : 'categories'}
+    </a>
+    <h1 class="page-title mono">
+      <span class="page-kind">{kind}</span>
+      <span class="page-name">{prefix}{name}</span>
+    </h1>
+    <p class="page-sub mono">{posts.length} 篇文章</p>
+  </header>
+
+  <div class="list">
+    {posts.map((post, i) => <PostRow post={post} index={i} />)}
+    {posts.length === 0 && <p class="empty mono">这个{kind === 'tag' ? '标签' : '分类'}下还没有文章。</p>}
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    margin-bottom: 2.5rem;
+  }
+
+  .back {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: var(--color-faint);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.16s;
+  }
+
+  .back:hover {
+    color: var(--color-accent);
+  }
+
+  .page-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 1.9rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text-strong);
+  }
+
+  .page-kind {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent-soft);
+    border-radius: var(--radius-sm);
+    padding: 0.15rem 0.4rem;
+    translate: 0 -0.35rem;
+  }
+
+  .page-sub {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--color-faint);
+  }
+
+  .list {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-faint);
+  }
+</style>

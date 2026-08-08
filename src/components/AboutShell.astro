@@ -1,0 +1,386 @@
+---
+/**
+ * About 页的互动终端：点命令、敲几句固定口令，吐槽逆向日常。
+ */
+const cmds = [
+  {
+    id: 'whoami',
+    label: 'whoami',
+    lines: [
+      'Sleep3r',
+      'uid=0(root) 但手机还是蓝屏了',
+      'groups=android,binary,caffeine',
+    ],
+  },
+  {
+    id: 'uptime',
+    label: 'uptime',
+    lines: [
+      'up 3 days, 14:22 — IDA 还开着',
+      'load average: 咖啡, 咖啡, 咖啡',
+      '1 process: "再看一眼就睡"',
+    ],
+  },
+  {
+    id: 'ps',
+    label: 'ps aux | grep sleep',
+    lines: [
+      'root  1337  99.0  sleep --forever',
+      'root  2048   0.1  sleep4r --blog',
+      'root  4096   0.0  [kworker/anti-debug]',
+    ],
+  },
+  {
+    id: 'cat',
+    label: 'cat /proc/self/status',
+    lines: [
+      'Name:\tSleep3r',
+      'State:\tR (running) / Z (zombie after 3am)',
+      'TracerPid:\t0  # 别想 attach 我',
+      'SigCgt:\tSIGSEGV,SIGCOFFEE',
+    ],
+  },
+  {
+    id: 'frida',
+    label: 'frida -U -f com.target',
+    lines: [
+      'Spawned `com.target`. Resuming main thread!',
+      '[!] Process crashed: SIGABRT',
+      'hint: 大概是检测到你了。再试一次？或者先去看文章。',
+    ],
+  },
+  {
+    id: 'sudo',
+    label: 'sudo make me a sandwich',
+    lines: [
+      'Okay.',
+      '*递给一块三明治*',
+      '下次直接说 `please`，root 也吃这一套。',
+    ],
+  },
+] as const
+---
+
+<section class="shell" data-about-shell>
+  <div class="shell-bar">
+    <span class="shell-flag mono" aria-hidden="true">▌</span>
+    <span class="shell-title mono">sleep4r@about</span>
+    <span class="shell-mode mono" aria-hidden="true">interactive</span>
+  </div>
+
+  <div class="shell-chips">
+    {
+      cmds.map((c) => (
+        <button type="button" class="chip mono" data-cmd={c.id}>
+          $ {c.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="shell-body mono" data-shell-out aria-live="polite">
+    <div class="line">
+      <span class="p">sleep4r@about:~$</span>
+      <span class="t"> ./intro.sh</span>
+    </div>
+    <div class="out">
+      欢迎。点上面的命令，或者在下面输入 <span class="k">help</span>。
+      <br />
+      警告：本终端无后端，所有输出都是我提前写好的玩笑。
+    </div>
+  </div>
+
+  <form class="shell-form" data-shell-form autocomplete="off">
+    <label class="shell-prompt mono" for="about-cmd">
+      <span class="p">$</span>
+    </label>
+    <input
+      id="about-cmd"
+      class="shell-input mono"
+      data-shell-input
+      type="text"
+      spellcheck="false"
+      placeholder="help / joke / frida / sandwich …"
+      aria-label="输入命令"
+    />
+    <button type="submit" class="shell-run mono">run</button>
+  </form>
+</section>
+
+<script>
+  const CMDS: Record<string, string[]> = {
+    whoami: ['Sleep3r', 'uid=0(root) 但手机还是蓝屏了', 'groups=android,binary,caffeine'],
+    uptime: ['up 3 days, 14:22 — IDA 还开着', 'load average: 咖啡, 咖啡, 咖啡', '1 process: "再看一眼就睡"'],
+    ps: ['root  1337  99.0  sleep --forever', 'root  2048   0.1  sleep4r --blog', 'root  4096   0.0  [kworker/anti-debug]'],
+    cat: ['Name:\tSleep3r', 'State:\tR (running) / Z (zombie after 3am)', 'TracerPid:\t0  # 别想 attach 我', 'SigCgt:\tSIGSEGV,SIGCOFFEE'],
+    status: ['Name:\tSleep3r', 'State:\tR (running) / Z (zombie after 3am)', 'TracerPid:\t0  # 别想 attach 我', 'SigCgt:\tSIGSEGV,SIGCOFFEE'],
+    frida: ['Spawned `com.target`. Resuming main thread!', '[!] Process crashed: SIGABRT', 'hint: 大概是检测到你了。再试一次？或者先去看文章。'],
+    sudo: ['Okay.', '*递给一块三明治*', '下次直接说 `please`，root 也吃这一套。'],
+    sandwich: ['Okay.', '*三明治已送达*'],
+    help: ['可用命令：whoami / uptime / ps / status / frida / sandwich / joke / ida / vim / clear', '也可以点上面的芯片，懒人专用。'],
+    joke: ['Q: 逆向工程师最怕什么？', 'A: 客户说「这个很简单，你随便看看」。'],
+    ida: ['Hex-Rays: decompilation failed', '你：那我手撕。', 'Hex-Rays：……祝你好运。'],
+    ls: ['about.md  coffee.img  unfinished_notes/  todo.txt'],
+    pwd: ['/home/sleep4r/blog/about'],
+    exit: ['你逃不掉的。这是静态站，没有进程可杀。'],
+    vim: ['你进入了 vim。', '……你出不来了。', '（开玩笑，按 Esc 也没用，这里不是真的）'],
+  }
+
+  const CHIP_LABEL: Record<string, string> = {
+    whoami: 'whoami',
+    uptime: 'uptime',
+    ps: 'ps aux | grep sleep',
+    cat: 'cat /proc/self/status',
+    frida: 'frida -U -f com.target',
+    sudo: 'sudo make me a sandwich',
+  }
+
+  const JOKES = [
+    ['Q: 为什么逆向工程师不相信随机数？', 'A: 因为他们总能找到 seed。'],
+    ['Q: 加固厂商最喜欢的一句话？', 'A: 「我们加了虚拟机保护。」', '你：那我去找 JNI_OnLoad。'],
+    ['printf("Hello, World\\n");', '// 编译：成功', '// 运行：SIGSEGV', '// 你：合理。'],
+    ['客户：能不能两天搞定？', '我：能。', '客户：那一天呢？', '我：……那你自己来。'],
+    ['Frida: attached', 'App: *自杀*', 'Frida: detached', '你: ……'],
+  ]
+
+  let jokeIdx = 0
+
+  function setup() {
+    const root = document.querySelector<HTMLElement>('[data-about-shell]')
+    const out = document.querySelector<HTMLElement>('[data-shell-out]')
+    const form = document.querySelector<HTMLFormElement>('[data-shell-form]')
+    const input = document.querySelector<HTMLInputElement>('[data-shell-input]')
+    if (!root || !out || !form || !input || root.dataset.bound) return
+    root.dataset.bound = '1'
+
+    const print = (cmd: string, lines: string[]) => {
+      const block = document.createElement('div')
+      block.className = 'block'
+      block.innerHTML = `
+        <div class="line"><span class="p">sleep4r@about:~$</span><span class="t"> ${escapeHtml(cmd)}</span></div>
+        <div class="out">${lines.map((l) => escapeHtml(l)).join('<br>')}</div>
+      `
+      out.appendChild(block)
+      out.scrollTop = out.scrollHeight
+    }
+
+    const escapeHtml = (s: string) =>
+      s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+
+    const run = (raw: string) => {
+      const cmd = raw.trim().toLowerCase()
+      if (!cmd) return
+
+      if (cmd === 'clear') {
+        out.innerHTML = ''
+        return
+      }
+
+      if (cmd === 'joke' || cmd === 'fortune') {
+        const j = JOKES[jokeIdx % JOKES.length]
+        jokeIdx++
+        print(raw.trim(), j)
+        return
+      }
+
+      // 模糊匹配：允许 "sudo make me a sandwich" / "cat status" 等
+      let key = cmd.split(/\s+/)[0]
+      if (cmd.includes('sandwich')) key = 'sandwich'
+      if (cmd.includes('status')) key = 'status'
+      if (cmd.startsWith('sudo')) key = 'sudo'
+      if (cmd.startsWith('frida')) key = 'frida'
+      if (cmd.startsWith('ps')) key = 'ps'
+      if (cmd.startsWith('cat')) key = 'cat'
+
+      const lines = CMDS[key]
+      if (!lines) {
+        print(raw.trim(), [`command not found: ${cmd}`, '试试 help，或者点上面的芯片。'])
+        return
+      }
+      print(raw.trim(), lines)
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-cmd]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.cmd!
+        btn.classList.add('pulse')
+        setTimeout(() => btn.classList.remove('pulse'), 280)
+        run(CHIP_LABEL[id] ?? id)
+      })
+    })
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      run(input.value)
+      input.value = ''
+    })
+  }
+
+  setup()
+  document.addEventListener('astro:after-swap', setup)
+</script>
+
+<style>
+  .shell {
+    border: 1px solid var(--color-line-bright);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    overflow: hidden;
+    margin-bottom: 2.75rem;
+  }
+
+  .shell-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .shell-flag {
+    color: var(--color-accent);
+    line-height: 1;
+    font-size: 0.72rem;
+  }
+
+  .shell-mode {
+    margin-left: auto;
+    font-size: 0.68rem;
+    color: var(--color-faint);
+  }
+
+  .shell-title {
+    font-size: 0.72rem;
+    color: var(--color-faint);
+  }
+
+  .shell-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-bg);
+  }
+
+  .chip {
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-dim);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition:
+      color 0.16s,
+      border-color 0.16s,
+      background 0.16s,
+      transform 0.16s var(--ease-out-expo);
+  }
+
+  .chip:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+  }
+
+  .chip.pulse {
+    transform: scale(0.96);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .shell-body {
+    min-height: 10rem;
+    max-height: 18rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem 1.1rem;
+    font-size: 0.82rem;
+    line-height: 1.75;
+  }
+
+  .shell-body :global(.line) {
+    margin-top: 0.55rem;
+  }
+
+  .shell-body :global(.line:first-child) {
+    margin-top: 0;
+  }
+
+  .shell-body :global(.p) {
+    color: var(--color-accent);
+  }
+
+  .shell-body :global(.t) {
+    color: var(--color-text-strong);
+  }
+
+  .shell-body :global(.out) {
+    color: var(--color-dim);
+    margin-bottom: 0.35rem;
+  }
+
+  .shell-body :global(.k) {
+    color: var(--color-accent);
+  }
+
+  .shell-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-surface);
+  }
+
+  .shell-prompt .p {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+  }
+
+  .shell-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--color-text-strong);
+    font-size: 1rem; /* iOS 防聚焦缩放 */
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+
+  .shell-input::placeholder {
+    color: var(--color-faint);
+  }
+
+  .shell-run {
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-line-bright);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-faint);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+
+  .shell-run:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+  }
+
+  @media (max-width: 640px) {
+    .shell-mode {
+      display: none;
+    }
+    .chip {
+      font-size: 0.68rem;
+    }
+  }
+</style>

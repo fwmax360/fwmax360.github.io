@@ -1,0 +1,231 @@
+---
+import type { MarkdownHeading } from 'astro'
+
+interface Props {
+  headings: MarkdownHeading[]
+  /** mobile = 文章内折叠目录；rail = 侧栏 sticky */
+  variant?: 'rail' | 'mobile'
+}
+
+const { headings, variant = 'rail' } = Astro.props
+// 只取 h2/h3，更深的层级在侧栏里没有可读性
+const items = headings.filter((h) => h.depth >= 2 && h.depth <= 3)
+const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
+---
+
+{
+  items.length > 0 && (
+    <nav class:list={['toc', variant]} data-toc aria-label="目录">
+      {variant === 'mobile' ? (
+        <details class="toc-fold">
+          <summary class="toc-summary mono">
+            <span>// contents</span>
+            <span class="toc-count">{items.length}</span>
+          </summary>
+          <ol class="toc-list">
+            {items.map((h) => (
+              <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
+                <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug}>
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      ) : (
+        <>
+          <h2 class="kicker toc-head">// contents</h2>
+          <ol class="toc-list">
+            {items.map((h) => (
+              <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
+                <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug}>
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    font-size: 0.8rem;
+  }
+
+  .toc-head {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--color-line-bright);
+    margin-bottom: 0.6rem;
+  }
+
+  .toc-list {
+    max-height: calc(100vh - var(--nav-offset, var(--nav-h)) - 12rem);
+    max-height: calc(100dvh - var(--nav-offset, var(--nav-h)) - 12rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .toc.mobile .toc-list {
+    max-height: none;
+    margin-top: 0.35rem;
+  }
+
+  .toc-item {
+    padding-left: calc(var(--indent) * 0.9rem);
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.3rem 0 0.3rem 0.7rem;
+    border-left: 1px solid var(--color-line);
+    color: var(--color-faint);
+    text-decoration: none;
+    line-height: 1.5;
+    transition:
+      color 0.18s,
+      border-color 0.18s;
+  }
+
+  .toc-link:hover {
+    color: var(--color-text);
+    border-color: var(--color-line-bright);
+  }
+
+  .toc-link.active {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .toc-fold {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    margin-bottom: 2rem;
+  }
+
+  .toc-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .toc-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc-summary:hover {
+    color: var(--color-accent);
+  }
+
+  .toc-count {
+    font-size: 0.7rem;
+    color: var(--color-faint);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .toc-fold[open] .toc-summary {
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-accent);
+  }
+
+  .toc-fold .toc-list {
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+
+  /* 桌面侧栏显示 rail，文章内 mobile TOC 隐藏；窄屏反过来 */
+  .toc.mobile {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .toc.mobile {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  let observer: IntersectionObserver | null = null
+  let ac: AbortController | null = null
+
+  function setupToc() {
+    observer?.disconnect()
+    ac?.abort()
+    ac = new AbortController()
+
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')]
+    if (!links.length) return
+
+    // 同一 slug 可能同时出现在 mobile + rail 两份目录里
+    const bySlug = new Map<string, HTMLAnchorElement[]>()
+    for (const l of links) {
+      const slug = l.dataset.tocLink!
+      const arr = bySlug.get(slug) ?? []
+      arr.push(l)
+      bySlug.set(slug, arr)
+    }
+
+    const targets = [...bySlug.keys()]
+      .map((slug) => document.getElementById(slug))
+      .filter((el): el is HTMLElement => el !== null)
+
+    let current: string | null = null
+
+    const setActive = (slug: string) => {
+      if (slug === current) return
+      if (current) bySlug.get(current)?.forEach((l) => l.classList.remove('active'))
+      bySlug.get(slug)?.forEach((l) => l.classList.add('active'))
+      current = slug
+    }
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+
+        if (visible.length) {
+          setActive(visible[0].target.id)
+          return
+        }
+
+        const above = targets.filter((t) => t.getBoundingClientRect().top < window.innerHeight * 0.35)
+        if (above.length) setActive(above[above.length - 1].id)
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 },
+    )
+
+    targets.forEach((t) => observer!.observe(t))
+
+    // 移动端点目录项后收起
+    document.querySelectorAll<HTMLDetailsElement>('.toc-fold').forEach((fold) => {
+      fold.querySelectorAll('a').forEach((a) => {
+        a.addEventListener(
+          'click',
+          () => {
+            fold.open = false
+          },
+          { signal: ac!.signal },
+        )
+      })
+    })
+  }
+
+  setupToc()
+  document.addEventListener('astro:after-swap', setupToc)
+</script>

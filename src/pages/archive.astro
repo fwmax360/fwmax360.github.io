@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/Base.astro'
+import PostRow from '../components/PostRow.astro'
+import { getPostsByDate, groupByYear } from '../lib/posts'
+
+const posts = await getPostsByDate()
+const years = groupByYear(posts)
+---
+
+<Base title="归档" description="全部文章，按时间升序（越早越靠前）。">
+  <header class="page-head">
+    <h1 class="page-title">archive</h1>
+    <p class="page-sub mono">{posts.length} 篇 · {years.length} 年 · oldest first</p>
+  </header>
+
+  {
+    years.map(([year, list]) => (
+      <section class="year">
+        <div class="year-head">
+          <h2 class="year-num mono">{year}</h2>
+          <div class="rule" />
+          <span class="year-count mono">{list.length}</span>
+        </div>
+        <div class="year-list">
+          {list.map((post, i) => (
+            <PostRow post={post} index={i} />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  {posts.length === 0 && <p class="empty mono">还没有文章。</p>}
+</Base>
+
+<style>
+  .page-head {
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-text-strong);
+    letter-spacing: -0.02em;
+  }
+
+  .page-title::before {
+    content: '$ ';
+    color: var(--color-accent);
+  }
+
+  .page-sub {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--color-faint);
+  }
+
+  .year {
+    margin-bottom: 3.5rem;
+  }
+
+  .year-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .year-num {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-accent-soft);
+  }
+
+  .year-head .rule {
+    flex: 1;
+  }
+
+  .year-count {
+    font-size: 0.75rem;
+    color: var(--color-faint);
+  }
+
+  .year-list {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .empty {
+    padding: 4rem 0;
+    text-align: center;
+    color: var(--color-faint);
+  }
+</style>

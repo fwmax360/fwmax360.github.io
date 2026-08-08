@@ -1,0 +1,162 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getTags, getCategories, tagUrl, categoryUrl } from '../../lib/posts'
+
+const tags = await getTags()
+const categories = await getCategories()
+const max = Math.max(1, ...tags.map((t) => t.count))
+---
+
+<Base title="标签" description="按标签和分类浏览全部文章。">
+  <header class="page-head">
+    <h1 class="page-title">tags</h1>
+    <p class="page-sub mono">{tags.length} 个标签 · {categories.length} 个分类</p>
+  </header>
+
+  <section class="block" id="categories">
+    <h2 class="kicker">// categories</h2>
+    {
+      categories.length > 0 ? (
+        <div class="cats">
+          {categories.map((c) => (
+            <a href={categoryUrl(c.name)} class="cat">
+              <span class="cat-name">{c.name}</span>
+              <span class="cat-count mono">{c.count}</span>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="empty mono">还没有分类。</p>
+      )
+    }
+  </section>
+
+  <section class="block">
+    <h2 class="kicker">// all tags</h2>
+    <div class="cloud">
+      {
+        tags.map((t) => (
+          <a href={tagUrl(t.name)} class="tag mono" style={`--w:${0.35 + (t.count / max) * 0.65}`}>
+            #{t.name}
+            <span class="tag-n">{t.count}</span>
+          </a>
+        ))
+      }
+    </div>
+    {tags.length === 0 && <p class="empty mono">还没有标签。</p>}
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-text-strong);
+    letter-spacing: -0.02em;
+  }
+
+  .page-title::before {
+    content: '$ ';
+    color: var(--color-accent);
+  }
+
+  .page-sub {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--color-faint);
+  }
+
+  .block {
+    margin-bottom: 3.5rem;
+  }
+
+  .block .kicker {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--color-line-bright);
+    margin-bottom: 1.25rem;
+  }
+
+  .cats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  .cat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      transform 0.2s var(--ease-out-expo);
+  }
+
+  .cat:hover {
+    border-color: var(--color-accent-soft);
+    background: var(--color-surface);
+    transform: translateY(-2px);
+  }
+
+  .cat-name {
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+
+  .cat:hover .cat-name {
+    color: var(--color-accent);
+  }
+
+  .cat-count {
+    font-size: 0.75rem;
+    color: var(--color-faint);
+  }
+
+  .cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    text-decoration: none;
+    /* 用出现频次驱动字号和颜色深浅 */
+    font-size: calc(0.72rem + var(--w) * 0.25rem);
+    color: color-mix(in srgb, var(--color-accent) calc(var(--w) * 70%), var(--color-dim));
+    transition:
+      border-color 0.16s,
+      transform 0.16s var(--ease-out-expo);
+  }
+
+  .tag:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .tag-n {
+    font-size: 0.65rem;
+    color: var(--color-faint);
+  }
+
+  .empty {
+    color: var(--color-faint);
+    font-size: 0.85rem;
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+// 代码块的客户端行为：复制、超长折叠展开。
+// 标题栏和行号在构建期由 Shiki transformer 生成，这里只挂交互。
+---
+
+<script>
+  function setupCode() {
+    document.querySelectorAll<HTMLButtonElement>('.code-block [data-copy]').forEach((btn) => {
+      if (btn.dataset.bound) return
+      btn.dataset.bound = '1'
+
+      btn.addEventListener('click', async () => {
+        const code = btn.closest('.code-block')?.querySelector('code')
+        if (!code) return
+
+        try {
+          await navigator.clipboard.writeText(code.textContent ?? '')
+          btn.textContent = 'copied'
+          btn.dataset.copied = 'true'
+        } catch {
+          btn.textContent = 'failed'
+        }
+
+        setTimeout(() => {
+          btn.textContent = 'copy'
+          delete btn.dataset.copied
+        }, 1600)
+      })
+    })
+
+    document.querySelectorAll<HTMLButtonElement>('.code-block [data-expand]').forEach((btn) => {
+      if (btn.dataset.bound) return
+      btn.dataset.bound = '1'
+
+      const expandLabel = btn.textContent ?? '展开全部'
+
+      btn.addEventListener('click', () => {
+        const block = btn.closest<HTMLElement>('.code-block')
+        if (!block) return
+
+        const open = block.dataset.open === 'true'
+        block.dataset.open = String(!open)
+        btn.textContent = open ? expandLabel : '收起'
+        btn.setAttribute('aria-expanded', String(!open))
+
+        if (open) block.scrollIntoView({ block: 'nearest' })
+      })
+    })
+  }
+
+  setupCode()
+  document.addEventListener('astro:page-load', setupCode)
+</script>

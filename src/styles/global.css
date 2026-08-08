@@ -1,0 +1,578 @@
+@import 'tailwindcss';
+@import './fonts.css';
+@import './interaction.css';
+
+/* ==========================================================================
+   设计令牌
+   深色反汇编器质感：近黑的冷色底 + Android 绿作为唯一强调色。
+   正文用 #cbd5e1 级别的柔白而非纯白，长文阅读不刺眼。
+   ========================================================================== */
+@theme {
+  --color-bg: #0a0c10;
+  --color-bg-soft: #0d1015;
+  --color-surface: #12161d;
+  --color-surface-2: #171c25;
+  --color-line: #1f2630;
+  --color-line-bright: #2b3441;
+
+  --color-text: #ccd4e0;
+  --color-text-strong: #eef2f7;
+  --color-dim: #8a97a8;
+  /* 提到 5:1 对比度，暗底上的次要信息此前几乎读不出来 */
+  --color-faint: #6b7a8a;
+
+  --color-accent: #3ddc84;
+  --color-accent-soft: #1e6b45;
+  --color-link: #7dd3fc;
+  --color-warn: #f0b429;
+  --color-danger: #f87171;
+
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-sans:
+    system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC',
+    sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 工具面板而非 SaaS 卡片：容器只留一点圆角，小控件保持直角 */
+  --radius: 2px;
+  --radius-sm: 0px;
+}
+
+/* 内容主列宽度。技术文章带宽代码块，比普通博客略宽 */
+@theme {
+  --container-content: 46rem;
+  --container-wide: 78rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --nav-h: 3.5rem;
+    /* 导航总占位 = 内容高 + 刘海；阅读进度条 / 锚点滚动都吃这个 */
+    --nav-offset: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+    /* 半透明表面：终端 / 代码块 / 面板透出夜景；blur 保字可读 */
+    --color-bg-soft: color-mix(in srgb, #0d1015 38%, transparent);
+    --color-surface: color-mix(in srgb, #12161d 44%, transparent);
+    --color-surface-2: color-mix(in srgb, #171c25 52%, transparent);
+    --glass-blur: blur(16px) saturate(1.25);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-offset) + 1.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-wrap: break-word;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    color: var(--color-text-strong);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-bright);
+    border: 2px solid var(--color-bg);
+    border-radius: var(--radius);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-faint);
+  }
+}
+
+/* ==========================================================================
+   背景：极淡初音夜景 + 网格 + 顶部辉光（不抢正文）
+   ========================================================================== */
+@layer components {
+  .bg-art {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url('/images/miku-night.jpg');
+    background-size: cover;
+    background-position: 72% 18%;
+    background-repeat: no-repeat;
+    /* screen：抬月亮/灯火；内容在 .page-fg 之上 */
+    opacity: 0.36;
+    mix-blend-mode: screen;
+    -webkit-mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
+    mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
+  }
+
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
+  }
+
+  .bg-glow {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    height: 32rem;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 60% 100% at 50% 0%,
+      color-mix(in srgb, var(--color-accent) 7%, transparent),
+      transparent 70%
+    );
+  }
+
+  /* 段落标记：`// section` 这类等宽小标题 */
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+
+  .rule {
+    height: 1px;
+    background: linear-gradient(to right, var(--color-line-bright), transparent);
+  }
+}
+
+/* ==========================================================================
+   正文排版（.prose）
+   ========================================================================== */
+@layer components {
+  .prose {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+
+  .prose > * + * {
+    margin-top: 1.15em;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    color: var(--color-text-strong);
+    font-weight: 650;
+    line-height: 1.35;
+    scroll-margin-top: calc(var(--nav-offset) + 1.5rem);
+    position: relative;
+  }
+
+  .prose h2 {
+    margin-top: 2.75em;
+    margin-bottom: 0.9em;
+    font-size: 1.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  /* h2 前缀一个等宽的 `##`，呼应 markdown 原文 */
+  .prose h2::before {
+    content: '##';
+    font-family: var(--font-mono);
+    color: var(--color-accent-soft);
+    margin-right: 0.6rem;
+    font-weight: 400;
+  }
+
+  .prose h3 {
+    margin-top: 2.1em;
+    margin-bottom: 0.7em;
+    font-size: 1.2rem;
+  }
+
+  .prose h3::before {
+    content: '###';
+    font-family: var(--font-mono);
+    color: var(--color-accent-soft);
+    margin-right: 0.5rem;
+    font-weight: 400;
+    font-size: 0.9em;
+  }
+
+  .prose h4 {
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    font-size: 1.05rem;
+    color: var(--color-text-strong);
+  }
+
+  .prose a:not(.heading-anchor) {
+    color: var(--color-link);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.25s var(--ease-out-expo);
+  }
+
+  .prose a:not(.heading-anchor):hover {
+    background-size: 0% 1px;
+    color: var(--color-accent);
+  }
+
+  .prose strong {
+    color: var(--color-text-strong);
+    font-weight: 650;
+  }
+
+  .prose em {
+    color: var(--color-text-strong);
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4em;
+  }
+
+  .prose li + li {
+    margin-top: 0.4em;
+  }
+
+  .prose ul > li {
+    list-style: none;
+    position: relative;
+  }
+
+  .prose ul > li::before {
+    content: '▸';
+    position: absolute;
+    left: -1.2em;
+    color: var(--color-accent-soft);
+    font-size: 0.9em;
+  }
+
+  .prose ol > li {
+    list-style: decimal;
+  }
+
+  .prose ol > li::marker {
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .prose blockquote {
+    border-left: 2px solid var(--color-accent-soft);
+    padding: 0.1em 0 0.1em 1.1em;
+    color: var(--color-dim);
+    font-style: normal;
+  }
+
+  .prose hr {
+    border: 0;
+    height: 1px;
+    background: var(--color-line);
+    margin: 3em 0;
+  }
+
+  .prose img,
+  .prose video {
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    display: block;
+    margin-inline: auto;
+  }
+
+  /* 行内代码。中文段落里往往一句话塞好几个，用满饱和的强调色会很吵，这里压到七成 */
+  .prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    color: color-mix(in srgb, var(--color-accent) 62%, var(--color-text-strong));
+    white-space: nowrap;
+  }
+
+  /* 表格 */
+  .prose .table-wrap {
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .prose thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-dim);
+    font-weight: 500;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line-bright);
+    white-space: nowrap;
+  }
+
+  .prose tbody td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    vertical-align: top;
+  }
+
+  .prose tbody tr:hover {
+    background: var(--color-bg-soft);
+  }
+
+  /* 标题锚点，hover 才出现。符号用 ::after 画，避免混进 Astro 提取的标题文本 */
+  .heading-anchor {
+    margin-left: 0.5em;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    color: var(--color-accent-soft);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .heading-anchor::after {
+    content: '#';
+  }
+
+  .prose :is(h1, h2, h3, h4, h5, h6):hover .heading-anchor {
+    opacity: 1;
+  }
+
+  .prose .footnotes {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+}
+
+/* ==========================================================================
+   代码块：做成反汇编器 / 编辑器窗口的样子
+   ========================================================================== */
+@layer components {
+  .code-block {
+    margin-top: 1.6em;
+    margin-bottom: 1.6em;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    overflow: hidden;
+  }
+
+  .code-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem 0.4rem 0.85rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-dim);
+  }
+
+  .code-lang {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-faint);
+    font-size: 0.7rem;
+  }
+
+  .code-title {
+    color: var(--color-text);
+  }
+
+  .code-copy {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    background: transparent;
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      background 0.15s;
+  }
+
+  .code-copy:hover {
+    color: var(--color-accent);
+    border-color: var(--color-line-bright);
+    background: var(--color-surface-2);
+  }
+
+  .code-copy[data-copied='true'] {
+    color: var(--color-accent);
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 0.9rem 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    background: transparent !important;
+    font-size: 0.83rem;
+    line-height: 1.65;
+    tab-size: 4;
+  }
+
+  .code-block pre code {
+    font-family: var(--font-mono);
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+  }
+
+  /* block + 外层 fit-content，让高亮行的背景在横向滚动时也铺满 */
+  .code-block .line {
+    display: block;
+    padding-inline: 1rem;
+  }
+
+  .code-block .line:last-child:empty {
+    display: none;
+  }
+
+  /* 行号 */
+  .code-block[data-line-numbers] code {
+    counter-reset: line;
+  }
+
+  .code-block[data-line-numbers] .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 2.2rem;
+    margin-right: 1rem;
+    margin-left: -0.5rem;
+    text-align: right;
+    color: var(--color-faint);
+    opacity: 0.55;
+    user-select: none;
+  }
+
+  /* 高亮行：用 markdown 的 {1,3-5} 元信息标注 */
+  .code-block .line.highlighted {
+    background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .code-block .line.diff-add {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .code-block .line.diff-remove {
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-danger);
+  }
+
+  /* 超长代码块折叠 */
+  .code-block[data-collapsible] .code-scroll {
+    max-height: 26rem;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .code-block[data-collapsible][data-open='true'] .code-scroll {
+    max-height: none;
+  }
+
+  .code-expand {
+    width: 100%;
+    padding: 0.45rem;
+    background: var(--color-surface);
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-dim);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .code-expand:hover {
+    color: var(--color-accent);
+  }
+}
+
+/* ==========================================================================
+   工具类
+   ========================================================================== */
+@layer utilities {
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  .link-underline {
+    text-decoration: none;
+    background-image: linear-gradient(var(--color-accent), var(--color-accent));
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.3s var(--ease-out-expo);
+  }
+
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+}

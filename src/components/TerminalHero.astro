@@ -1,0 +1,267 @@
+---
+import { SITE } from '../consts'
+
+interface Props {
+  /** 每行： [命令, 输出] */
+  lines: { cmd: string; out?: string; html?: string }[]
+}
+
+const { lines } = Astro.props
+const prompt = `${SITE.handle}@${SITE.host}:~$`
+---
+
+<section class="term" data-term>
+  <div class="term-bar">
+    <span class="term-flag mono" aria-hidden="true">▌</span>
+    <span class="term-title mono">{SITE.handle}@{SITE.host}</span>
+    <span class="term-shell mono" aria-hidden="true">zsh</span>
+    <button
+      type="button"
+      class="term-tap mono"
+      data-term-tap
+      title="点一下跑条玩笑命令"
+      aria-label="运行一条玩笑命令"
+    >
+      tap
+    </button>
+  </div>
+
+  <div class="term-body mono" data-term-body>
+    {
+      lines.map((line, i) => (
+        <div class="term-line" data-line style={`--i:${i}`}>
+          <div class="term-cmd">
+            <span class="term-prompt">{prompt}</span>
+            <span class="term-typed">{line.cmd}</span>
+          </div>
+          {line.html ? (
+            <div class="term-out" set:html={line.html} />
+          ) : line.out ? (
+            <div class="term-out">{line.out}</div>
+          ) : null}
+        </div>
+      ))
+    }
+    <div class="term-line live" data-term-live style={`--i:${lines.length}`}>
+      <div class="term-cmd">
+        <span class="term-prompt">{prompt}</span>
+        <span class="cursor" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const EXTRAS = [
+    { cmd: 'fortune', out: '客户：「随便看看。」\n你：打开 IDA。\n两周后：还在看。' },
+    { cmd: 'echo $CAFFEINE', out: 'level=critical; refill=asap' },
+    { cmd: 'kill -9 boredom', out: 'bash: kill: (boredom) - No such process\n# 它已经住进你的样本里了' },
+    { cmd: 'cat ~/todo.txt', out: '- [ ] 睡一觉\n- [ ] 把这篇写完\n- [x] 打开另一个样本' },
+    { cmd: 'ping reality', out: 'Request timeout.\n# 你已进入伪代码世界' },
+  ]
+
+  function setupTerm() {
+    const root = document.querySelector<HTMLElement>('[data-term]')
+    const body = document.querySelector<HTMLElement>('[data-term-body]')
+    const live = document.querySelector<HTMLElement>('[data-term-live]')
+    const tap = document.querySelector<HTMLButtonElement>('[data-term-tap]')
+    if (!root || !body || !live || !tap || root.dataset.bound) return
+    root.dataset.bound = '1'
+
+    let i = 0
+    const prompt = live.querySelector('.term-prompt')?.textContent ?? '$'
+
+    tap.addEventListener('click', () => {
+      const item = EXTRAS[i % EXTRAS.length]
+      i++
+
+      const block = document.createElement('div')
+      block.className = 'term-line'
+      block.style.setProperty('--i', '0')
+      block.style.opacity = '1'
+      block.innerHTML = `
+        <div class="term-cmd">
+          <span class="term-prompt">${prompt}</span>
+          <span class="term-typed">${item.cmd}</span>
+        </div>
+        <div class="term-out"></div>
+      `
+      block.querySelector('.term-out')!.textContent = item.out
+      body.insertBefore(block, live)
+      tap.classList.add('pulse')
+      setTimeout(() => tap.classList.remove('pulse'), 220)
+    })
+  }
+
+  setupTerm()
+  document.addEventListener('astro:after-swap', setupTerm)
+</script>
+
+<style>
+  .term {
+    position: relative;
+    border: 1px solid var(--color-line-bright);
+    background: var(--color-bg-soft);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    overflow: hidden;
+  }
+
+  /* 极淡的 CRT 扫描线，凑近才看得见 */
+  .term::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.014) 0 1px,
+      transparent 1px 3px
+    );
+  }
+
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+    font-size: 0.72rem;
+  }
+
+  .term-flag {
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .term-title {
+    color: var(--color-dim);
+  }
+
+  .term-shell {
+    color: var(--color-faint);
+  }
+
+  .term-shell::before {
+    content: '· ';
+  }
+
+  .term-tap {
+    margin-left: auto;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--color-line-bright);
+    background: transparent;
+    color: var(--color-faint);
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition:
+      color 0.16s,
+      border-color 0.16s,
+      background 0.16s;
+  }
+
+  .term-tap:hover {
+    color: var(--color-bg);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .term-tap.pulse {
+    color: var(--color-bg);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .term-body {
+    padding: 1.1rem 1.2rem 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.8;
+  }
+
+  .term-line {
+    opacity: 0;
+    animation: line-in 0.45s var(--ease-out-expo) forwards;
+    animation-delay: calc(var(--i) * 0.28s + 0.15s);
+  }
+
+  @keyframes line-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .term-line {
+      opacity: 1;
+      animation: none;
+    }
+  }
+
+  .term-cmd {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .term-prompt {
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .term-typed {
+    color: var(--color-text-strong);
+  }
+
+  .term-out {
+    color: var(--color-dim);
+    padding-left: 0;
+    margin-bottom: 0.55rem;
+    white-space: pre-wrap;
+  }
+
+  .term-out :global(a) {
+    color: var(--color-link);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-link) 35%, transparent);
+  }
+
+  .term-out :global(a:hover) {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .term-out :global(.k) {
+    color: var(--color-accent);
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.55rem;
+    height: 1.05rem;
+    background: var(--color-accent);
+    translate: 0 0.2rem;
+    animation: blink 1.05s steps(2, start) infinite;
+  }
+
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .term-body {
+      font-size: 0.78rem;
+      padding: 1rem;
+    }
+    .term-shell {
+      display: none;
+    }
+  }
+</style>

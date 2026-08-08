@@ -1,0 +1,100 @@
+---
+import { SITE } from '../consts'
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description?: string
+  /** 文章页传 article，其余为 website */
+  type?: 'website' | 'article'
+  publishedAt?: Date
+  updatedAt?: Date
+  noindex?: boolean
+  /** 正文含公式时再加载 KaTeX 样式，避免每篇文章都拉字体包 */
+  hasMath?: boolean
+}
+
+const {
+  title,
+  description = SITE.description,
+  type = 'website',
+  publishedAt,
+  updatedAt,
+  noindex,
+  hasMath = false,
+} = Astro.props
+
+const origin = Astro.site ?? SITE.url
+const canonical = new URL(Astro.url.pathname, origin)
+const fullTitle = Astro.url.pathname === '/' ? `${SITE.title} — ${SITE.subtitle}` : `${title} | ${SITE.title}`
+const ogImage = new URL('/og.png', origin)
+
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        url: canonical.href,
+        image: ogImage.href,
+        inLanguage: SITE.lang,
+        ...(publishedAt && { datePublished: publishedAt.toISOString() }),
+        ...(updatedAt && { dateModified: updatedAt.toISOString() }),
+        author: { '@type': 'Person', name: SITE.author, url: SITE.url },
+        publisher: { '@type': 'Person', name: SITE.author, url: SITE.url },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical.href },
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE.title,
+        alternateName: SITE.subtitle,
+        description: SITE.description,
+        url: new URL('/', origin).href,
+        inLanguage: SITE.lang,
+        author: { '@type': 'Person', name: SITE.author, url: SITE.url },
+      }
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="generator" content={Astro.generator} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="author" content={SITE.author} />
+<meta name="theme-color" content="#0a0c10" />
+<meta name="color-scheme" content="dark" />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={SITE.title} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content="zh_CN" />
+{publishedAt && <meta property="article:published_time" content={publishedAt.toISOString()} />}
+{updatedAt && <meta property="article:modified_time" content={updatedAt.toISOString()} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+{
+  hasMath && (
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.18.2/dist/katex.min.css"
+      crossorigin="anonymous"
+    />
+  )
+}
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />

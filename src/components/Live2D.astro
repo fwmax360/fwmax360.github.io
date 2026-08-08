@@ -1,0 +1,147 @@
+---
+/**
+ * 右下角 Live2D 看板娘（miku）——全站每页显示
+ * 脚本：live2d-widget · 模型：live2d-widget-model-miku
+ * 参考：https://joeybling.github.io/live2d-widget.js/examples/
+ */
+---
+
+<!-- persist：View Transition 换页时不卸掉，避免初音消失 -->
+<div id="live2d-host" transition:persist="live2d-host" aria-hidden="true"></div>
+
+<script>
+  declare global {
+    interface Window {
+      L2Dwidget?: { init: (config: Record<string, unknown>) => void }
+      __sleep4rL2D?: boolean
+    }
+  }
+
+  const SCRIPT = '/live2d/lib/L2Dwidget.min.js'
+  const MODEL = '/live2d/model/miku/miku.model.json'
+
+  function loadScript(src: string) {
+    const existing = document.querySelector<HTMLScriptElement>(`script[data-l2d="1"]`)
+    if (existing) {
+      return existing.dataset.loaded === '1'
+        ? Promise.resolve()
+        : new Promise<void>((resolve, reject) => {
+            existing.addEventListener('load', () => resolve(), { once: true })
+            existing.addEventListener('error', () => reject(), { once: true })
+          })
+    }
+    return new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script')
+      s.src = src
+      s.async = true
+      s.dataset.l2d = '1'
+      s.onload = () => {
+        s.dataset.loaded = '1'
+        resolve()
+      }
+      s.onerror = () => reject(new Error(`failed to load ${src}`))
+      document.body.appendChild(s)
+    })
+  }
+
+  function adoptWidget() {
+    const host = document.getElementById('live2d-host')
+    const el = document.getElementById('live2d-widget')
+    if (!host || !el) return el
+    if (el.parentElement !== host) host.appendChild(el)
+    el.style.zIndex = '40'
+    el.style.pointerEvents = 'none'
+    const canvas = el.querySelector('canvas')
+    if (canvas instanceof HTMLElement) canvas.style.pointerEvents = 'auto'
+    return el
+  }
+
+  function displaySize() {
+    const w = window.innerWidth
+    if (w < 640) return { width: 100, height: 200, hOffset: 4, vOffset: -8, scale: 0.45 }
+    if (w < 900) return { width: 140, height: 280, hOffset: 8, vOffset: -12, scale: 0.7 }
+    return { width: 180, height: 360, hOffset: 12, vOffset: -18, scale: 1 }
+  }
+
+  async function mountLive2D() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    // 已挂过且 DOM 还在：收进 persist 容器即可
+    if (adoptWidget()) {
+      window.__sleep4rL2D = true
+      return
+    }
+
+    // DOM 被换页清掉了，允许重新 init
+    window.__sleep4rL2D = false
+
+    try {
+      await loadScript(SCRIPT)
+    } catch {
+      return
+    }
+    if (!window.L2Dwidget) return
+    if (document.getElementById('live2d-widget')) {
+      adoptWidget()
+      window.__sleep4rL2D = true
+      return
+    }
+
+    const d = displaySize()
+    window.__sleep4rL2D = true
+    window.L2Dwidget.init({
+      model: {
+        jsonPath: MODEL,
+        scale: d.scale,
+      },
+      display: {
+        position: 'right',
+        width: d.width,
+        height: d.height,
+        hOffset: d.hOffset,
+        vOffset: d.vOffset,
+      },
+      mobile: {
+        show: true,
+        scale: 0.5,
+      },
+      react: {
+        opacityDefault: 0.92,
+        opacityOnHover: 0.7,
+      },
+      dialog: {
+        enable: false,
+      },
+    })
+
+    requestAnimationFrame(adoptWidget)
+    setTimeout(adoptWidget, 400)
+    setTimeout(adoptWidget, 1200)
+  }
+
+  mountLive2D()
+  document.addEventListener('astro:page-load', mountLive2D)
+</script>
+
+<style is:global>
+  #live2d-host {
+    position: contents;
+  }
+
+  #live2d-widget {
+    z-index: 40 !important;
+    pointer-events: none !important;
+  }
+
+  #live2d-widget canvas {
+    pointer-events: auto !important;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #live2d-host,
+    #live2d-widget {
+      display: none !important;
+    }
+  }
+</style>

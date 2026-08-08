@@ -1,0 +1,141 @@
+---
+import { ClientRouter, fade } from 'astro:transitions'
+import BaseHead from '../components/BaseHead.astro'
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
+import Search from '../components/Search.astro'
+import Interactions from '../components/Interactions.astro'
+import Live2D from '../components/Live2D.astro'
+import ScrollMiku from '../components/ScrollMiku.astro'
+import { SITE } from '../consts'
+
+interface Props {
+  title: string
+  description?: string
+  type?: 'website' | 'article'
+  publishedAt?: Date
+  updatedAt?: Date
+  noindex?: boolean
+  /** 宽版用于首页/归档，窄版用于文章正文 */
+  width?: 'wide' | 'content'
+  hasMath?: boolean
+}
+
+const {
+  title,
+  description,
+  type,
+  publishedAt,
+  updatedAt,
+  noindex,
+  width = 'wide',
+  hasMath = false,
+} = Astro.props
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      type={type}
+      publishedAt={publishedAt}
+      updatedAt={updatedAt}
+      noindex={noindex}
+      hasMath={hasMath}
+    />
+    <ClientRouter />
+  </head>
+
+  <body>
+    <div class="bg-art" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow" aria-hidden="true"></div>
+
+    <a href="#main" class="skip">跳到正文</a>
+
+    <div class="page-fg">
+      <Nav />
+      <ScrollMiku />
+
+      <main id="main" class:list={['shell', width]} transition:animate={fade({ duration: '180ms' })}>
+        <slot />
+      </main>
+
+      <Footer />
+      <Search />
+      <Interactions />
+    </div>
+    <Live2D />
+
+    <style>
+      .page-fg {
+        position: relative;
+        z-index: 1;
+      }
+
+      .shell {
+        margin-inline: auto;
+        /* 横向 safe-area 由 body 统一处理，这里再叠一次会让刘海屏内容偏窄 */
+        padding-inline: 1.25rem;
+        padding-top: 3rem;
+        padding-bottom: max(3rem, calc(2rem + env(safe-area-inset-bottom, 0px)));
+        min-height: 60vh;
+        min-height: 60dvh;
+      }
+
+      .shell.wide {
+        max-width: var(--container-wide);
+      }
+
+      .shell.content {
+        max-width: var(--container-content);
+      }
+
+      .skip {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 0.6rem 1rem;
+        background: var(--color-accent);
+        color: #04150c;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        border-radius: 0 0 var(--radius) 0;
+      }
+
+      .skip:focus {
+        left: 0;
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fade-out {
+        to {
+          opacity: 0;
+        }
+      }
+
+      ::view-transition-old(root) {
+        animation: 120ms ease-out both fade-out;
+      }
+
+      ::view-transition-new(root) {
+        animation: 220ms var(--ease-out-expo) both fade-in;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none;
+        }
+      }
+    </style>
+  </body>
+</html>

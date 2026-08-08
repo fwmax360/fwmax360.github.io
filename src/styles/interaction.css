@@ -1,0 +1,227 @@
+/* ==========================================================================
+   交互 + 跨端适配
+   覆盖：点击按压、触控命中、iOS 安全区、Safari 前缀、减弱动效
+   ========================================================================== */
+
+@layer base {
+  :root {
+    --nav-h: 3.5rem;
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --press-scale: 0.97;
+    --press-ms: 140ms;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* iOS 橡皮筋时背景不露白 */
+    background-color: var(--color-bg);
+  }
+
+  body {
+    /* 刘海 / Home Indicator */
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* 禁掉 iOS 默认灰闪 */
+    -webkit-tap-highlight-color: transparent;
+    /* 改善字体渲染：Safari / Chrome */
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 可点元素统一触控手感 */
+  a,
+  button,
+  summary,
+  [role='button'],
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* iOS 聚焦输入时避免自动放大页面：字号至少 16px */
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+
+  /* Firefox 滚动条 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-bright) var(--color-bg);
+  }
+}
+
+@layer components {
+  /* ---------- 点击涟漪层 ---------- */
+  .pressable {
+    position: relative;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .press-ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    pointer-events: none;
+    background: color-mix(in srgb, var(--color-accent) 28%, transparent);
+    animation: press-ripple 520ms var(--ease-out-expo) forwards;
+    z-index: 1;
+  }
+
+  @keyframes press-ripple {
+    to {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+
+  /* ---------- 统一按压反馈（无 JS 也能用） ---------- */
+  /* 列表行只走涟漪，不缩放，避免整行跳动 */
+  .pressable:active,
+  button:active,
+  .chip:active,
+  .nav-link:active,
+  .mobile-link:active,
+  .copy-link:active,
+  .skill-item:active,
+  .cat-item:active,
+  .tag:active,
+  .footer-link:active,
+  .search-trigger:active,
+  .menu-toggle:active,
+  .adbg-btn:active,
+  .code-copy:active,
+  .code-expand:active,
+  .name-btn:active,
+  .term-tap:active,
+  .shell-run:active,
+  .feed-copy:active,
+  .btn:active,
+  .toc-summary:active,
+  .adj:active {
+    transform: scale(var(--press-scale));
+  }
+
+  button,
+  .chip,
+  .nav-link,
+  .mobile-link,
+  .copy-link,
+  .skill-item,
+  .cat-item,
+  .tag,
+  .footer-link,
+  .search-trigger,
+  .menu-toggle,
+  .adbg-btn,
+  .code-copy,
+  .code-expand,
+  .name-btn,
+  .term-tap,
+  .shell-run,
+  .feed-copy,
+  .btn,
+  .toc-summary,
+  .faq-q,
+  .contact,
+  .adj {
+    transition:
+      transform var(--press-ms) var(--ease-out-expo),
+      color 0.18s,
+      background 0.18s,
+      border-color 0.18s,
+      opacity 0.18s,
+      box-shadow 0.18s;
+  }
+
+  /* 鼠标设备才用 hover 抬起；触控设备靠 :active，避免“粘住 hover” */
+  @media (hover: hover) and (pointer: fine) {
+    .pressable:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  /* 粗指针：加大热区到约 44px */
+  @media (pointer: coarse) {
+    .nav-link,
+    .search-trigger,
+    .menu-toggle,
+    .copy-link,
+    .chip,
+    .code-copy,
+    .shell-run,
+    .term-tap,
+    .footer-link {
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chip,
+    .footer-link,
+    .copy-link,
+    .code-copy,
+    .shell-run,
+    .term-tap {
+      padding-inline: 0.75rem;
+    }
+
+    .mobile-link {
+      min-height: 2.75rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .skill-item,
+    .cat-item,
+    .faq-q,
+    .contact {
+      min-height: 2.75rem;
+    }
+  }
+
+  /* 安全区：粘性导航顶、页脚底 */
+  .nav {
+    padding-top: var(--sat);
+  }
+
+  .footer {
+    padding-bottom: var(--sab);
+  }
+
+}
+
+@layer utilities {
+  /* Safari 遮罩前缀由组件侧补；这里提供通用工具 */
+  .safe-px {
+    padding-left: max(1.25rem, var(--sal));
+    padding-right: max(1.25rem, var(--sar));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-ripple {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .pressable:active,
+  button:active,
+  .chip:active,
+  .nav-link:active,
+  .row:active {
+    transform: none !important;
+  }
+}

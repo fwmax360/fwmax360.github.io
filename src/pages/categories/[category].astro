@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from 'astro'
+import Taxonomy from '../../layouts/Taxonomy.astro'
+import { getPosts, getCategories, type Post } from '../../lib/posts'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const [posts, categories] = await Promise.all([getPosts(), getCategories()])
+  return categories.map((c) => ({
+    params: { category: c.name },
+    props: { name: c.name, posts: posts.filter((p) => p.data.category === c.name) },
+  }))
+}
+
+const { name, posts } = Astro.props as { name: string; posts: Post[] }
+---
+
+<Taxonomy kind="category" name={name} posts={posts} />

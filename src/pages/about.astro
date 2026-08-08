@@ -1,0 +1,527 @@
+---
+import Base from '../layouts/Base.astro'
+import AboutShell from '../components/AboutShell.astro'
+import { SITE, SOCIAL } from '../consts'
+
+const skills = [
+  {
+    group: 'Android',
+    items: [
+      { name: 'Smali / DEX', tip: '看得懂，写得出，改完必崩一次。' },
+      { name: 'ART & Native Hook', tip: 'Hook 成功那一刻，应用已经自杀了。' },
+      { name: 'Frida', tip: 'spawn 模式：能抓启动逻辑，也能被秒杀。' },
+      { name: 'Xposed / LSPosed', tip: '模块能装上 ≠ 模块能用。' },
+      { name: '加固与脱壳', tip: '脱完壳发现只是换了个壳。' },
+      { name: 'SO 保护对抗', tip: '段加密？好。虚拟机？……我去倒杯咖啡。' },
+    ],
+  },
+  {
+    group: 'Binary',
+    items: [
+      { name: 'ELF / PE', tip: '格式书永远比样本厚。' },
+      { name: 'ARM & ARM64', tip: 'x0 是参数，也是玄学。' },
+      { name: 'IDA Pro', tip: 'F5 出糊状物时，请保持冷静。' },
+      { name: 'Ghidra', tip: '免费的反编译器，付费的是你的时间。' },
+      { name: 'Unidbg', tip: '模拟执行到一半：UnsatisfiedLinkError。' },
+      { name: 'OLLVM / VMP', tip: '控制流平坦化：平坦的是你的心态。' },
+    ],
+  },
+  {
+    group: 'Crypto',
+    items: [
+      { name: 'AES / DES / RC4', tip: '标准算法好认，魔改才是真爱。' },
+      { name: '魔改算法识别', tip: 'S-box 一改，论文白看。' },
+      { name: '白盒', tip: '白盒：密钥藏在算法里。你：密钥藏在二进制里。' },
+      { name: '协议还原', tip: '抓包三小时，加密五分钟。' },
+    ],
+  },
+]
+
+const faqs = [
+  {
+    q: '你是全职逆向吗？',
+    a: '白天可能是，晚上一定是。凌晨三点的我属于 IDA。',
+  },
+  {
+    q: '能接分析单吗？',
+    a: '先看样本会不会主动反调试。会的话，报价 ×2；会且会崩 Frida，报价 ×3。骗你的，根本接不到。',
+  },
+  {
+    q: '博客多久更新一次？',
+    a: '有新坑就写。没坑的时候……说明我还在坑里。',
+  },
+  {
+    q: '为什么叫 sleep4r / Sleep3r？',
+    a: '因为有些平台一个用户名已经被人占了，只好换数字。Sleep3r、sleep4r，本质都是睡不够的同一个我。点左边的名字试试。',
+  },
+]
+---
+
+<Base title="关于" description={`关于 ${SITE.author}：${SITE.subtitle}`} width="content">
+  <header class="page-head">
+    <button type="button" class="name-btn mono" data-name-poke aria-label="点我有惊喜">
+      <span class="name-sigil">$</span>
+      <span data-name-text>{SITE.author}</span>
+      <span class="name-hint" aria-hidden="true">· click</span>
+    </button>
+    <h1 class="page-title mono">about</h1>
+    <p class="page-sub">安卓逆向工程师的自我介绍，附赠终端彩蛋。</p>
+  </header>
+
+  <AboutShell />
+
+  <div class="prose">
+    <p>
+      我是 <strong>{SITE.author}</strong>，主要方向是<strong>安卓逆向</strong>和<strong>二进制安全</strong>。这个博客用来记录分析过程中的踩坑、方法论和一些能复用的套路。
+    </p>
+    <p>写在这里的东西大致分三类：</p>
+    <ul>
+      <li>具体目标的分析记录，包括失败的尝试和绕路</li>
+      <li>某个机制的原理梳理，比如加载器、链接器、运行时</li>
+      <li>工具链的用法和自己写的小工具</li>
+    </ul>
+  </div>
+
+  <section class="block">
+    <h2 class="kicker">// stack</h2>
+    <p class="block-hint mono">点一项看吐槽 · 再点收起</p>
+    <div class="skills" data-skills>
+      {
+        skills.map((s) => (
+          <div class="skill">
+            <h3 class="skill-group mono">{s.group}</h3>
+            <ul class="skill-items">
+              {s.items.map((i) => (
+                <li>
+                  <button
+                    type="button"
+                    class="skill-item mono"
+                    data-skill
+                    data-tip={i.tip}
+                    aria-expanded="false"
+                  >
+                    <span class="skill-name">{i.name}</span>
+                    <span class="skill-tip" hidden>
+                      {i.tip}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="kicker">// faq</h2>
+    <p class="block-hint mono">点开看回答</p>
+    <div class="faqs" data-faqs>
+      {
+        faqs.map((f, i) => (
+          <details class="faq" data-faq>
+            <summary class="faq-q mono">
+              <span class="faq-n">{String(i + 1).padStart(2, '0')}</span>
+              {f.q}
+            </summary>
+            <p class="faq-a">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="kicker">// anti-debug demo</h2>
+    <p class="block-hint mono">假装你在调试这个页面</p>
+    <div class="adbg" data-adbg>
+      <div class="adbg-row mono">
+        <span class="adbg-k">TracerPid</span>
+        <span class="adbg-v" data-adbg-pid>0</span>
+      </div>
+      <div class="adbg-row mono">
+        <span class="adbg-k">Status</span>
+        <span class="adbg-v" data-adbg-status>clean</span>
+      </div>
+      <button type="button" class="adbg-btn mono" data-adbg-btn aria-label="模拟 attach debugger">
+        attach debugger
+      </button>
+      <p class="adbg-msg" data-adbg-msg hidden></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="kicker">// contact</h2>
+    <ul class="contacts">
+      {
+        SOCIAL.map((s) => (
+          <li>
+            <a
+              href={s.href}
+              class="contact mono"
+              target={s.href.startsWith('http') ? '_blank' : undefined}
+              rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              data-astro-reload={s.href.endsWith('.xml') ? true : undefined}
+            >
+              <span class="contact-key">{s.label.toLowerCase()}</span>
+              <span class="contact-val">{s.href.replace(/^https?:\/\//, '')}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<script>
+  const NAMES = ['Sleep3r', 'sleep4r', 'sleep?', '还没睡', 'Sleep3r']
+
+  const ADBG_MSGS = [
+    '检测到调试器。应用已自爆。（开玩笑的）',
+    'TracerPid 变成了 1337。你被发现了。',
+    'AntiDebug: IsDebuggerPresent() → true',
+    '提示：真应用里这会儿你已经在看崩溃日志了。',
+    '好吧，再点一次我假装没看见。',
+  ]
+
+  function setupAbout() {
+    // 点名字轮换
+    const nameBtn = document.querySelector<HTMLButtonElement>('[data-name-poke]')
+    const nameText = document.querySelector<HTMLElement>('[data-name-text]')
+    if (nameBtn && nameText && !nameBtn.dataset.bound) {
+      nameBtn.dataset.bound = '1'
+      let i = 0
+      nameBtn.addEventListener('click', () => {
+        i = (i + 1) % NAMES.length
+        nameText.textContent = NAMES[i]
+        nameBtn.classList.add('pop')
+        setTimeout(() => nameBtn.classList.remove('pop'), 220)
+      })
+    }
+
+    // 技能吐槽
+    document.querySelectorAll<HTMLButtonElement>('[data-skill]').forEach((btn) => {
+      if (btn.dataset.bound) return
+      btn.dataset.bound = '1'
+      const tip = btn.querySelector<HTMLElement>('.skill-tip')
+      btn.addEventListener('click', () => {
+        const open = btn.getAttribute('aria-expanded') === 'true'
+        // 同组只开一个
+        btn
+          .closest('.skills')
+          ?.querySelectorAll<HTMLButtonElement>('[data-skill][aria-expanded="true"]')
+          .forEach((other) => {
+            if (other !== btn) {
+              other.setAttribute('aria-expanded', 'false')
+              other.querySelector('.skill-tip')?.setAttribute('hidden', '')
+            }
+          })
+        btn.setAttribute('aria-expanded', String(!open))
+        tip?.toggleAttribute('hidden', open)
+      })
+    })
+
+    // 伪反调试
+    const adbg = document.querySelector<HTMLElement>('[data-adbg]')
+    const pid = document.querySelector<HTMLElement>('[data-adbg-pid]')
+    const status = document.querySelector<HTMLElement>('[data-adbg-status]')
+    const btn = document.querySelector<HTMLButtonElement>('[data-adbg-btn]')
+    const msg = document.querySelector<HTMLElement>('[data-adbg-msg]')
+    if (adbg && pid && status && btn && msg && !btn.dataset.bound) {
+      btn.dataset.bound = '1'
+      let n = 0
+      btn.addEventListener('click', () => {
+        n++
+        const attached = n % 2 === 1
+        pid.textContent = attached ? '1337' : '0'
+        status.textContent = attached ? 'compromised' : 'clean'
+        status.classList.toggle('bad', attached)
+        pid.classList.toggle('bad', attached)
+        msg.hidden = false
+        msg.textContent = attached
+          ? ADBG_MSGS[Math.min(n - 1, ADBG_MSGS.length - 1)]
+          : 'debugger detached. 你假装什么都没发生。'
+        btn.textContent = attached ? 'detach' : 'attach debugger'
+        adbg.classList.toggle('alert', attached)
+      })
+    }
+  }
+
+  setupAbout()
+  document.addEventListener('astro:after-swap', setupAbout)
+</script>
+
+<style>
+  .page-head {
+    margin-bottom: 2rem;
+  }
+
+  .name-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.85rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-strong);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition:
+      border-color 0.18s,
+      transform 0.18s var(--ease-out-expo);
+  }
+
+  .name-btn:hover {
+    border-color: var(--color-accent-soft);
+  }
+
+  .name-btn.pop {
+    transform: scale(1.04);
+    border-color: var(--color-accent);
+  }
+
+  .name-sigil {
+    color: var(--color-accent);
+  }
+
+  .name-hint {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+    margin-left: 0.35rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-text-strong);
+    letter-spacing: -0.02em;
+  }
+
+  .page-title::before {
+    content: '$ ';
+    color: var(--color-accent);
+  }
+
+  .page-sub {
+    margin-top: 0.55rem;
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+
+  .block {
+    margin-top: 3.5rem;
+  }
+
+  .block .kicker {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--color-line-bright);
+    margin-bottom: 0.55rem;
+  }
+
+  .block-hint {
+    font-size: 0.72rem;
+    color: var(--color-faint);
+    margin-bottom: 1.1rem;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1.75rem;
+  }
+
+  .skill-group {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    margin-bottom: 0.7rem;
+  }
+
+  .skill-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-size: 0.8rem;
+    color: var(--color-dim);
+    padding: 0.35rem 0.4rem;
+    margin: 0.1rem 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      color 0.16s,
+      background 0.16s,
+      border-color 0.16s;
+  }
+
+  .skill-item::before {
+    content: '▸ ';
+    color: var(--color-accent-soft);
+  }
+
+  .skill-item:hover,
+  .skill-item[aria-expanded='true'] {
+    color: var(--color-accent);
+    background: var(--color-surface);
+    border-color: var(--color-line);
+  }
+
+  .skill-tip {
+    display: block;
+    margin-top: 0.35rem;
+    margin-left: 0.9rem;
+    padding: 0.4rem 0.55rem;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-warn);
+    background: color-mix(in srgb, var(--color-warn) 8%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--color-warn) 50%, transparent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .skill-tip[hidden] {
+    display: none;
+  }
+
+  .faqs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .faq {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    overflow: hidden;
+  }
+
+  .faq[open] {
+    border-color: var(--color-line-bright);
+  }
+
+  .faq-q {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.88rem;
+    color: var(--color-text);
+    transition: color 0.16s;
+  }
+
+  .faq-q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-q:hover {
+    color: var(--color-accent);
+  }
+
+  .faq-n {
+    font-size: 0.7rem;
+    color: var(--color-faint);
+  }
+
+  .faq-a {
+    padding: 0 1rem 1rem 2.7rem;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--color-dim);
+  }
+
+  .adbg {
+    padding: 1.1rem 1.15rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .adbg.alert {
+    border-color: color-mix(in srgb, var(--color-danger) 55%, var(--color-line));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-danger) 20%, transparent);
+  }
+
+  .adbg-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    font-size: 0.82rem;
+    border-bottom: 1px dashed var(--color-line);
+  }
+
+  .adbg-k {
+    color: var(--color-faint);
+  }
+
+  .adbg-v {
+    color: var(--color-accent);
+  }
+
+  .adbg-v.bad {
+    color: var(--color-danger);
+  }
+
+  .adbg-btn {
+    margin-top: 0.9rem;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--color-line-bright);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-dim);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition:
+      color 0.16s,
+      border-color 0.16s;
+  }
+
+  .adbg-btn:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+  }
+
+  .adbg-msg {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-warn);
+  }
+
+  .contact {
+    display: flex;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--color-line);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: padding-left 0.2s var(--ease-out-expo);
+  }
+
+  .contact:hover {
+    padding-left: 0.5rem;
+  }
+
+  .contact-key {
+    width: 5rem;
+    color: var(--color-faint);
+  }
+
+  .contact-val {
+    color: var(--color-dim);
+  }
+
+  .contact:hover .contact-val {
+    color: var(--color-accent);
+  }
+</style>

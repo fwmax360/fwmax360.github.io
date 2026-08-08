@@ -1,0 +1,41 @@
+---
+import { COMMENTS } from '../consts'
+---
+
+{
+  COMMENTS.enabled && COMMENTS.repoId && (
+    <section class="comments">
+      <h2 class="kicker">// comments</h2>
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={COMMENTS.repo}
+        data-repo-id={COMMENTS.repoId}
+        data-category={COMMENTS.category}
+        data-category-id={COMMENTS.categoryId}
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="transparent_dark"
+        data-lang="zh-CN"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async
+      />
+    </section>
+  )
+}
+
+<style>
+  .comments {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .comments .kicker {
+    margin-bottom: 1rem;
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro'
+---
+
+<Base title="404" description="页面不存在" width="content" noindex>
+  <div class="nf">
+    <pre class="nf-art mono" aria-hidden="true">
+SIGSEGV: address not mapped to object
+  si_signo = 11
+  si_code  = SEGV_MAPERR
+  si_addr  = 0x404</pre>
+
+    <h1 class="nf-title mono">404 — page not found</h1>
+    <p class="nf-text">这个地址没有映射到任何页面。可能是链接过期，或者内容被移动了。</p>
+
+    <div class="nf-actions">
+      <a href="/" class="btn mono">回首页</a>
+      <button type="button" class="btn btn-ghost mono" data-search-open>搜索一下</button>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    padding-block: 3rem;
+    text-align: center;
+  }
+
+  .nf-art {
+    display: inline-block;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-line);
+    border-left: 2px solid var(--color-danger);
+    border-radius: var(--radius);
+    background: var(--color-bg-soft);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--color-dim);
+    margin-bottom: 2.25rem;
+    overflow-x: auto;
+  }
+
+  .nf-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-text-strong);
+  }
+
+  .nf-text {
+    margin-top: 0.75rem;
+    color: var(--color-dim);
+    font-size: 0.92rem;
+  }
+
+  .nf-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.82rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--color-accent-soft);
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+    color: var(--color-accent);
+    transition:
+      background 0.18s,
+      border-color 0.18s;
+  }
+
+  .btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+    border-color: var(--color-accent);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--color-line-bright);
+    color: var(--color-dim);
+  }
+
+  .btn-ghost:hover {
+    background: var(--color-surface);
+    color: var(--color-text-strong);
+  }
+</style>

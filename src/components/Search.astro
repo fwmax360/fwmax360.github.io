@@ -1,0 +1,380 @@
+---
+// 全文搜索。索引由 Pagefind 在 build 之后扫描 dist/ 生成，纯静态、无后端。
+---
+
+<dialog class="search" data-search aria-label="搜索文章">
+  <div class="search-box">
+    <div class="search-head">
+      <span class="mono search-prompt" aria-hidden="true">/</span>
+      <input
+        type="search"
+        class="search-input"
+        data-search-input
+        placeholder="搜索文章内容…"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="搜索关键词"
+      />
+      <kbd class="search-esc">esc</kbd>
+    </div>
+
+    <div class="search-body" data-search-results role="status" aria-live="polite">
+      <p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>
+    </div>
+
+    <div class="search-foot mono">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>↵</kbd> 打开</span>
+      <span class="search-brand">pagefind</span>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .search {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .search::backdrop {
+    background: color-mix(in srgb, #000 72%, transparent);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+
+  .search[open] .search-box {
+    animation: pop 0.22s var(--ease-out-expo);
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search[open] .search-box {
+      animation: none;
+    }
+  }
+
+  .search-box {
+    width: min(42rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+    margin: max(12vh, calc(env(safe-area-inset-top, 0px) + 4.5rem)) auto 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-bright);
+    border-radius: var(--radius);
+    box-shadow:
+      0 0 0 1px var(--color-line-bright),
+      0 16px 40px -20px rgb(0 0 0 / 0.9);
+    overflow: hidden;
+    /* iOS Safari dialog 里用 max-height 防止被键盘顶出视口 */
+    max-height: min(85vh, 85dvh);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .search-prompt {
+    color: var(--color-accent);
+    font-size: 1rem;
+  }
+
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--color-text-strong);
+    /* ≥16px，避免 iOS 聚焦时整页缩放 */
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    /* iOS 去默认外观 */
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+
+  .search-input::placeholder {
+    color: var(--color-faint);
+  }
+
+  .search-input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-esc,
+  .search-foot kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--color-line-bright);
+    border-radius: var(--radius-sm);
+    color: var(--color-faint);
+  }
+
+  .search-body {
+    flex: 1;
+    min-height: 0;
+    max-height: min(26rem, 50dvh);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem;
+  }
+
+  .search-hint,
+  .search-empty {
+    padding: 1.5rem 0.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-faint);
+  }
+
+  .search-foot {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-bg-soft);
+    font-size: 0.7rem;
+    color: var(--color-faint);
+  }
+
+  .search-foot kbd {
+    margin-right: 0.15rem;
+  }
+
+  .search-brand {
+    margin-left: auto;
+    opacity: 0.5;
+  }
+</style>
+
+<style is:global>
+  .search-item {
+    display: block;
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+
+  .search-item:hover,
+  .search-item[data-active='true'] {
+    background: var(--color-surface-2);
+    border-color: var(--color-line-bright);
+  }
+
+  .search-item-title {
+    display: block;
+    color: var(--color-text-strong);
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+
+  .search-item[data-active='true'] .search-item-title {
+    color: var(--color-accent);
+  }
+
+  .search-item-excerpt {
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--color-dim);
+  }
+
+  .search-item-excerpt mark {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    color: var(--color-accent);
+    border-radius: 2px;
+    padding: 0 0.1em;
+  }
+</style>
+
+<script>
+  type PagefindResult = {
+    id: string
+    data: () => Promise<{ url: string; meta: { title?: string }; excerpt: string }>
+  }
+  type Pagefind = {
+    debouncedSearch: (q: string, opts?: unknown, ms?: number) => Promise<{ results: PagefindResult[] } | null>
+    init?: () => Promise<void>
+  }
+
+  let pagefind: Pagefind | null = null
+  let loading: Promise<void> | null = null
+
+  // 索引只在 build 产物里存在，dev 下没有。这里用 new Function 构造 import，
+  // 完全绕开 Vite 的静态分析——它会把 import() 包进 preload 辅助函数，
+  // 而内联脚本这条路径上 __VITE_PRELOAD__ 占位符不会被替换，运行时直接报错。
+  const dynamicImport = new Function('path', 'return import(path)') as (p: string) => Promise<Pagefind>
+
+  async function loadPagefind() {
+    if (pagefind || loading) return loading
+    loading = (async () => {
+      try {
+        pagefind = await dynamicImport('/pagefind/pagefind.js')
+        await pagefind.init?.()
+      } catch {
+        pagefind = null
+      }
+    })()
+    return loading
+  }
+
+  // document 不随 View Transitions 替换，重新 setup 前必须撤掉上一轮的监听
+  let ac: AbortController | null = null
+
+  function setup() {
+    ac?.abort()
+    ac = new AbortController()
+    const { signal } = ac
+
+    const dialog = document.querySelector<HTMLDialogElement>('[data-search]')
+    const input = document.querySelector<HTMLInputElement>('[data-search-input]')
+    const list = document.querySelector<HTMLElement>('[data-search-results]')
+    if (!dialog || !input || !list) return
+
+    // 弹窗开着时发生客户端跳转，close 事件不会触发，滚动会被永久锁住
+    if (!dialog.open) document.body.style.overflow = ''
+
+    let cursor = -1
+
+    const items = () => [...list.querySelectorAll<HTMLAnchorElement>('.search-item')]
+
+    const move = (delta: number) => {
+      const all = items()
+      if (!all.length) return
+      cursor = (cursor + delta + all.length) % all.length
+      all.forEach((el, i) => el.setAttribute('data-active', String(i === cursor)))
+      all[cursor].scrollIntoView({ block: 'nearest' })
+    }
+
+    const open = () => {
+      if (dialog.open) return
+      dialog.showModal()
+      document.body.style.overflow = 'hidden'
+      input.focus()
+      void loadPagefind()
+    }
+
+    const close = () => {
+      dialog.close()
+      document.body.style.overflow = ''
+    }
+
+    const render = (html: string) => {
+      list.innerHTML = html
+      cursor = -1
+    }
+
+    const run = async (query: string) => {
+      if (!query.trim()) {
+        render('<p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>')
+        return
+      }
+
+      await loadPagefind()
+      if (!pagefind) {
+        render('<p class="search-empty">搜索索引尚未生成。执行 <code>npm run build</code> 后可用。</p>')
+        return
+      }
+
+      const search = await pagefind.debouncedSearch(query, undefined, 200)
+      if (!search) return
+
+      if (!search.results.length) {
+        render(`<p class="search-empty">没有匹配 “${escapeHtml(query)}” 的内容。</p>`)
+        return
+      }
+
+      const top = await Promise.all(search.results.slice(0, 8).map((r) => r.data()))
+      render(
+        top
+          .map(
+            (d) => `<a class="search-item" href="${d.url}">
+              <span class="search-item-title">${escapeHtml(d.meta.title ?? '未命名')}</span>
+              <span class="search-item-excerpt">${d.excerpt}</span>
+            </a>`,
+          )
+          .join(''),
+      )
+    }
+
+    const escapeHtml = (s: string) =>
+      s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+
+    input.addEventListener('input', () => void run(input.value), { signal })
+
+    document
+      .querySelectorAll('[data-search-open]')
+      .forEach((btn) => btn.addEventListener('click', open, { signal }))
+
+    dialog.addEventListener(
+      'click',
+      (e) => {
+        if (e.target === dialog) close()
+      },
+      { signal },
+    )
+
+    dialog.addEventListener(
+      'close',
+      () => {
+        document.body.style.overflow = ''
+      },
+      { signal },
+    )
+
+    dialog.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          move(1)
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          move(-1)
+        } else if (e.key === 'Enter' && cursor >= 0) {
+          e.preventDefault()
+          items()[cursor]?.click()
+        }
+      },
+      { signal },
+    )
+
+    document.addEventListener(
+      'keydown',
+      (e) => {
+        const tag = (e.target as HTMLElement)?.tagName
+        const typing =
+          tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable
+
+        if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey))) {
+          e.preventDefault()
+          open()
+        }
+      },
+      { signal },
+    )
+  }
+
+  setup()
+  document.addEventListener('astro:after-swap', setup)
+</script>
