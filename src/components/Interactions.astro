@@ -40,7 +40,8 @@
   }
 
   function burst(el: HTMLElement, x: number, y: number) {
-    if (prefersReducedMotion()) return
+    // Motion 能力层也会覆盖 Save-Data、慢网络与低硬件环境；在 pending 阶段宁可静态响应。
+    if (prefersReducedMotion() || document.documentElement.dataset.motion !== 'ready') return
 
     const rect = el.getBoundingClientRect()
     const size = Math.max(rect.width, rect.height) * 1.35

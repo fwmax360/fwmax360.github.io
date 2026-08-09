@@ -68,7 +68,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
 
   <!-- 页脚 -->
   <line x1="96" y1="556" x2="1104" y2="556" stroke="${LINE}" stroke-width="1"/>
-  <text x="96" y="592" font-family="${MONO}" font-size="18" fill="${FAINT}">sleep4r.github.io</text>
+  <text x="96" y="592" font-family="${MONO}" font-size="18" fill="${FAINT}">fwmax360.github.io</text>
   <text x="1104" y="592" font-family="${MONO}" font-size="18" fill="${FAINT}" text-anchor="end">$ _</text>
 </svg>`
 

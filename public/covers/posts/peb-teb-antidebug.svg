@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="cover-title cover-desc">
+  <title id="cover-title">PEB / TEB 与 IsDebuggerPresent 反调试</title>
+  <desc id="cover-desc">Binary · 2025-07-24 · STANDALONE </desc>
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#25303d" stroke-width="1" opacity="0.42"/>
+      <circle cx="0" cy="0" r="1.25" fill="#354456" opacity="0.58"/>
+    </pattern>
+    <radialGradient id="glow" cx="84%" cy="30%" r="66%">
+      <stop offset="0" stop-color="#ae91ff" stop-opacity="0.16"/>
+      <stop offset="0.52" stop-color="#ae91ff" stop-opacity="0.045"/>
+      <stop offset="1" stop-color="#ae91ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ae91ff" stop-opacity="0.95"/>
+      <stop offset="0.58" stop-color="#ae91ff" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#ae91ff" stop-opacity="0"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#ae91ff"/>
+    </marker>
+    <style>
+      .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; }
+      .sans { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; }
+      .micro { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .75px; }
+      .chip { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; font-size: 12px; font-weight: 600; }
+      .diagram-label { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="630" fill="#07090d"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.7"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <path d="M 0 0 H 1200 V 630 H 0 Z M 15 15 V 615 H 1185 V 15 Z" fill="#0d1219" fill-rule="evenodd" opacity="0.54"/>
+  <rect x="15" y="15" width="1170" height="600" fill="none" stroke="#354456" stroke-width="1" opacity="0.64"/>
+  <rect x="15" y="15" width="380" height="2" fill="url(#rail)"/>
+
+  <circle cx="72" cy="63" r="4" fill="#ae91ff"/>
+  <text x="88" y="68" class="mono" font-size="13" font-weight="700" letter-spacing="1.1" fill="#f1f5f9">FWMAX360 / ARTICLE_COVER</text>
+  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">14 / 21 · B5E6DB</text>
+  <line x1="72" y1="91" x2="1128" y2="91" stroke="#25303d"/>
+
+  <rect x="72" y="119" width="98" height="28" rx="3" fill="#ae91ff" opacity="0.12" stroke="#ae91ff"/>
+  <text x="87" y="138" class="mono" font-size="11" font-weight="700" letter-spacing="1.2" fill="#ae91ff">BINARY</text>
+  <text x="182" y="138" class="mono" font-size="12" fill="#93a1b2">2025-07-24</text>
+  <text x="780" y="138" class="mono" font-size="10" text-anchor="end" letter-spacing=".8" fill="#566475">/peb-teb-antidebug</text>
+
+  <text class="sans" font-size="52" font-weight="760" letter-spacing="-1.1" fill="#f1f5f9"><tspan x="72" y="207">PEB / TEB 与</tspan><tspan x="72" y="273">IsDebuggerPresent 反调试</tspan></text>
+  <rect x="72" y="305" width="4" height="37" rx="2" fill="#ae91ff"/>
+  <text x="91" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">SERIES</text>
+  <text x="91" y="338" class="sans" font-size="15" font-weight="700" fill="#93a1b2">STANDALONE</text>
+  <line x1="272" y1="309" x2="272" y2="341" stroke="#354456"/>
+  <text x="291" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">CHAPTER</text>
+  <text x="291" y="338" class="mono" font-size="15" font-weight="700" fill="#ae91ff">--</text>
+
+  <rect x="824" y="119" width="304" height="340" rx="7" fill="#0d1219" fill-opacity="0.78" stroke="#25303d"/>
+  <path d="M 824 156 V 126 Q 824 119 831 119 H 861" fill="none" stroke="#ae91ff" stroke-width="2"/>
+  <circle cx="1112" cy="135" r="2" fill="#ae91ff" opacity="0.8"/>
+  
+    <text x="858" y="167" class="diagram-label" fill="#ae91ff">MEMORY / ADDRESS MAP</text>
+    <text x="1118" y="167" class="micro" text-anchor="end" fill="#566475">BASE_B5E6</text>
+    
+        <text x="858" y="199" class="micro" fill="#566475">0xE6D000</text>
+        <rect x="858" y="207" width="123" height="22" rx="3" fill="#ae91ff" opacity="0.12"/>
+        <rect x="858" y="207" width="68.88000000000001" height="22" rx="3" fill="#ae91ff" opacity="0.72"/>
+        <line x1="981" y1="218" x2="1115" y2="218" stroke="#354456" stroke-width="1" stroke-dasharray="3 5"/>
+        <circle cx="1115" cy="218" r="3" fill="#ae91ff"/>
+      
+        <text x="858" y="256" class="micro" fill="#566475">0xE6D0AE</text>
+        <rect x="858" y="264" width="168" height="22" rx="3" fill="#ae91ff" opacity="0.155"/>
+        <rect x="858" y="264" width="53.76" height="22" rx="3" fill="#ae91ff" opacity="0.72"/>
+        <line x1="1026" y1="275" x2="1115" y2="275" stroke="#354456" stroke-width="1" stroke-dasharray="3 5"/>
+        <circle cx="1115" cy="275" r="3" fill="#ae91ff"/>
+      
+        <text x="858" y="313" class="micro" fill="#566475">0xE6D0EE</text>
+        <rect x="858" y="321" width="139" height="22" rx="3" fill="#ae91ff" opacity="0.19"/>
+        <rect x="858" y="321" width="61.160000000000004" height="22" rx="3" fill="#ae91ff" opacity="0.72"/>
+        <line x1="997" y1="332" x2="1115" y2="332" stroke="#354456" stroke-width="1" stroke-dasharray="3 5"/>
+        <circle cx="1115" cy="332" r="3" fill="#ae91ff"/>
+      
+        <text x="858" y="370" class="micro" fill="#566475">0xE6D1D1</text>
+        <rect x="858" y="378" width="157" height="22" rx="3" fill="#ae91ff" opacity="0.225"/>
+        <rect x="858" y="378" width="50.24" height="22" rx="3" fill="#ae91ff" opacity="0.72"/>
+        <line x1="1015" y1="389" x2="1115" y2="389" stroke="#354456" stroke-width="1" stroke-dasharray="3 5"/>
+        <circle cx="1115" cy="389" r="3" fill="#ae91ff"/>
+      
+    <line x1="841" y1="190" x2="841" y2="409" stroke="#ae91ff" stroke-width="2" opacity="0.8"/>
+    <path d="M 858 406 H 1084 L 1118 372" fill="none" stroke="#ae91ff" stroke-width="1.5" opacity="0.7"/>
+    <text x="858" y="431" class="micro" fill="#93a1b2">7F 45 4C 46 · B5 E6 DB 8B</text>
+  
+
+  
+      <rect x="72" y="480" width="66.57499999999999" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="86" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="96" y="500.5" class="chip" fill="#93a1b2">Windows</text>
+    
+      <rect x="148.575" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="162.575" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="172.575" y="500.5" class="chip" fill="#93a1b2">反调试</text>
+    
+      <rect x="220.575" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="234.575" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="244.575" y="500.5" class="chip" fill="#93a1b2">PEB</text>
+    
+      <rect x="292.575" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="306.575" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="316.575" y="500.5" class="chip" fill="#93a1b2">TEB</text>
+    
+  <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
+  <text x="72" y="584" class="mono" font-size="14" font-weight="700" letter-spacing=".55" fill="#93a1b2">fwmax360.github.io</text>
+  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">ADDRESS / 0xB5E6DB8B</text>
+  <rect x="72" y="601" width="88" height="2" fill="#ae91ff"/>
+</svg>

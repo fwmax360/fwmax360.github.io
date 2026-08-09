@@ -6,15 +6,27 @@ interface Props {
   post: Post
   /** 列表序号，会以十六进制显示 */
   index?: number
+  /** 所在页面的标题层级；首页/相关文章默认使用 h3 */
+  headingLevel?: 'h2' | 'h3'
+  /** 首页使用更紧凑的情报流，归档和相关文章保持默认密度 */
+  variant?: 'default' | 'compact'
 }
 
-const { post, index } = Astro.props
+const { post, index, headingLevel = 'h3', variant = 'default' } = Astro.props
 const { title, description, pubDate, tags, category, series, pinned } = post.data
 const hex = index === undefined ? null : `0x${index.toString(16).padStart(2, '0')}`
+const Heading = headingLevel
 ---
 
-<article class="row">
-  <a href={postUrl(post)} class="row-hit" aria-label={title}></a>
+<article class:list={['row', variant]}>
+  <a
+    href={postUrl(post)}
+    class="row-hit"
+    aria-label={title}
+    data-jmp
+    data-jmp-source="field note"
+    data-jmp-title={title}
+  ></a>
 
   <div class="row-side mono">
     {hex && <span class="row-hex">{hex}</span>}
@@ -22,10 +34,10 @@ const hex = index === undefined ? null : `0x${index.toString(16).padStart(2, '0'
   </div>
 
   <div class="row-main">
-    <h3 class="row-title">
+    <Heading class="row-title">
       {pinned > 0 && <span class="row-pin mono" title="置顶">PIN</span>}
       {title}
-    </h3>
+    </Heading>
 
     <p class="row-desc">{description}</p>
 
@@ -212,6 +224,54 @@ const hex = index === undefined ? null : `0x${index.toString(16).padStart(2, '0'
     color: var(--color-accent);
   }
 
+  .row.compact {
+    grid-template-columns: 5.4rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1rem 0.75rem;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-surface) 18%, transparent));
+  }
+
+  .row.compact:hover {
+    padding-left: 1rem;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-accent) 5%, transparent),
+      color-mix(in srgb, var(--color-surface) 48%, transparent)
+    );
+  }
+
+  .compact .row-side {
+    gap: 0.08rem;
+    font-size: 0.68rem;
+  }
+
+  .compact .row-title {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .compact .row-desc {
+    margin-top: 0.22rem;
+    font-size: 0.81rem;
+    line-height: 1.55;
+    -webkit-line-clamp: 1;
+  }
+
+  .compact .row-meta {
+    margin-top: 0.42rem;
+    gap: 0.6rem;
+    font-size: 0.67rem;
+  }
+
+  .compact .row-cat {
+    padding-block: 0.06rem;
+  }
+
+  .compact .row-arrow {
+    padding-right: 0.2rem;
+    font-size: 0.8rem;
+  }
+
   @media (max-width: 720px) {
     .row {
       grid-template-columns: 1fr;
@@ -225,6 +285,33 @@ const hex = index === undefined ? null : `0x${index.toString(16).padStart(2, '0'
     }
 
     .row-arrow {
+      display: none;
+    }
+
+    .row.compact {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.38rem;
+      padding: 0.95rem 0.65rem;
+      background: transparent;
+    }
+
+    .row.compact:hover {
+      padding-left: 0.85rem;
+    }
+
+    .compact .row-side {
+      gap: 0.7rem;
+    }
+
+    .compact .row-desc {
+      -webkit-line-clamp: 2;
+    }
+
+    .compact .row-meta {
+      gap: 0.55rem;
+    }
+
+    .compact .row-tags a:nth-child(n + 3) {
       display: none;
     }
   }

@@ -1,9 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro'
 import { SITE } from '../../consts'
-import { getPostsByDate, formatDate, postUrl } from '../../lib/posts'
+import { getPostsByDateDesc, formatDate, postUrl } from '../../lib/posts'
 
-const posts = await getPostsByDate()
+const posts = await getPostsByDateDesc()
+const feedUrl = new URL('/rss.xml', SITE.url).href
+const absolutePostUrl = (post: (typeof posts)[number]) => new URL(postUrl(post), SITE.url).href
 ---
 
 <Base title="RSS" description={`订阅 ${SITE.title} 的文章更新`} width="content">
@@ -15,12 +17,12 @@ const posts = await getPostsByDate()
   <section class="feed-box mono">
     <div class="feed-row">
       <span class="feed-k">feed</span>
-      <a class="feed-v" href="/rss.xml" data-astro-reload>/rss.xml</a>
+      <a class="feed-v" href={feedUrl} data-astro-reload>{feedUrl}</a>
     </div>
     <div class="feed-row">
       <span class="feed-k">copy</span>
       <button type="button" class="feed-copy" data-copy-feed aria-label="复制 RSS 地址">
-        {SITE.url}/rss.xml
+        {feedUrl}
       </button>
     </div>
     <p class="feed-note">
@@ -38,7 +40,7 @@ const posts = await getPostsByDate()
             <time class="mono" datetime={post.data.pubDate.toISOString()}>
               {formatDate(post.data.pubDate)}
             </time>
-            <a href={postUrl(post)}>{post.data.title}</a>
+            <a href={absolutePostUrl(post)}>{post.data.title}</a>
           </li>
         ))
       }

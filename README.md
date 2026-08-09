@@ -1,4 +1,4 @@
-# sleep4r.github.io
+# fwmax360.github.io
 
 安卓逆向 / 二进制安全方向的技术博客。Astro 静态站点，源码在 `main`，推送后由 GitHub Actions 自动构建并发布到 GitHub Pages。
 
@@ -23,7 +23,7 @@ title: '标题'
 description: '一句话说清这篇讲什么，会显示在列表和搜索结果里'
 pubDate: 2026-08-09
 category: 'Android'      # 单选，构成顶层分类
-tags: ['frida', 'hook']  # 多选
+tags: ['Frida', 'Hook']  # 多选，技术名词统一大小写
 series: '逆向基础'        # 可选，同系列文章会互相串联
 order: 1                 # 可选，系列内顺序
 draft: false             # true 时只在 dev 可见，不会发布

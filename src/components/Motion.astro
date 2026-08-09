@@ -1,0 +1,771 @@
+---
+/**
+ * 全站动态能力层。
+ *
+ * 供页面组件采用的契约：
+ * - data-reveal[="up|fade"]：进入视口后仅播放一次；默认是 12px 的轻微上移。
+ * - data-reveal-stagger="60"：父级按 DOM 顺序错开子级 data-reveal，单位 ms、总延迟封顶。
+ * - data-stagger / data-reveal-item：以上两项的简写别名，可与正式属性混用。
+ * - data-reveal-delay="120"：单个元素覆盖延迟，单位 ms。
+ * - data-count-up[="1200"]：目标值默认取可读文本中的数字；可选 data-count-from / data-count-duration。
+ * - data-spotlight：fine pointer 下启用局部光晕；可通过 --spotlight-color 调整色相。
+ * - data-tilt：fine pointer 下启用微幅 3D 轴向倾斜；data-tilt-strength="5" 调整强度（1–10）。
+ * - data-parallax="0.08"：滚动时启用小幅视差，推荐绝对值 0.03–0.12（范围封顶 ±0.2）。
+ *
+ * 无 JS、减弱动效、Save-Data、慢速网络和低硬件环境始终保留原始可读内容。
+ */
+import '../styles/motion.css'
+---
+
+<!-- 在首屏样式计算前声明能力，避免内容先显示再被隐藏。模块异常时定时回退为静态内容。 -->
+<script is:inline>
+  ;(() => {
+    const root = document.documentElement
+    if (root.hasAttribute('data-motion')) return
+
+    try {
+      const connection = navigator.connection
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const saveData = Boolean(connection?.saveData)
+      const slowNetwork = /(^|-)2g$/.test(connection?.effectiveType ?? '')
+      const lowMemory = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2
+      const lowCpu = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2
+      const disabled = reduce || saveData || slowNetwork || lowMemory || lowCpu
+
+      root.dataset.motion = disabled ? 'off' : 'pending'
+      root.dataset.motionReason = reduce
+        ? 'reduced'
+        : saveData
+          ? 'save-data'
+          : slowNetwork
+            ? 'slow-network'
+            : lowMemory || lowCpu
+              ? 'low-power'
+              : 'full'
+
+      if (!disabled) {
+        window.__sleep4rMotionFallback = window.setTimeout(() => {
+          if (root.dataset.motion === 'pending') root.dataset.motion = 'off'
+        }, 2500)
+      }
+    } catch {
+      root.dataset.motion = 'off'
+      root.dataset.motionReason = 'fallback'
+    }
+  })()
+</script>
+
+<script>
+  type ConnectionLike = EventTarget & {
+    saveData?: boolean
+    effectiveType?: string
+  }
+
+  type NavigatorWithHints = Navigator & {
+    connection?: ConnectionLike
+    deviceMemory?: number
+  }
+
+  type MotionWindow = Window & {
+    __sleep4rMotionFallback?: number
+  }
+
+  type MotionCapability = {
+    enabled: boolean
+    finePointer: boolean
+    reason: 'full' | 'reduced' | 'save-data' | 'slow-network' | 'low-power'
+  }
+
+  type FrameTask = (time: number) => boolean
+
+  type CountDescriptor = {
+    element: HTMLElement
+    original: string
+    prefix: string
+    suffix: string
+    from: number
+    target: number
+    decimals: number
+    grouped: boolean
+    integerWidth: number
+    duration: number
+    width: number
+  }
+
+  const REDUCED_QUERY = '(prefers-reduced-motion: reduce)'
+  const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)'
+  const DEFAULT_STAGGER = 55
+  const MAX_STAGGER_DELAY = 320
+
+  let controller: AbortController | null = null
+  let observer: IntersectionObserver | null = null
+  let activePageRoot: Element | null = null
+  let frame = 0
+  let frameTasks = new Set<FrameTask>()
+  let countDescriptors = new Map<HTMLElement, CountDescriptor>()
+  let activeSpotlight: HTMLElement | null = null
+  let activeSpotlightRect: DOMRect | null = null
+  let spotlightLayer: HTMLElement | null = null
+  let spotlightRadius = '0px'
+  let spotlightColor = ''
+  let spotlightX = 0
+  let spotlightY = 0
+  let spotlightQueued = false
+  let progressElement: HTMLElement | null = null
+  let ambientElement: HTMLElement | null = null
+  let activeTilt: HTMLElement | null = null
+  let tiltRect: DOMRect | null = null
+  let tiltX = 0
+  let tiltY = 0
+  let tiltQueued = false
+  let ambientX = 0
+  let ambientY = 0
+  let ambientQueued = false
+  let progressQueued = false
+  let parallaxQueued = false
+  let pageMotionTimer = 0
+
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+
+  const capability = (): MotionCapability => {
+    const navigatorHints = navigator as NavigatorWithHints
+    const connection = navigatorHints.connection
+    const reduced = window.matchMedia(REDUCED_QUERY).matches
+    const saveData = Boolean(connection?.saveData)
+    const slowNetwork = /(^|-)2g$/.test(connection?.effectiveType ?? '')
+    const lowMemory = typeof navigatorHints.deviceMemory === 'number' && navigatorHints.deviceMemory <= 2
+    const lowCpu =
+      typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2
+
+    const reason: MotionCapability['reason'] = reduced
+      ? 'reduced'
+      : saveData
+        ? 'save-data'
+        : slowNetwork
+          ? 'slow-network'
+          : lowMemory || lowCpu
+            ? 'low-power'
+            : 'full'
+
+    return {
+      enabled: reason === 'full',
+      finePointer: window.matchMedia(FINE_POINTER_QUERY).matches,
+      reason,
+    }
+  }
+
+  const clearBootstrapFallback = () => {
+    const motionWindow = window as MotionWindow
+    if (motionWindow.__sleep4rMotionFallback) {
+      window.clearTimeout(motionWindow.__sleep4rMotionFallback)
+      delete motionWindow.__sleep4rMotionFallback
+    }
+  }
+
+  const scheduleFrame = () => {
+    if (frame || document.hidden || frameTasks.size === 0) return
+    frame = window.requestAnimationFrame(runFrame)
+  }
+
+  const runFrame = (time: number) => {
+    frame = 0
+    for (const task of [...frameTasks]) {
+      if (!task(time)) frameTasks.delete(task)
+    }
+    scheduleFrame()
+  }
+
+  const addFrameTask = (task: FrameTask) => {
+    frameTasks.add(task)
+    scheduleFrame()
+  }
+
+  const resetFrameScheduler = () => {
+    if (frame) window.cancelAnimationFrame(frame)
+    frame = 0
+    frameTasks.clear()
+    spotlightQueued = false
+    tiltQueued = false
+    ambientQueued = false
+    progressQueued = false
+    parallaxQueued = false
+  }
+
+  const setMotionMode = (state: MotionCapability) => {
+    const root = document.documentElement
+    root.dataset.motion = state.enabled ? 'ready' : 'off'
+    root.dataset.motionReason = state.reason
+    document.dispatchEvent(
+      new CustomEvent('sleep4r:motionchange', {
+        detail: { enabled: state.enabled, reason: state.reason },
+      }),
+    )
+  }
+
+  const parseDelay = (value: string | undefined, fallback = 0) => {
+    const parsed = Number.parseFloat(value ?? '')
+    return Number.isFinite(parsed) ? clamp(parsed, 0, 500) : fallback
+  }
+
+  const prepareRevealStaggers = (scope: Element) => {
+    scope.querySelectorAll<HTMLElement>('[data-reveal-stagger]').forEach((group) => {
+      const step = parseDelay(group.dataset.revealStagger, DEFAULT_STAGGER)
+      const items = [...group.querySelectorAll<HTMLElement>('[data-reveal]')].filter(
+        (item) => item.closest('[data-reveal-stagger]') === group,
+      )
+
+      items.forEach((item, index) => {
+        const explicit = item.dataset.revealDelay
+        const delay = explicit === undefined ? Math.min(MAX_STAGGER_DELAY, index * step) : parseDelay(explicit)
+        item.style.setProperty('--motion-delay', `${delay}ms`)
+      })
+    })
+
+    scope.querySelectorAll<HTMLElement>('[data-reveal][data-reveal-delay]').forEach((item) => {
+      item.style.setProperty('--motion-delay', `${parseDelay(item.dataset.revealDelay)}ms`)
+    })
+  }
+
+  /**
+   * 兼容页面组件采用的简写契约。先在内存中规范成唯一选择器，后续观察、
+   * stagger 和降级路径便不需要维护两套状态机；head CSS 会在此之前预隐藏别名。
+   */
+  const normalizeAliases = (scope: Element) => {
+    scope.querySelectorAll<HTMLElement>('[data-stagger]').forEach((group) => {
+      if (!group.hasAttribute('data-reveal-stagger')) {
+        group.setAttribute('data-reveal-stagger', group.getAttribute('data-stagger') ?? '')
+      }
+    })
+
+    scope.querySelectorAll<HTMLElement>('[data-reveal-item]').forEach((item) => {
+      if (!item.hasAttribute('data-reveal')) {
+        item.setAttribute('data-reveal', item.getAttribute('data-reveal-item') || 'up')
+      }
+    })
+  }
+
+  const restoreCounts = (scope: ParentNode | null) => {
+    scope?.querySelectorAll<HTMLElement>('[data-count-up]').forEach((element) => {
+      const original = element.dataset.motionCountOriginal
+      if (original !== undefined) element.textContent = original
+      delete element.dataset.motionCountOriginal
+      delete element.dataset.countState
+      delete element.dataset.countDone
+      element.style.removeProperty('--motion-count-width')
+    })
+  }
+
+  const countDescriptor = (element: HTMLElement): CountDescriptor | null => {
+    const original = element.textContent?.trim() ?? ''
+    const textMatch = original.match(/-?[\d,]+(?:\.\d+)?/)
+    const targetSource = element.dataset.countUp?.trim() || textMatch?.[0] || ''
+    const target = Number(targetSource.replaceAll(',', ''))
+    if (!Number.isFinite(target)) return null
+
+    const targetMatch = textMatch?.[0] ?? targetSource
+    const matchIndex = textMatch?.index ?? 0
+    const prefix = textMatch ? original.slice(0, matchIndex) : ''
+    const suffix = textMatch ? original.slice(matchIndex + targetMatch.length) : ''
+    const decimalSource = targetSource.split('.')[1]
+    const decimals = clamp(Number.parseInt(element.dataset.countDecimals ?? `${decimalSource?.length ?? 0}`, 10) || 0, 0, 3)
+    const fromValue = Number(element.dataset.countFrom ?? '0')
+    const duration = clamp(Number(element.dataset.countDuration ?? '900') || 900, 400, 1600)
+
+    return {
+      element,
+      original,
+      prefix,
+      suffix,
+      from: Number.isFinite(fromValue) ? fromValue : 0,
+      target,
+      decimals,
+      grouped: targetMatch.includes(','),
+      integerWidth: targetMatch.replace(/^-/, '').split('.')[0].replaceAll(',', '').length,
+      duration,
+      width: element.getBoundingClientRect().width,
+    }
+  }
+
+  const formatCount = (value: number, descriptor: CountDescriptor) => {
+    let numeric = descriptor.grouped
+      ? new Intl.NumberFormat(document.documentElement.lang || 'zh-CN', {
+          minimumFractionDigits: descriptor.decimals,
+          maximumFractionDigits: descriptor.decimals,
+        }).format(value)
+      : value.toFixed(descriptor.decimals)
+
+    if (!descriptor.grouped && descriptor.integerWidth > 1) {
+      const [integer = '0', fraction] = numeric.split('.')
+      const sign = integer.startsWith('-') ? '-' : ''
+      const digits = integer.slice(sign.length).padStart(descriptor.integerWidth, '0')
+      numeric = `${sign}${digits}${fraction === undefined ? '' : `.${fraction}`}`
+    }
+    return `${descriptor.prefix}${numeric}${descriptor.suffix}`
+  }
+
+  const startCount = (descriptor: CountDescriptor) => {
+    const { element } = descriptor
+    if (element.dataset.countState !== 'prepared') return
+
+    const startedAt = performance.now()
+    element.dataset.countState = 'running'
+    element.textContent = formatCount(descriptor.from, descriptor)
+
+    const task: FrameTask = (time) => {
+      if (!element.isConnected || document.documentElement.dataset.motion !== 'ready') return false
+      const progress = clamp((time - startedAt) / descriptor.duration, 0, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const value = descriptor.from + (descriptor.target - descriptor.from) * eased
+      element.textContent = formatCount(value, descriptor)
+
+      if (progress < 1) return true
+      element.textContent = formatCount(descriptor.target, descriptor)
+      element.dataset.countState = 'done'
+      element.dataset.countDone = 'true'
+      element.dataset.countSeen = 'true'
+      return false
+    }
+
+    addFrameTask(task)
+  }
+
+  const prepareCounts = (scope: Element) => {
+    const descriptors = [...scope.querySelectorAll<HTMLElement>('[data-count-up]')]
+      .filter((element) => {
+        if (element.dataset.countSeen !== 'true') return true
+        element.dataset.countState = 'done'
+        element.dataset.countDone = 'true'
+        return false
+      })
+      .map(countDescriptor)
+      .filter((item): item is CountDescriptor => item !== null)
+
+    for (const descriptor of descriptors) {
+      const { element, original, width } = descriptor
+      element.dataset.motionCountOriginal = original
+      element.dataset.countState = 'prepared'
+      element.style.setProperty('--motion-count-width', `${width}px`)
+      if (!element.hasAttribute('aria-label')) element.setAttribute('aria-label', original)
+      countDescriptors.set(element, descriptor)
+    }
+  }
+
+  const reveal = (element: HTMLElement) => {
+    element.dataset.revealState = 'visible'
+    element.dataset.revealSeen = 'true'
+  }
+
+  const clearSpotlight = () => {
+    if (activeSpotlight) delete activeSpotlight.dataset.spotlightActive
+    if (spotlightLayer) delete spotlightLayer.dataset.spotlightActive
+    activeSpotlight = null
+    activeSpotlightRect = null
+  }
+
+  /**
+   * 全页只复用一个 fixed 光晕层，不插入 spotlight 宿主内部，因此不会改变组件的
+   * :first-child / :last-child / nth-child 语义，也不会占用它们的伪元素。
+   */
+  const prepareSpotlightLayer = () => {
+    const existing = document.querySelector<HTMLElement>('[data-motion-spotlight-layer]')
+    if (existing) {
+      spotlightLayer = existing
+      return
+    }
+
+    spotlightLayer = document.createElement('span')
+    spotlightLayer.className = 'motion-spotlight-layer'
+    spotlightLayer.dataset.motionSpotlightLayer = ''
+    spotlightLayer.setAttribute('aria-hidden', 'true')
+    document.body.append(spotlightLayer)
+  }
+
+  const spotlightTask: FrameTask = () => {
+    spotlightQueued = false
+    if (!activeSpotlight?.isConnected || !activeSpotlightRect || !spotlightLayer?.isConnected) return false
+    const x = clamp(spotlightX - activeSpotlightRect.left, 0, activeSpotlightRect.width)
+    const y = clamp(spotlightY - activeSpotlightRect.top, 0, activeSpotlightRect.height)
+    spotlightLayer.style.setProperty('--spotlight-x', `${x}px`)
+    spotlightLayer.style.setProperty('--spotlight-y', `${y}px`)
+    spotlightLayer.style.setProperty('--spotlight-left', `${activeSpotlightRect.left}px`)
+    spotlightLayer.style.setProperty('--spotlight-top', `${activeSpotlightRect.top}px`)
+    spotlightLayer.style.setProperty('--spotlight-width', `${activeSpotlightRect.width}px`)
+    spotlightLayer.style.setProperty('--spotlight-height', `${activeSpotlightRect.height}px`)
+    spotlightLayer.style.setProperty('--spotlight-color', spotlightColor)
+    spotlightLayer.style.borderRadius = spotlightRadius
+    spotlightLayer.dataset.spotlightActive = 'true'
+    return false
+  }
+
+  const queueSpotlight = () => {
+    if (spotlightQueued) return
+    spotlightQueued = true
+    addFrameTask(spotlightTask)
+  }
+
+  const bindSpotlights = (scope: Element, signal: AbortSignal) => {
+    const spotlightFor = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      const spotlight = target.closest<HTMLElement>('[data-spotlight], [data-tilt]')
+      return spotlight && scope.contains(spotlight) ? spotlight : null
+    }
+
+    scope.addEventListener(
+      'pointerover',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        const spotlight = spotlightFor(event.target)
+        if (!spotlight || spotlight === activeSpotlight) return
+        clearSpotlight()
+        activeSpotlight = spotlight
+        activeSpotlightRect = spotlight.getBoundingClientRect()
+        const spotlightStyle = getComputedStyle(spotlight)
+        spotlightRadius = spotlightStyle.borderRadius
+        spotlightColor =
+          spotlightStyle.getPropertyValue('--spotlight-color').trim() ||
+          spotlightStyle.getPropertyValue('--color-accent').trim() ||
+          '#52e198'
+        spotlightX = event.clientX
+        spotlightY = event.clientY
+        spotlight.dataset.spotlightActive = 'true'
+        queueSpotlight()
+      },
+      { passive: true, signal },
+    )
+
+    window.addEventListener('scroll', clearSpotlight, { passive: true, signal })
+    window.addEventListener('resize', clearSpotlight, { passive: true, signal })
+
+    scope.addEventListener(
+      'pointermove',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        if (!activeSpotlight) return
+        spotlightX = event.clientX
+        spotlightY = event.clientY
+        queueSpotlight()
+      },
+      { passive: true, signal },
+    )
+
+    scope.addEventListener(
+      'pointerout',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        if (!activeSpotlight) return
+        if (event.relatedTarget instanceof Node && activeSpotlight.contains(event.relatedTarget)) return
+        if (spotlightFor(event.relatedTarget) === activeSpotlight) return
+        clearSpotlight()
+      },
+      { passive: true, signal },
+    )
+  }
+
+  const resetTilt = () => {
+    if (activeTilt) {
+      activeTilt.style.setProperty('--tilt-axis-x', '0')
+      activeTilt.style.setProperty('--tilt-axis-y', '1')
+      activeTilt.style.setProperty('--tilt-angle', '0deg')
+      activeTilt.style.setProperty('--tilt-glow-x', '50%')
+      activeTilt.style.setProperty('--tilt-glow-y', '50%')
+      delete activeTilt.dataset.tiltActive
+    }
+    activeTilt = null
+    tiltRect = null
+  }
+
+  const tiltTask: FrameTask = () => {
+    tiltQueued = false
+    if (!activeTilt?.isConnected || !tiltRect) return false
+
+    const nx = clamp((tiltX - tiltRect.left) / tiltRect.width, 0, 1) * 2 - 1
+    const ny = clamp((tiltY - tiltRect.top) / tiltRect.height, 0, 1) * 2 - 1
+    const strength = clamp(
+      Number.parseFloat(activeTilt.dataset.tiltStrength ?? activeTilt.dataset.tilt ?? '5') || 5,
+      1,
+      10,
+    )
+    const magnitude = Math.min(1, Math.hypot(nx, ny))
+    const axisX = magnitude < 0.015 ? 0 : -ny
+    const axisY = magnitude < 0.015 ? 1 : nx
+
+    // CSS individual rotate 与组件自己的 transform 可组合，卡片原有 hover 位移不会被覆盖。
+    activeTilt.style.setProperty('--tilt-axis-x', `${axisX.toFixed(3)}`)
+    activeTilt.style.setProperty('--tilt-axis-y', `${axisY.toFixed(3)}`)
+    activeTilt.style.setProperty('--tilt-angle', `${(magnitude * strength).toFixed(2)}deg`)
+    activeTilt.style.setProperty('--tilt-glow-x', `${((nx + 1) * 50).toFixed(1)}%`)
+    activeTilt.style.setProperty('--tilt-glow-y', `${((ny + 1) * 50).toFixed(1)}%`)
+    activeTilt.dataset.tiltActive = 'true'
+    return false
+  }
+
+  const queueTilt = () => {
+    if (tiltQueued) return
+    tiltQueued = true
+    addFrameTask(tiltTask)
+  }
+
+  const bindTilts = (scope: Element, signal: AbortSignal) => {
+    const tiltFor = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      const element = target.closest<HTMLElement>('[data-tilt]')
+      return element && scope.contains(element) ? element : null
+    }
+
+    scope.addEventListener(
+      'pointerover',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        const element = tiltFor(event.target)
+        if (!element || element === activeTilt) return
+        resetTilt()
+        activeTilt = element
+        tiltRect = element.getBoundingClientRect()
+        tiltX = event.clientX
+        tiltY = event.clientY
+        queueTilt()
+      },
+      { passive: true, signal },
+    )
+
+    scope.addEventListener(
+      'pointermove',
+      (rawEvent) => {
+        if (!activeTilt) return
+        const event = rawEvent as PointerEvent
+        tiltX = event.clientX
+        tiltY = event.clientY
+        queueTilt()
+      },
+      { passive: true, signal },
+    )
+
+    scope.addEventListener(
+      'pointerout',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        if (!activeTilt) return
+        if (event.relatedTarget instanceof Node && activeTilt.contains(event.relatedTarget)) return
+        if (tiltFor(event.relatedTarget) === activeTilt) return
+        resetTilt()
+      },
+      { passive: true, signal },
+    )
+
+    const resetGeometry = () => resetTilt()
+    window.addEventListener('scroll', resetGeometry, { passive: true, signal })
+    window.addEventListener('resize', resetGeometry, { passive: true, signal })
+  }
+
+  const progressTask: FrameTask = () => {
+    progressQueued = false
+    if (!progressElement?.isConnected) return false
+    const scrolling = document.scrollingElement ?? document.documentElement
+    const maximum = Math.max(0, scrolling.scrollHeight - window.innerHeight)
+    const ratio = maximum === 0 ? 0 : clamp(window.scrollY / maximum, 0, 1)
+    progressElement.style.setProperty('--motion-progress', ratio.toFixed(5))
+    progressElement.dataset.progressActive = ratio > 0.002 ? 'true' : 'false'
+    return false
+  }
+
+  const queueProgress = () => {
+    if (progressQueued) return
+    progressQueued = true
+    addFrameTask(progressTask)
+  }
+
+  const ambientTask: FrameTask = () => {
+    ambientQueued = false
+    if (!ambientElement?.isConnected) return false
+    ambientElement.style.setProperty('--ambient-x', `${ambientX}px`)
+    ambientElement.style.setProperty('--ambient-y', `${ambientY}px`)
+    ambientElement.dataset.pointerActive = 'true'
+    return false
+  }
+
+  const queueAmbient = () => {
+    if (ambientQueued) return
+    ambientQueued = true
+    addFrameTask(ambientTask)
+  }
+
+  const parallaxTask: FrameTask = () => {
+    parallaxQueued = false
+    const viewportCenter = window.innerHeight / 2
+    activePageRoot?.querySelectorAll<HTMLElement>('[data-parallax]').forEach((element) => {
+      const amount = clamp(Number.parseFloat(element.dataset.parallax ?? '0.06') || 0.06, -0.2, 0.2)
+      const rect = element.getBoundingClientRect()
+      const distance = viewportCenter - (rect.top + rect.height / 2)
+      const offset = clamp(distance * amount, -28, 28)
+      element.style.setProperty('--parallax-y', `${offset.toFixed(2)}px`)
+    })
+    return false
+  }
+
+  const queueParallax = () => {
+    if (parallaxQueued) return
+    parallaxQueued = true
+    addFrameTask(parallaxTask)
+  }
+
+  const playPageEntrance = (signal: AbortSignal) => {
+    const root = document.documentElement
+    const scan = document.querySelector<HTMLElement>('[data-motion-page-scan]')
+    if (!scan) return
+    window.clearTimeout(pageMotionTimer)
+    delete root.dataset.pageMotion
+    // ClientRouter 可能复用同一个 document；强制读取一次布局，让连续两页都能重新播放。
+    void scan.offsetWidth
+    root.dataset.pageMotion = 'enter'
+    const finish = () => delete root.dataset.pageMotion
+    scan.addEventListener('animationend', finish, { once: true, signal })
+    pageMotionTimer = window.setTimeout(finish, 1100)
+  }
+
+  const bindGlobalDynamics = (scope: Element, state: MotionCapability, signal: AbortSignal) => {
+    progressElement = document.querySelector<HTMLElement>('[data-motion-progress]')
+    ambientElement = document.querySelector<HTMLElement>('[data-motion-ambient]')
+    queueProgress()
+
+    const onScroll = () => {
+      queueProgress()
+      queueParallax()
+    }
+    window.addEventListener('scroll', onScroll, { passive: true, signal })
+    window.addEventListener(
+      'resize',
+      () => {
+        queueProgress()
+        queueParallax()
+      },
+      { passive: true, signal },
+    )
+
+    if (!state.enabled) return
+    playPageEntrance(signal)
+    queueParallax()
+
+    if (!state.finePointer) return
+    document.addEventListener(
+      'pointermove',
+      (rawEvent) => {
+        const event = rawEvent as PointerEvent
+        ambientX = event.clientX
+        ambientY = event.clientY
+        queueAmbient()
+      },
+      { passive: true, signal },
+    )
+    document.addEventListener(
+      'pointerleave',
+      () => {
+        if (ambientElement) delete ambientElement.dataset.pointerActive
+        resetTilt()
+        clearSpotlight()
+      },
+      { passive: true, signal },
+    )
+    window.addEventListener(
+      'blur',
+      () => {
+        if (ambientElement) delete ambientElement.dataset.pointerActive
+        resetTilt()
+        clearSpotlight()
+      },
+      { signal },
+    )
+    bindTilts(scope, signal)
+  }
+
+  function setupMotion(force = false) {
+    const pageRoot = document.querySelector('[data-motion-root]') ?? document.body
+    if (!pageRoot || (!force && pageRoot === activePageRoot && controller)) return
+
+    if (force && pageRoot === activePageRoot) restoreCounts(pageRoot)
+    controller?.abort()
+    observer?.disconnect()
+    resetFrameScheduler()
+    clearSpotlight()
+    resetTilt()
+    window.clearTimeout(pageMotionTimer)
+    countDescriptors.clear()
+
+    activePageRoot = pageRoot
+    controller = new AbortController()
+    const { signal } = controller
+    const state = capability()
+    clearBootstrapFallback()
+    normalizeAliases(pageRoot)
+
+    const reducedQuery = window.matchMedia(REDUCED_QUERY)
+    const pointerQuery = window.matchMedia(FINE_POINTER_QUERY)
+    reducedQuery.addEventListener('change', () => setupMotion(true), { signal })
+    pointerQuery.addEventListener('change', () => setupMotion(true), { signal })
+    ;(navigator as NavigatorWithHints).connection?.addEventListener('change', () => setupMotion(true), {
+      signal,
+    })
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden && frame) {
+          window.cancelAnimationFrame(frame)
+          frame = 0
+        } else scheduleFrame()
+      },
+      { signal },
+    )
+
+    bindGlobalDynamics(pageRoot, state, signal)
+
+    if (!state.enabled) {
+      restoreCounts(pageRoot)
+      pageRoot.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
+        element.dataset.revealState = 'visible'
+      })
+      setMotionMode(state)
+      return
+    }
+
+    prepareRevealStaggers(pageRoot)
+    pageRoot.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
+      element.dataset.revealState = element.dataset.revealSeen === 'true' ? 'visible' : 'waiting'
+    })
+    prepareCounts(pageRoot)
+
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            const element = entry.target as HTMLElement
+            if (element.dataset.revealState === 'waiting') reveal(element)
+            const descriptor = countDescriptors.get(element)
+            if (descriptor && element.dataset.countState === 'prepared') startCount(descriptor)
+            observer?.unobserve(element)
+          }
+        },
+        { rootMargin: '0px 0px 12% 0px', threshold: 0.08 },
+      )
+
+      const observed = new Set<Element>()
+      pageRoot.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
+        if (element.dataset.revealState === 'waiting') observed.add(element)
+      })
+      countDescriptors.forEach((_descriptor, element) => observed.add(element))
+      observed.forEach((element) => observer?.observe(element))
+    } else {
+      pageRoot.querySelectorAll<HTMLElement>('[data-reveal]').forEach(reveal)
+      countDescriptors.forEach(startCount)
+    }
+
+    if (state.finePointer) {
+      prepareSpotlightLayer()
+      bindSpotlights(pageRoot, signal)
+    }
+    setMotionMode(state)
+  }
+
+  setupMotion()
+  document.addEventListener('astro:page-load', () => setupMotion())
+</script>

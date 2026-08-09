@@ -3,7 +3,7 @@ title: 'Frida 常用 Hook 模式整理'
 description: '把平时反复写的那几段 Frida 脚本固化下来：Java 层重载定位、Native 导出函数、动态注册的 JNI、以及 dlopen 之后再挂钩子。'
 pubDate: 2026-01-16
 category: 'Android'
-tags: ['frida', 'hook', 'jni', '动态调试']
+tags: ['Frida', 'Hook', 'jni', '动态调试']
 ---
 
 Frida 的 API 不复杂，但每次现场写都要翻文档。这里把高频场景的模板存下来。

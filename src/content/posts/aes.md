@@ -121,21 +121,24 @@ PKCS#7是一种标准的块加密填充方式，适用于块大小为8~255字节
 - 兼容性好，广泛用于AES、DES等块加密算法
 - 可自动判断填充长度，解密时安全去除
 
+```python
+from Crypto.Util.Padding import pad, unpad
 
-    from Crypto.Util.Padding import pad, unpad
-    # 填充明文到块大小
-    def pad_plaintext(plaintext):
-        return pad(plaintext, AES.block_size)
-    # 去除填充
-    def unpad_plaintext(padded_plaintext):
-        return unpad(padded_plaintext, AES.block_size)
+# 填充明文到块大小
+def pad_plaintext(plaintext):
+    return pad(plaintext, AES.block_size)
 
-    # 示例
-    plaintext = b"Hello, World!"
-    padded_plaintext = pad_plaintext(plaintext)
-    ciphertext = aes_encrypt_cbc(key, padded_plaintext, iv)
-    decrypted_padded_plaintext = aes_decrypt_cbc(key, ciphertext, iv)
-    unpad_plaintext(decrypted_padded_plaintext)
+# 去除填充
+def unpad_plaintext(padded_plaintext):
+    return unpad(padded_plaintext, AES.block_size)
+
+# 示例
+plaintext = b"Hello, World!"
+padded_plaintext = pad_plaintext(plaintext)
+ciphertext = aes_encrypt_cbc(key, padded_plaintext, iv)
+decrypted_padded_plaintext = aes_decrypt_cbc(key, ciphertext, iv)
+unpad_plaintext(decrypted_padded_plaintext)
+```
 
 ### 加密
 

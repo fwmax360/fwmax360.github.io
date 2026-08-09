@@ -1,0 +1,376 @@
+/* ==========================================================================
+   全站克制动态系统
+   默认静态可读；仅当 head 中的能力探测确认可运行时才进入增强状态。
+   ========================================================================== */
+
+:root {
+  --motion-duration: 520ms;
+  --motion-distance: 12px;
+  --motion-delay: 0ms;
+}
+
+/* --------------------------------------------------------------------------
+   Motion v2 / persistent chrome
+   -------------------------------------------------------------------------- */
+
+.motion-progress {
+  --motion-progress: 0;
+  position: fixed;
+  z-index: 120;
+  inset: 0 0 auto;
+  block-size: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.motion-progress::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 0.025);
+}
+
+.motion-progress > span {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  transform: scaleX(var(--motion-progress));
+  transform-origin: left center;
+  background: linear-gradient(90deg, #30d989, #67e8f9 70%, #c4fff0);
+  box-shadow: 0 0 10px rgb(82 225 152 / 0.65), 0 0 24px rgb(103 232 249 / 0.2);
+  will-change: transform;
+}
+
+html[data-motion='ready'] .motion-progress[data-progress-active='true'] {
+  opacity: 0.92;
+}
+
+.motion-ambient,
+.motion-page-scan {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.motion-ambient {
+  --ambient-x: 50vw;
+  --ambient-y: 24vh;
+}
+
+.motion-cursor-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  inline-size: clamp(22rem, 38vw, 38rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate3d(calc(var(--ambient-x) - 50%), calc(var(--ambient-y) - 50%), 0);
+  background: radial-gradient(circle, rgb(74 222 128 / 0.075), rgb(34 211 238 / 0.025) 36%, transparent 70%);
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 420ms ease;
+  will-change: transform, opacity;
+}
+
+html[data-motion='ready'] .motion-ambient[data-pointer-active='true'] .motion-cursor-orb {
+  opacity: 1;
+}
+
+.motion-dust {
+  position: absolute;
+  inset: -12%;
+  opacity: 0;
+  background-repeat: repeat;
+  will-change: transform;
+}
+
+.motion-dust-a {
+  background-image:
+    radial-gradient(circle, rgb(129 255 197 / 0.34) 0 0.7px, transparent 1px),
+    radial-gradient(circle, rgb(103 232 249 / 0.18) 0 0.6px, transparent 0.9px);
+  background-position: 0 0, 37px 29px;
+  background-size: 83px 83px, 127px 127px;
+}
+
+.motion-dust-b {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.13) 0 0.55px, transparent 0.85px);
+  background-position: 19px 43px;
+  background-size: 157px 157px;
+}
+
+html[data-motion='ready'] .motion-dust-a {
+  opacity: 0.22;
+  animation: motion-dust-drift-a 28s linear infinite;
+}
+
+html[data-motion='ready'] .motion-dust-b {
+  opacity: 0.15;
+  animation: motion-dust-drift-b 38s linear infinite;
+}
+
+/* 首页的 APK 解剖台本身就是主光源：停掉通用光球、尘埃与入页横扫，
+   避免多个“主角”同时争夺注意力。旧浏览器忽略 :has 时仍保持原有氛围。 */
+@supports selector(body:has(*)) {
+  body:has([data-binary-xray]) .motion-cursor-orb,
+  body:has([data-binary-xray]) .motion-dust {
+    opacity: 0 !important;
+    animation: none !important;
+  }
+
+  html[data-motion='ready'][data-page-motion='enter'] body:has([data-binary-xray]) .motion-page-scan {
+    display: none;
+  }
+
+  html[data-motion='ready'] body:has([data-binary-xray]) .bg-grid {
+    animation-duration: 56s;
+  }
+
+  html[data-motion='ready'] body:has([data-binary-xray]) .bg-glow {
+    animation-duration: 18s;
+  }
+}
+
+.motion-page-scan {
+  z-index: 90;
+  display: none;
+  opacity: 0;
+  transform: translate3d(-115%, 0, 0);
+  background:
+    linear-gradient(90deg, transparent 0 72%, rgb(118 255 192 / 0.1) 86%, rgb(180 255 225 / 0.38) 86.35%, transparent 87%),
+    linear-gradient(90deg, transparent, rgb(52 211 153 / 0.018) 50%, transparent);
+  inline-size: min(48rem, 72vw);
+  mix-blend-mode: screen;
+}
+
+html[data-motion='ready'][data-page-motion='enter'] .motion-page-scan {
+  display: block;
+  animation: motion-page-scan 820ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Individual transform properties preserve existing component hover transforms. */
+html[data-motion='ready'] [data-tilt] {
+  --tilt-axis-x: 0;
+  --tilt-axis-y: 1;
+  --tilt-angle: 0deg;
+  --tilt-glow-x: 50%;
+  --tilt-glow-y: 50%;
+  rotate: var(--tilt-axis-x) var(--tilt-axis-y) 0 var(--tilt-angle);
+  transform-style: preserve-3d;
+  transform-origin: center;
+  transition: rotate 320ms var(--ease-out-expo);
+}
+
+html[data-motion='ready'] [data-tilt][data-tilt-active='true'] {
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+  will-change: rotate;
+}
+
+html[data-motion='ready'] [data-parallax] {
+  translate: 0 var(--parallax-y, 0);
+  will-change: translate;
+}
+
+html[data-motion='ready'] .bg-grid {
+  animation: motion-grid-drift 24s linear infinite;
+}
+
+html[data-motion='ready'] .bg-glow {
+  animation: motion-glow-breathe 8s ease-in-out infinite alternate;
+}
+
+@keyframes motion-page-scan {
+  0% {
+    opacity: 0;
+    transform: translate3d(-115%, 0, 0);
+  }
+  18% { opacity: 0.72; }
+  72% { opacity: 0.38; }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100vw + 20%), 0, 0);
+  }
+}
+
+@keyframes motion-dust-drift-a {
+  to { transform: translate3d(83px, -41px, 0); }
+}
+
+@keyframes motion-dust-drift-b {
+  to { transform: translate3d(-79px, -63px, 0); }
+}
+
+@keyframes motion-grid-drift {
+  to { background-position: 56px 28px, 28px 56px; }
+}
+
+@keyframes motion-glow-breathe {
+  from { opacity: 0.75; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1.025); }
+}
+
+html[data-motion='pending'] [data-reveal],
+html[data-motion='pending'] [data-reveal-item],
+html[data-motion='ready'] [data-reveal]:not([data-reveal-state='visible']) {
+  opacity: 0;
+  transform: translate3d(0, var(--motion-distance), 0);
+}
+
+html[data-motion='pending'] [data-count-up],
+html[data-motion='ready'] [data-count-up]:not([data-count-state]) {
+  visibility: hidden;
+}
+
+html[data-motion='ready'] [data-reveal] {
+  transition:
+    opacity var(--motion-duration) var(--ease-out-expo) var(--motion-delay),
+    transform var(--motion-duration) var(--ease-out-expo) var(--motion-delay);
+}
+
+html[data-motion='ready'] [data-reveal='fade'] {
+  transform: none;
+}
+
+html[data-motion='ready'] [data-reveal][data-reveal-state='visible'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html[data-motion='ready'] [data-reveal][data-reveal-state='waiting'] {
+  will-change: opacity, transform;
+}
+
+html[data-motion='ready'] [data-count-up][data-count-state] {
+  display: inline-block;
+  min-inline-size: var(--motion-count-width, auto);
+  visibility: visible;
+  font-variant-numeric: tabular-nums;
+  vertical-align: baseline;
+}
+
+html[data-motion='ready'] [data-count-up][data-count-state='prepared'] {
+  opacity: 0;
+}
+
+html[data-motion='ready'] [data-count-up][data-count-state='running'],
+html[data-motion='ready'] [data-count-up][data-count-state='done'] {
+  opacity: 1;
+}
+
+.motion-spotlight-layer {
+  display: none;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-motion='ready'] .motion-spotlight-layer {
+    --spotlight-x: 50%;
+    --spotlight-y: 50%;
+    display: block;
+    position: fixed;
+    z-index: 2;
+    left: var(--spotlight-left, 0);
+    top: var(--spotlight-top, 0);
+    width: var(--spotlight-width, 0);
+    height: var(--spotlight-height, 0);
+    background: radial-gradient(
+      circle 11rem at var(--spotlight-x) var(--spotlight-y),
+      rgb(82 225 152 / 0.09),
+      transparent 72%
+    );
+    opacity: 0;
+    mix-blend-mode: screen;
+    transition: opacity 180ms ease-out;
+  }
+
+  html[data-motion='ready'] .motion-spotlight-layer[data-spotlight-active='true'] {
+    opacity: 1;
+  }
+
+  @supports (color: color-mix(in srgb, white, transparent)) {
+    html[data-motion='ready'] .motion-spotlight-layer {
+      background: radial-gradient(
+        circle 11rem at var(--spotlight-x) var(--spotlight-y),
+        color-mix(in srgb, var(--spotlight-color, var(--color-accent)) 9%, transparent),
+        transparent 72%
+      );
+    }
+  }
+}
+
+/* Save-Data / 低硬件 / 减弱动效由 data-motion=off 统一关闭旧的非必要氛围层。 */
+html[data-motion='off'] .scroll-miku,
+html[data-motion='off'] #live2d-host,
+html[data-motion='off'] #live2d-widget,
+html[data-motion='off'] .motion-progress,
+html[data-motion='off'] .motion-ambient,
+html[data-motion='off'] .motion-page-scan {
+  display: none !important;
+}
+
+html[data-motion='off'] [data-tilt] {
+  rotate: none !important;
+}
+
+html[data-motion='off'] [data-parallax] {
+  translate: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-count-up] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .motion-spotlight-layer,
+  .motion-progress,
+  .motion-ambient,
+  .motion-page-scan,
+  .scroll-miku,
+  #live2d-host,
+  #live2d-widget {
+    display: none !important;
+  }
+
+  [data-tilt] {
+    rotate: none !important;
+  }
+
+  [data-parallax] {
+    translate: none !important;
+  }
+}
+
+@media print {
+  [data-reveal],
+  [data-count-up] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .motion-spotlight-layer,
+  .motion-progress,
+  .motion-ambient,
+  .motion-page-scan,
+  .scroll-miku,
+  #live2d-host,
+  #live2d-widget {
+    display: none !important;
+  }
+
+  [data-tilt] {
+    rotate: none !important;
+  }
+
+  [data-parallax] {
+    translate: none !important;
+  }
+}

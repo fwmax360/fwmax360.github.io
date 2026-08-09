@@ -1,5 +1,6 @@
 ---
 import type { MarkdownHeading } from 'astro'
+import { tracePcAddress, traceSlugFromPathname } from '../lib/traceAddress'
 
 interface Props {
   headings: MarkdownHeading[]
@@ -11,6 +12,11 @@ const { headings, variant = 'rail' } = Astro.props
 // 只取 h2/h3，更深的层级在侧栏里没有可读性
 const items = headings.filter((h) => h.depth >= 2 && h.depth <= 3)
 const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
+const traceSlug = traceSlugFromPathname(Astro.url.pathname)
+const traceItems = items.map((heading, index) => ({
+  ...heading,
+  tracePc: tracePcAddress(traceSlug, heading.slug, index),
+}))
 ---
 
 {
@@ -19,31 +25,58 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
       {variant === 'mobile' ? (
         <details class="toc-fold">
           <summary class="toc-summary mono">
-            <span>// contents</span>
-            <span class="toc-count">{items.length}</span>
+            <span class="toc-summary-title">
+              <span class="toc-prompt" aria-hidden="true">//</span>
+              contents
+            </span>
+            <span class="toc-summary-meta">
+              <span class="toc-count">{items.length} sections</span>
+              <span class="toc-position" data-toc-position>00/{String(items.length).padStart(2, '0')}</span>
+              <span class="toc-chevron" aria-hidden="true"></span>
+            </span>
+            <span class="toc-summary-progress" aria-hidden="true"><i></i></span>
           </summary>
-          <ol class="toc-list">
-            {items.map((h) => (
-              <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
-                <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug}>
-                  {h.text}
-                </a>
-              </li>
-            ))}
-          </ol>
+          <div class="toc-scroll">
+            <ol class="toc-list">
+              {traceItems.map((h, i) => (
+                <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
+                  <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug} data-trace-pc={h.tracePc}>
+                    <span class="toc-index mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="toc-text">{h.text}</span>
+                    <span class="toc-address mono" aria-hidden="true">{h.tracePc}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
         </details>
       ) : (
         <>
-          <h2 class="kicker toc-head">// contents</h2>
-          <ol class="toc-list">
-            {items.map((h) => (
-              <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
-                <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug}>
-                  {h.text}
-                </a>
-              </li>
-            ))}
-          </ol>
+          <div class="toc-head">
+            <h2 class="kicker">// contents</h2>
+            <span class="toc-count mono" data-toc-position>00/{String(items.length).padStart(2, '0')}</span>
+          </div>
+          <div class="toc-current">
+            <p data-toc-current aria-live="polite">opening record</p>
+            <span class="toc-current-register mono" aria-hidden="true">
+              <i>PC</i>
+              <b data-toc-pc-current>0x--------</b>
+            </span>
+          </div>
+          <div class="toc-scroll" data-toc-scroll>
+            <span class="toc-cursor" data-toc-cursor aria-hidden="true"></span>
+            <ol class="toc-list">
+              {traceItems.map((h, i) => (
+                <li class="toc-item" style={`--indent:${h.depth - minDepth}`}>
+                  <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug} data-trace-pc={h.tracePc}>
+                    <span class="toc-index mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="toc-text">{h.text}</span>
+                    <span class="toc-address mono" aria-hidden="true">{h.tracePc}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
         </>
       )}
     </nav>
@@ -52,75 +85,285 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
 
 <style>
   .toc {
+    --toc-progress: 0%;
     font-size: 0.8rem;
   }
 
   .toc-head {
-    padding-bottom: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.65rem;
     border-bottom: 1px solid var(--color-line-bright);
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.45rem;
   }
 
-  .toc-list {
+  .toc-head .toc-count {
+    display: inline-grid;
+    min-width: 1.45rem;
+    height: 1.15rem;
+    place-items: center;
+    border: 1px solid var(--color-line);
+    color: var(--color-faint);
+    font-size: 0.61rem;
+    line-height: 1;
+  }
+
+  .toc-current {
+    min-height: 2.45rem;
+    margin: -0.05rem 0 0.5rem;
+    padding: 0.4rem 0.5rem 0.45rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .toc-current > p {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.67rem;
+    font-weight: 540;
+    line-height: 1.45;
+    text-wrap: balance;
+  }
+
+  .toc-current-register {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.34rem;
+    padding-top: 0.3rem;
+    border-top: 1px dashed color-mix(in srgb, var(--color-line) 72%, transparent);
+    font-style: normal;
+  }
+
+  .toc-current-register i {
+    color: var(--color-faint);
+    font-size: 0.47rem;
+    font-style: normal;
+    letter-spacing: 0.12em;
+  }
+
+  .toc-current-register b {
+    color: color-mix(in srgb, var(--color-accent) 70%, var(--color-dim));
+    font-size: 0.52rem;
+    font-weight: 540;
+    letter-spacing: 0.03em;
+  }
+
+  .toc-scroll {
+    position: relative;
     max-height: calc(100vh - var(--nav-offset, var(--nav-h)) - 12rem);
     max-height: calc(100dvh - var(--nav-offset, var(--nav-h)) - 12rem);
     overflow-y: auto;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
   }
 
-  .toc.mobile .toc-list {
+  .toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc.mobile .toc-scroll {
     max-height: none;
-    margin-top: 0.35rem;
   }
 
   .toc-item {
-    padding-left: calc(var(--indent) * 0.9rem);
+    position: relative;
+    padding-left: calc(var(--indent) * 0.78rem);
+  }
+
+  .toc-item::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: -2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-line-bright);
+    opacity: 0;
+    transform: translateY(-50%) scale(0.6);
+    transition:
+      opacity 0.2s ease,
+      transform 0.3s var(--ease-out-expo),
+      background 0.2s ease;
+  }
+
+  .toc-item:has(.toc-link.passed)::before,
+  .toc-item:has(.toc-link.active)::before {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  .toc-item:has(.toc-link.passed)::before {
+    background: color-mix(in srgb, var(--color-accent) 40%, var(--color-line-bright));
+  }
+
+  .toc-item:has(.toc-link.active)::before {
+    background: var(--color-accent);
+    box-shadow: 0 0 0.55rem color-mix(in srgb, var(--color-accent) 48%, transparent);
   }
 
   .toc-link {
-    display: block;
-    padding: 0.3rem 0 0.3rem 0.7rem;
-    border-left: 1px solid var(--color-line);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.5rem;
+    align-items: baseline;
+    min-width: 0;
+    padding: 0.38rem 0.35rem 0.38rem 0.65rem;
     color: var(--color-faint);
     text-decoration: none;
     line-height: 1.5;
+    background: transparent;
     transition:
       color 0.18s,
-      border-color 0.18s;
+      background 0.18s,
+      padding-left 0.22s var(--ease-out-expo);
   }
 
   .toc-link:hover {
     color: var(--color-text);
-    border-color: var(--color-line-bright);
+    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
   }
 
   .toc-link.active {
     color: var(--color-accent);
-    border-color: var(--color-accent);
+    padding-left: 0.82rem;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 82%);
+  }
+
+  .toc-link.passed:not(.active) {
+    color: color-mix(in srgb, var(--color-dim) 76%, var(--color-faint));
+  }
+
+  .toc-index {
+    display: none;
+    color: var(--color-line-bright);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    transition: color 0.18s;
+  }
+
+  .toc.mobile .toc-index {
+    display: inline;
+  }
+
+  .toc.mobile .toc-link {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .toc-text {
+    min-width: 0;
+  }
+
+  .toc-address {
+    color: color-mix(in srgb, var(--color-faint) 76%, transparent);
+    font-size: 0.48rem;
+    letter-spacing: 0.015em;
+    white-space: nowrap;
+    transition: color 0.18s, opacity 0.18s;
+  }
+
+  .toc-link.passed:not(.active) .toc-address {
+    opacity: 0.58;
+  }
+
+  .toc-link.active .toc-address {
+    color: var(--color-accent);
+    opacity: 1;
+  }
+
+  .toc-link.active .toc-index {
+    color: var(--color-accent-soft);
+  }
+
+  .toc-cursor {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1.75rem;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 38%, transparent);
+    transform: translateY(0);
+    transition:
+      transform 0.3s var(--ease-out-expo),
+      height 0.25s var(--ease-out-expo),
+      opacity 0.18s;
+  }
+
+  .toc-cursor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    transform: translateY(-50%);
+  }
+
+  html[data-motion='ready'] .toc-cursor::after {
+    animation: toc-node 2.4s ease-in-out infinite;
+  }
+
+  @keyframes toc-node {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent); }
+    50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent); }
   }
 
   .toc-fold {
     border: 1px solid var(--color-line);
+    border-top-color: var(--color-line-bright);
     border-radius: var(--radius);
     background: var(--color-bg-soft);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     margin-bottom: 2rem;
+    overflow: hidden;
   }
 
   .toc-summary {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.7rem 0.9rem;
+    min-height: 2.9rem;
+    padding: 0.7rem 0.85rem;
     cursor: pointer;
     list-style: none;
     color: var(--color-dim);
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .toc-summary-progress {
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+
+  .toc-summary-progress i {
+    display: block;
+    width: var(--toc-progress);
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent-soft), var(--color-accent));
+    box-shadow: 0 0 0.55rem color-mix(in srgb, var(--color-accent) 28%, transparent);
+    transition: width 0.28s var(--ease-out-expo);
   }
 
   .toc-summary::-webkit-details-marker {
@@ -131,11 +374,44 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
     color: var(--color-accent);
   }
 
-  .toc-count {
+  .toc-summary-title,
+  .toc-summary-meta {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .toc-summary-title {
+    gap: 0.45rem;
+  }
+
+  .toc-summary-meta {
+    gap: 0.65rem;
+  }
+
+  .toc-prompt {
+    color: var(--color-accent-soft);
+  }
+
+  .toc-summary .toc-count {
     font-size: 0.7rem;
     color: var(--color-faint);
     letter-spacing: 0;
     text-transform: none;
+  }
+
+  .toc-position {
+    color: color-mix(in srgb, var(--color-accent) 60%, var(--color-faint));
+    font-size: 0.55rem;
+    letter-spacing: 0.03em;
+  }
+
+  .toc-chevron {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg) translate(-1px, 1px);
+    transition: transform 0.22s var(--ease-out-expo);
   }
 
   .toc-fold[open] .toc-summary {
@@ -143,7 +419,11 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
     color: var(--color-accent);
   }
 
-  .toc-fold .toc-list {
+  .toc-fold[open] .toc-chevron {
+    transform: rotate(225deg) translate(-1px, 1px);
+  }
+
+  .toc-fold .toc-scroll {
     padding: 0.5rem 0.75rem 0.75rem;
   }
 
@@ -157,16 +437,55 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
       display: block;
     }
   }
+
+  @media (max-width: 480px) {
+    .toc-summary .toc-count {
+      font-size: 0.65rem;
+    }
+
+    .toc-fold .toc-scroll {
+      padding-inline: 0.55rem;
+    }
+
+    .toc-address {
+      font-size: 0.44rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc-cursor,
+    .toc-chevron,
+    .toc-link,
+    .toc-address {
+      transition: none;
+    }
+
+    .toc-summary-progress i {
+      transition: none;
+    }
+
+    .toc-cursor::after {
+      animation: none !important;
+    }
+  }
+
+  html[data-motion='off'] .toc-cursor::after {
+    animation: none;
+  }
 </style>
 
 <script>
   let observer: IntersectionObserver | null = null
   let ac: AbortController | null = null
+  let tocFrame = 0
 
   function setupToc() {
     observer?.disconnect()
     ac?.abort()
+    if (tocFrame) cancelAnimationFrame(tocFrame)
+    tocFrame = 0
     ac = new AbortController()
+    const { signal } = ac
 
     const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')]
     if (!links.length) return
@@ -186,12 +505,77 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
 
     let current: string | null = null
 
+    const moveRailCursor = (slug: string) => {
+      document.querySelectorAll<HTMLElement>('[data-toc-scroll]').forEach((scroll) => {
+        const cursor = scroll.querySelector<HTMLElement>('[data-toc-cursor]')
+        const link = [...scroll.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')].find(
+          (candidate) => candidate.dataset.tocLink === slug,
+        )
+        if (!cursor || !link) return
+
+        cursor.style.height = `${link.offsetHeight}px`
+        cursor.style.transform = `translateY(${link.offsetTop}px)`
+        cursor.style.opacity = '1'
+
+        const top = link.offsetTop
+        const bottom = top + link.offsetHeight
+        if (top < scroll.scrollTop + 4) scroll.scrollTop = Math.max(0, top - 8)
+        else if (bottom > scroll.scrollTop + scroll.clientHeight - 4) {
+          scroll.scrollTop = bottom - scroll.clientHeight + 8
+        }
+      })
+    }
+
     const setActive = (slug: string) => {
       if (slug === current) return
-      if (current) bySlug.get(current)?.forEach((l) => l.classList.remove('active'))
-      bySlug.get(slug)?.forEach((l) => l.classList.add('active'))
+      if (current) {
+        bySlug.get(current)?.forEach((l) => {
+          l.classList.remove('active')
+          l.removeAttribute('aria-current')
+        })
+      }
+      bySlug.get(slug)?.forEach((l) => {
+        l.classList.add('active')
+        l.setAttribute('aria-current', 'location')
+      })
       current = slug
+      const activeIndex = [...bySlug.keys()].indexOf(slug)
+      const progress = targets.length ? ((activeIndex + 1) / targets.length) * 100 : 0
+      links.forEach((link) => {
+        const linkIndex = [...bySlug.keys()].indexOf(link.dataset.tocLink ?? '')
+        link.classList.toggle('passed', linkIndex >= 0 && linkIndex < activeIndex)
+      })
+      document.querySelectorAll<HTMLElement>('[data-toc]').forEach((toc) => {
+        toc.style.setProperty('--toc-progress', `${progress}%`)
+      })
+      document.querySelectorAll<HTMLElement>('[data-toc-position]').forEach((node) => {
+        node.textContent = `${String(activeIndex + 1).padStart(2, '0')}/${String(targets.length).padStart(2, '0')}`
+      })
+      const activeHeading = targets[activeIndex]
+      document.querySelectorAll<HTMLElement>('[data-toc-current]').forEach((node) => {
+        node.textContent = activeHeading?.textContent?.trim() || 'current section'
+      })
+      const pc = bySlug.get(slug)?.[0]?.dataset.tracePc ?? '0x--------'
+      document.querySelectorAll<HTMLElement>('[data-toc-pc-current]').forEach((node) => {
+        node.textContent = pc
+      })
+      moveRailCursor(slug)
     }
+
+    const syncFromScroll = () => {
+      tocFrame = 0
+      const scanLine = window.innerHeight * 0.24
+      const active =
+        [...targets].reverse().find((target) => target.getBoundingClientRect().top <= scanLine)?.id ??
+        targets[0]?.id
+      if (active) setActive(active)
+    }
+
+    const requestScrollSync = () => {
+      if (!tocFrame) tocFrame = requestAnimationFrame(syncFromScroll)
+    }
+
+    syncFromScroll()
 
     observer = new IntersectionObserver(
       (entries) => {
@@ -204,13 +588,15 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
           return
         }
 
-        const above = targets.filter((t) => t.getBoundingClientRect().top < window.innerHeight * 0.35)
+        const above = targets.filter((t) => t.getBoundingClientRect().top < window.innerHeight * 0.24)
         if (above.length) setActive(above[above.length - 1].id)
       },
-      { rootMargin: '-15% 0px -65% 0px', threshold: 0 },
+      { rootMargin: '-23% 0px -75% 0px', threshold: 0 },
     )
 
     targets.forEach((t) => observer!.observe(t))
+    window.addEventListener('scroll', requestScrollSync, { passive: true, signal })
+    window.addEventListener('resize', requestScrollSync, { passive: true, signal })
 
     // 移动端点目录项后收起
     document.querySelectorAll<HTMLDetailsElement>('.toc-fold').forEach((fold) => {
@@ -218,12 +604,23 @@ const minDepth = items.length ? Math.min(...items.map((h) => h.depth)) : 2
         a.addEventListener(
           'click',
           () => {
+            const slug = (a as HTMLAnchorElement).dataset.tocLink
+            if (slug) setActive(slug)
             fold.open = false
           },
-          { signal: ac!.signal },
+          { signal },
         )
       })
     })
+
+    window.addEventListener(
+      'hashchange',
+      () => {
+        const slug = decodeURIComponent(location.hash.slice(1))
+        if (bySlug.has(slug)) setActive(slug)
+      },
+      { signal },
+    )
   }
 
   setupToc()

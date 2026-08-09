@@ -1,0 +1,500 @@
+/* ==========================================================================
+   JMP / control-transfer overlay
+   纯展示层：不接收指针、不锁焦点，实际导航仍由 Astro ClientRouter 完成。
+   ========================================================================== */
+
+.jmp-transition {
+  --jmp-accent: var(--color-accent, #52e198);
+  --jmp-cyan: #67e8f9;
+  --jmp-duration: 520ms;
+  --jmp-origin-x: 50vw;
+  --jmp-origin-y: 50vh;
+  position: fixed;
+  z-index: 180;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--color-text-strong, #edf5f1);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  isolation: isolate;
+  contain: layout paint;
+  view-transition-name: jmp-transition-overlay;
+}
+
+.jmp-transition[data-jmp-phase='depart'],
+.jmp-transition[data-jmp-phase='arrive'] {
+  visibility: visible;
+}
+
+.jmp-transition[data-jmp-phase='depart'] {
+  opacity: 1;
+}
+
+.jmp-transition__veil {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(2 5 7 / 0.96), rgb(5 11 13 / 0.91) 52%, rgb(2 5 7 / 0.96)),
+    repeating-linear-gradient(90deg, transparent 0 55px, rgb(103 232 249 / 0.035) 55px 56px);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.jmp-transition__veil::before,
+.jmp-transition__veil::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  block-size: 1px;
+  background: linear-gradient(90deg, transparent, var(--jmp-accent), var(--jmp-cyan), transparent);
+  box-shadow: 0 0 18px rgb(82 225 152 / 0.28);
+  opacity: 0.7;
+}
+
+.jmp-transition__veil::before { top: 18%; }
+.jmp-transition__veil::after { bottom: 18%; }
+
+.jmp-transition__scan {
+  position: absolute;
+  z-index: -1;
+  inset-block: 0;
+  left: -18%;
+  inline-size: 18%;
+  opacity: 0;
+  transform: skewX(-10deg);
+  background: linear-gradient(90deg, transparent, rgb(103 232 249 / 0.11), rgb(203 255 235 / 0.48), transparent);
+  mix-blend-mode: screen;
+}
+
+.jmp-transition__route {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  opacity: 0;
+}
+
+.jmp-transition__route path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.jmp-transition__route-shadow {
+  stroke: rgb(0 0 0 / 0.72);
+  stroke-width: 5;
+}
+
+.jmp-transition__route-line {
+  stroke: var(--jmp-cyan);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 6px rgb(103 232 249 / 0.5));
+}
+
+.jmp-transition__callsite {
+  position: absolute;
+  z-index: 1;
+  left: var(--jmp-origin-x);
+  top: var(--jmp-origin-y);
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.72);
+}
+
+.jmp-transition__callsite::before,
+.jmp-transition__callsite::after {
+  content: '';
+  position: absolute;
+  background: color-mix(in srgb, var(--jmp-cyan) 70%, transparent);
+}
+
+.jmp-transition__callsite::before {
+  inset: 50% -0.38rem auto;
+  block-size: 1px;
+}
+
+.jmp-transition__callsite::after {
+  inset: -0.38rem 50% -0.38rem auto;
+  inline-size: 1px;
+}
+
+.jmp-transition__callsite i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--jmp-cyan);
+  box-shadow:
+    0 0 0 3px rgb(103 232 249 / 0.08),
+    0 0 18px rgb(103 232 249 / 0.36);
+  rotate: 45deg;
+}
+
+.jmp-transition__callsite span {
+  position: absolute;
+  left: calc(100% + 0.7rem);
+  top: 50%;
+  color: color-mix(in srgb, var(--jmp-cyan) 75%, var(--color-faint));
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  translate: 0 -50%;
+}
+
+.jmp-transition[data-jmp-origin='right'] .jmp-transition__callsite span {
+  right: calc(100% + 0.7rem);
+  left: auto;
+}
+
+.jmp-transition__packet {
+  position: relative;
+  z-index: 2;
+  inline-size: min(44rem, calc(100vw - 3rem));
+  padding: clamp(1.15rem, 2.8vw, 2rem);
+  border: 1px solid rgb(113 147 141 / 0.34);
+  background:
+    linear-gradient(135deg, rgb(82 225 152 / 0.045), transparent 38%),
+    rgb(5 9 12 / 0.84);
+  box-shadow:
+    0 2rem 7rem rgb(0 0 0 / 0.62),
+    inset 3px 0 0 rgb(82 225 152 / 0.78),
+    inset 0 1px 0 rgb(255 255 255 / 0.035);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.985);
+  clip-path: inset(0 100% 0 0);
+}
+
+.jmp-transition__packet::before,
+.jmp-transition__packet::after {
+  content: '';
+  position: absolute;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-color: var(--jmp-accent);
+  opacity: 0.68;
+}
+
+.jmp-transition__packet::before {
+  top: -1px;
+  right: -1px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.jmp-transition__packet::after {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.jmp-transition__head,
+.jmp-transition__foot,
+.jmp-transition__trace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-faint, #76847f);
+  font-size: 0.58rem;
+  line-height: 1.5;
+  letter-spacing: 0.105em;
+  text-transform: uppercase;
+}
+
+.jmp-transition__head {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgb(113 147 141 / 0.22);
+}
+
+.jmp-transition__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-inline-size: 0;
+  color: color-mix(in srgb, var(--jmp-accent) 78%, white);
+}
+
+.jmp-transition__source i {
+  flex: 0 0 auto;
+  inline-size: 0.38rem;
+  block-size: 0.38rem;
+  background: var(--jmp-accent);
+  box-shadow: 0 0 12px rgb(82 225 152 / 0.72);
+}
+
+.jmp-transition__instruction {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.75rem, 2vw, 1.4rem);
+  margin-top: clamp(1rem, 2.4vw, 1.45rem);
+  line-height: 1;
+}
+
+.jmp-transition__instruction strong {
+  color: var(--jmp-accent);
+  font-size: clamp(1.15rem, 2.5vw, 1.75rem);
+  font-weight: 590;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 24px rgb(82 225 152 / 0.2);
+}
+
+.jmp-transition__instruction span {
+  color: var(--jmp-cyan);
+  font-size: clamp(0.8rem, 1.55vw, 1rem);
+  letter-spacing: 0.12em;
+}
+
+.jmp-transition__target {
+  max-inline-size: 35rem;
+  margin: 0.7rem 0 1.15rem;
+  overflow: hidden;
+  color: var(--color-text-strong, #edf5f1);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 650;
+  line-height: 1.24;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.jmp-transition__trace {
+  justify-content: flex-start;
+  padding: 0.62rem 0.72rem;
+  border-block: 1px solid rgb(113 147 141 / 0.18);
+  background: rgb(0 0 0 / 0.18);
+  text-transform: none;
+}
+
+.jmp-transition__trace > span:first-child {
+  flex: 0 0 auto;
+  color: var(--jmp-accent);
+  letter-spacing: 0.12em;
+}
+
+.jmp-transition__trace > span:last-child {
+  min-inline-size: 0;
+  overflow: hidden;
+  color: var(--color-dim, #9ba8a3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jmp-transition__foot {
+  margin-top: 0.82rem;
+}
+
+.jmp-transition__foot > span:first-child {
+  max-inline-size: 68%;
+  overflow: hidden;
+  color: var(--color-dim, #9ba8a3);
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.jmp-transition__progress {
+  position: absolute;
+  inset: auto 0 0;
+  block-size: 2px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.025);
+}
+
+.jmp-transition__progress i {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  background: linear-gradient(90deg, var(--jmp-accent), var(--jmp-cyan), #d8fff1);
+  box-shadow: 0 0 16px rgb(103 232 249 / 0.46);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__veil {
+  animation: jmp-veil-in 145ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__scan {
+  animation: jmp-scan var(--jmp-duration) cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__packet {
+  animation: jmp-packet-in 220ms 45ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__route {
+  opacity: 1;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__route path {
+  animation: jmp-route-draw 300ms 22ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__callsite {
+  animation: jmp-callsite-lock 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__instruction,
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__target,
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__trace,
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__foot {
+  animation: jmp-data-resolve 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__instruction { animation-delay: 85ms; }
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__target { animation-delay: 125ms; }
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__trace { animation-delay: 165ms; }
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__foot { animation-delay: 195ms; }
+
+.jmp-transition[data-jmp-phase='depart'] .jmp-transition__progress i {
+  animation: jmp-progress var(--jmp-duration) linear both;
+}
+
+.jmp-transition[data-jmp-phase='arrive'] {
+  animation: jmp-overlay-out 200ms ease-out both;
+}
+
+.jmp-transition[data-jmp-mode='fade'][data-jmp-phase='depart'] .jmp-transition__veil {
+  animation-name: jmp-veil-fade;
+}
+
+@keyframes jmp-veil-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes jmp-veil-fade {
+  from { opacity: 0; transform: none; }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jmp-scan {
+  0% { left: -18%; opacity: 0; }
+  16% { opacity: 0.76; }
+  76% { opacity: 0.38; }
+  100% { left: 112%; opacity: 0; }
+}
+
+@keyframes jmp-route-draw {
+  from { stroke-dashoffset: 1; opacity: 0.2; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes jmp-callsite-lock {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(1.5) rotate(-18deg); }
+  58% { opacity: 1; }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+}
+
+@keyframes jmp-packet-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+    clip-path: inset(0 100% 0 0);
+  }
+  42% { opacity: 1; }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    clip-path: inset(0);
+  }
+}
+
+@keyframes jmp-data-resolve {
+  from { opacity: 0; transform: translate3d(0, 5px, 0); filter: blur(3px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); filter: none; }
+}
+
+@keyframes jmp-progress {
+  0% { transform: scaleX(0); }
+  72% { transform: scaleX(0.84); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes jmp-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@supports (view-transition-name: none) {
+  ::view-transition-group(jmp-transition-overlay) {
+    z-index: 2147483646;
+    animation-duration: 180ms;
+  }
+
+  ::view-transition-old(jmp-transition-overlay),
+  ::view-transition-new(jmp-transition-overlay) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .jmp-transition {
+    place-items: end center;
+    padding: 1rem;
+    padding-bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .jmp-transition__packet {
+    inline-size: 100%;
+    padding: 1rem;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .jmp-transition__callsite span {
+    display: none;
+  }
+
+  .jmp-transition__head > span:last-child,
+  .jmp-transition__foot > span:last-child {
+    display: none;
+  }
+
+  .jmp-transition__target {
+    font-size: clamp(1.15rem, 6vw, 1.55rem);
+  }
+
+  .jmp-transition__trace {
+    align-items: flex-start;
+  }
+
+  .jmp-transition__trace > span:last-child {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .jmp-transition__foot > span:first-child {
+    max-inline-size: 100%;
+  }
+}
+
+html[data-motion='off'] .jmp-transition {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jmp-transition {
+    display: none !important;
+  }
+}
+
+@media print {
+  .jmp-transition {
+    display: none !important;
+  }
+}

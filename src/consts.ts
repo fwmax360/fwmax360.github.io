@@ -1,5 +1,5 @@
 export const SITE = {
-  url: 'https://sleep4r.github.io',
+  url: 'https://fwmax360.github.io',
   title: 'sleep4r',
   /** 出现在浏览器标签和 RSS 里的副标题 */
   subtitle: 'Android Reverse Engineering & Binary Security',
@@ -15,12 +15,14 @@ export const SITE = {
 export const NAV = [
   { label: 'home', href: '/' },
   { label: 'posts', href: '/archive' },
+  { label: 'series', href: '/series' },
+  { label: 'map', href: '/map' },
   { label: 'tags', href: '/tags' },
   { label: 'about', href: '/about' },
 ] as const
 
 export const SOCIAL = [
-  { label: 'GitHub', href: 'https://github.com/sleep4r', icon: 'github' },
+  { label: 'GitHub', href: 'https://github.com/fwmax360', icon: 'github' },
   /** 给人看的订阅页；原始 feed 在 /rss.xml */
   { label: 'RSS', href: '/rss/', icon: 'rss' },
 ] as const
@@ -31,7 +33,7 @@ export const SOCIAL = [
  */
 export const COMMENTS = {
   enabled: false,
-  repo: 'sleep4r/sleep4r.github.io',
+  repo: 'fwmax360/fwmax360.github.io',
   repoId: '',
   category: 'Announcements',
   categoryId: '',

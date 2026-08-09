@@ -18,31 +18,94 @@
   --color-text: #ccd4e0;
   --color-text-strong: #eef2f7;
   --color-dim: #8a97a8;
-  /* 提到 5:1 对比度，暗底上的次要信息此前几乎读不出来 */
-  --color-faint: #6b7a8a;
+  /* 小字号次要信息也保持足够对比度，避免在夜景背景上发灰 */
+  --color-faint: #768698;
 
   --color-accent: #3ddc84;
-  --color-accent-soft: #1e6b45;
+  --color-accent-soft: #2b8a59;
   --color-link: #7dd3fc;
   --color-warn: #f0b429;
   --color-danger: #f87171;
 
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --font-sans:
-    system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC',
-    sans-serif;
+  --color-panel: rgb(9 12 16 / 78%);
+  --color-panel-strong: rgb(10 13 18 / 92%);
+  --shadow-panel: 0 24px 80px -48px rgb(0 0 0 / 92%);
+  --shadow-accent: 0 0 32px rgb(61 220 132 / 8%);
+
+  --font-display:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-reading:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-sans: var(--font-reading);
+  --font-editorial:
+    'Geist Variable', 'Songti SC', 'STSong', 'Noto Serif SC Variable', serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* 工具面板而非 SaaS 卡片：容器只留一点圆角，小控件保持直角 */
-  --radius: 2px;
-  --radius-sm: 0px;
+  --radius: 4px;
+  --radius-sm: 2px;
 }
 
 /* 内容主列宽度。技术文章带宽代码块，比普通博客略宽 */
 @theme {
   --container-content: 46rem;
   --container-wide: 78rem;
+}
+
+/*
+ * 组件直接通过 var() 使用这些令牌。保留一份非 cascade-layer 的运行时定义，
+ * 让禁用 Tailwind theme layer 或旧式 WebView 也能完整呈现配色与控件。
+ */
+:root {
+  --nav-h: 3.75rem;
+  --nav-offset: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --color-bg: #0a0c10;
+  --color-bg-soft: rgb(13 16 21 / 38%);
+  --color-surface: rgb(18 22 29 / 44%);
+  --color-surface-2: rgb(23 28 37 / 52%);
+  --color-line: #1f2630;
+  --color-line-bright: #2b3441;
+  --color-text: #ccd4e0;
+  --color-text-strong: #eef2f7;
+  --color-dim: #8a97a8;
+  --color-faint: #768698;
+  --color-accent: #3ddc84;
+  --color-accent-soft: #2b8a59;
+  --color-link: #7dd3fc;
+  --color-warn: #f0b429;
+  --color-danger: #f87171;
+  --color-panel: rgb(9 12 16 / 78%);
+  --color-panel-strong: rgb(10 13 18 / 92%);
+  --shadow-panel: 0 24px 80px -48px rgb(0 0 0 / 92%);
+  --shadow-accent: 0 0 32px rgb(61 220 132 / 8%);
+  --font-display:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-reading:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-sans: var(--font-reading);
+  --font-editorial:
+    'Geist Variable', 'Songti SC', 'STSong', 'Noto Serif SC Variable', serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius: 4px;
+  --radius-sm: 2px;
+  --container-content: 46rem;
+  --container-wide: 78rem;
+  --glass-blur: blur(16px) saturate(1.25);
 }
 
 @layer base {
@@ -83,8 +146,15 @@
     font-size: 1rem;
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-synthesis: style;
     text-rendering: optimizeLegibility;
     overflow-wrap: break-word;
+    letter-spacing: 0;
+  }
+
+  :where(h1, h2, h3) {
+    font-family: var(--font-display);
   }
 
   ::selection {
@@ -115,6 +185,15 @@
   }
 }
 
+/* Curated long-form accents: the serif role is deliberately sparse. */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-editorial {
+  font-family: var(--font-editorial);
+}
+
 /* ==========================================================================
    背景：极淡初音夜景 + 网格 + 顶部辉光（不抢正文）
    ========================================================================== */
@@ -129,8 +208,9 @@
     background-position: 72% 18%;
     background-repeat: no-repeat;
     /* screen：抬月亮/灯火；内容在 .page-fg 之上 */
-    opacity: 0.36;
+    opacity: 0.31;
     mix-blend-mode: screen;
+    filter: saturate(0.78) contrast(1.06);
     -webkit-mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
     mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
   }
@@ -144,6 +224,7 @@
       linear-gradient(to right, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px),
       linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
     background-size: 56px 56px;
+    opacity: 0.72;
     -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
     mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
   }
@@ -155,11 +236,13 @@
     height: 32rem;
     z-index: 0;
     pointer-events: none;
-    background: radial-gradient(
-      ellipse 60% 100% at 50% 0%,
-      color-mix(in srgb, var(--color-accent) 7%, transparent),
-      transparent 70%
-    );
+    background:
+      radial-gradient(
+        ellipse 55% 90% at 50% -8%,
+        color-mix(in srgb, var(--color-accent) 8%, transparent),
+        transparent 68%
+      ),
+      linear-gradient(180deg, rgb(4 7 9 / 5%), transparent 72%);
   }
 
   /* 段落标记：`// section` 这类等宽小标题 */
@@ -169,6 +252,7 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-faint);
+    font-weight: 520;
   }
 
   .rule {
@@ -183,8 +267,12 @@
 @layer components {
   .prose {
     font-size: 1rem;
-    line-height: 1.85;
+    line-height: 1.9;
     color: var(--color-text);
+  }
+
+  .prose p {
+    text-wrap: pretty;
   }
 
   .prose > * + * {
@@ -202,6 +290,7 @@
     line-height: 1.35;
     scroll-margin-top: calc(var(--nav-offset) + 1.5rem);
     position: relative;
+    text-wrap: balance;
   }
 
   .prose h2 {
@@ -300,10 +389,17 @@
   }
 
   .prose blockquote {
+    font-family: var(--font-editorial);
+    font-weight: 450;
+    letter-spacing: 0.01em;
+    line-height: 1.9;
+    border: 1px solid var(--color-line);
     border-left: 2px solid var(--color-accent-soft);
-    padding: 0.1em 0 0.1em 1.1em;
+    padding: 0.8em 1rem;
     color: var(--color-dim);
     font-style: normal;
+    background: linear-gradient(90deg, rgb(61 220 132 / 5%), transparent 55%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 2%);
   }
 
   .prose hr {
@@ -319,6 +415,7 @@
     border: 1px solid var(--color-line);
     display: block;
     margin-inline: auto;
+    box-shadow: 0 24px 70px -38px rgb(0 0 0 / 90%);
   }
 
   /* 行内代码。中文段落里往往一句话塞好几个，用满饱和的强调色会很吵，这里压到七成 */
@@ -331,6 +428,16 @@
     border: 1px solid var(--color-line);
     color: color-mix(in srgb, var(--color-accent) 62%, var(--color-text-strong));
     white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .prose :not(pre) > code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
   }
 
   /* 表格 */
@@ -405,10 +512,13 @@
     margin-bottom: 1.6em;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
-    background: var(--color-bg-soft);
+    background: var(--color-panel);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     overflow: hidden;
+    box-shadow:
+      var(--shadow-panel),
+      inset 0 1px 0 rgb(255 255 255 / 2%);
   }
 
   .code-head {
@@ -421,6 +531,17 @@
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-dim);
+  }
+
+  .code-head::before {
+    content: '';
+    width: 0.42rem;
+    height: 0.42rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 12px rgb(61 220 132 / 45%);
+    opacity: 0.72;
   }
 
   .code-lang {

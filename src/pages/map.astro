@@ -1,0 +1,181 @@
+---
+import KnowledgeMap from '../components/KnowledgeMap.astro'
+import Base from '../layouts/Base.astro'
+import { getKnowledgeMap } from '../lib/knowledgeMap'
+
+const map = await getKnowledgeMap()
+const description = `交互浏览 ${map.stats.posts} 篇技术文章与分类、系列、高频标签之间的知识关系。`
+---
+
+<Base title="交互知识图谱" description={description} width="wide">
+  <header class="map-hero">
+    <div class="hero-copy">
+      <p class="eyebrow mono"><span aria-hidden="true">~/</span> knowledge topology</p>
+      <h1 id="knowledge-map-title"><span class="prompt mono" aria-hidden="true">$</span> 交互知识图谱</h1>
+      <p>{description} 从中心节点出发，沿分类与系列路径定位文章，也可以通过标签信号发现跨主题连接。</p>
+    </div>
+
+    <dl class="hero-stats mono" aria-label="知识图谱统计">
+      <div>
+        <dt>nodes</dt>
+        <dd>{String(map.stats.posts).padStart(2, '0')}</dd>
+        <span>articles</span>
+      </div>
+      <div>
+        <dt>paths</dt>
+        <dd>{String(map.stats.categories + map.stats.series).padStart(2, '0')}</dd>
+        <span>taxonomies</span>
+      </div>
+      <div>
+        <dt>edges</dt>
+        <dd>{String(map.stats.relations).padStart(2, '0')}</dd>
+        <span>relations</span>
+      </div>
+    </dl>
+  </header>
+
+  <KnowledgeMap data={map} />
+</Base>
+
+<style>
+  .map-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3rem;
+    align-items: end;
+    overflow: hidden;
+    padding: 1.25rem 0 2.35rem;
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .map-hero::before {
+    content: '';
+    position: absolute;
+    right: 8%;
+    bottom: -9rem;
+    width: 26rem;
+    height: 26rem;
+    border: 1px solid rgb(82 225 152 / 0.11);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 4rem rgb(101 217 237 / 0.025),
+      0 0 0 8rem rgb(174 145 255 / 0.018);
+    pointer-events: none;
+  }
+
+  .map-hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: min(16rem, 44vw);
+    height: 1px;
+    background: linear-gradient(90deg, #52e198, #65d9ed 52%, transparent);
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 47rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.75rem;
+    color: var(--color-accent);
+    font-size: 0.67rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow span {
+    color: var(--color-faint);
+  }
+
+  h1 {
+    color: var(--color-text-strong);
+    font-size: clamp(2.15rem, 5.5vw, 3.55rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .prompt {
+    color: var(--color-accent);
+    font-weight: 450;
+  }
+
+  .hero-copy > p:last-child {
+    max-width: 44rem;
+    margin-top: 1rem;
+    color: var(--color-dim);
+    font-size: 0.94rem;
+    line-height: 1.8;
+  }
+
+  .hero-stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 5.4rem);
+    gap: 1rem;
+  }
+
+  .hero-stats div {
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--color-line-bright);
+  }
+
+  .hero-stats dt,
+  .hero-stats span {
+    display: block;
+    color: var(--color-faint);
+    font-size: 0.52rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .hero-stats dd {
+    margin: 0.22rem 0 0.1rem;
+    color: var(--color-text-strong);
+    font-size: 1.35rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .hero-stats div:nth-child(1) dd { color: #52e198; }
+  .hero-stats div:nth-child(2) dd { color: #65d9ed; }
+  .hero-stats div:nth-child(3) dd { color: #ae91ff; }
+
+  @media (max-width: 760px) {
+    .map-hero {
+      grid-template-columns: 1fr;
+      gap: 1.6rem;
+      padding-top: 0.5rem;
+    }
+
+    .hero-stats {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+    }
+
+    .hero-stats div {
+      padding-left: 0.6rem;
+    }
+  }
+
+  @media (max-width: 430px) {
+    h1 {
+      font-size: clamp(2rem, 11vw, 2.65rem);
+    }
+
+    .hero-copy > p:last-child {
+      font-size: 0.88rem;
+    }
+
+    .hero-stats span {
+      font-size: 0.46rem;
+    }
+  }
+</style>

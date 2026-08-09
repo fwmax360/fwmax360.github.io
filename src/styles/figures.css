@@ -1,0 +1,485 @@
+/* ==========================================================================
+   正文插图 + 沉浸查看器
+   JS 只补语义结构与状态；颜色、尺寸和响应式行为集中在这里。
+   ========================================================================== */
+
+.prose .prose-figure {
+  position: relative;
+  margin: 2.4rem 0;
+  padding: 0;
+}
+
+.prose .figure-trigger {
+  position: relative;
+  width: 100%;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-line-bright);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  color: inherit;
+  cursor: zoom-in;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.02),
+    0 24px 52px -44px rgb(0 0 0 / 0.95);
+  transition:
+    border-color 0.22s,
+    box-shadow 0.22s;
+}
+
+.prose .figure-trigger::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  background:
+    linear-gradient(var(--color-text), var(--color-text)) center / 0.65rem 1px no-repeat,
+    linear-gradient(var(--color-text), var(--color-text)) center / 1px 0.65rem no-repeat,
+    color-mix(in srgb, var(--color-bg) 76%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(-3px);
+  transition:
+    opacity 0.18s,
+    transform 0.22s var(--ease-out-expo),
+    border-color 0.18s;
+}
+
+.prose .figure-trigger::after {
+  content: 'VIEW';
+  position: absolute;
+  z-index: 2;
+  right: 0.75rem;
+  bottom: 0.65rem;
+  padding: 0.14rem 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 76%, transparent);
+  color: var(--color-dim);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity 0.18s,
+    transform 0.22s var(--ease-out-expo);
+}
+
+.prose .figure-trigger:hover,
+.prose .figure-trigger:focus-visible {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line-bright));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.025),
+    0 28px 58px -44px rgb(0 0 0 / 0.98);
+}
+
+.prose .figure-trigger:is(:hover, :focus-visible)::before,
+.prose .figure-trigger:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: none;
+}
+
+.prose .figure-trigger:is(:hover, :focus-visible)::before {
+  border-color: var(--color-accent-soft);
+}
+
+.prose .figure-trigger img,
+.prose .figure-trigger picture {
+  width: 100%;
+  display: block;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.prose .figure-trigger img {
+  height: auto;
+  transition:
+    transform 0.45s var(--ease-out-expo),
+    filter 0.25s;
+}
+
+.prose .figure-trigger:hover img {
+  transform: scale(1.008);
+  filter: saturate(1.04) contrast(1.015);
+}
+
+.prose .prose-figcaption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-top: 0.65rem;
+  padding: 0 0.15rem;
+  color: var(--color-faint);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.prose .figure-label {
+  color: var(--color-accent-soft);
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  white-space: nowrap;
+}
+
+.prose .figure-label::after {
+  content: '/';
+  margin-left: 0.65rem;
+  color: var(--color-line-bright);
+}
+
+.prose .figure-caption-text {
+  min-width: 0;
+}
+
+/* ---------- 原生 dialog 灯箱 ---------- */
+
+html.image-viewer-open {
+  overflow: hidden;
+}
+
+.image-viewer {
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: color-mix(in srgb, var(--color-bg) 94%, transparent);
+  color: var(--color-text);
+}
+
+.image-viewer::backdrop {
+  background: rgb(0 0 0 / 0.82);
+  -webkit-backdrop-filter: blur(12px) saturate(0.75);
+  backdrop-filter: blur(12px) saturate(0.75);
+}
+
+.image-viewer[open] {
+  display: block;
+}
+
+.image-viewer-shell {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding:
+    max(0.85rem, env(safe-area-inset-top, 0px))
+    max(1rem, env(safe-area-inset-right, 0px))
+    max(0.85rem, env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
+  background:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px),
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-surface-2) 50%, transparent), transparent 58%);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto;
+  animation: image-viewer-enter 0.24s var(--ease-out-expo) both;
+}
+
+@keyframes image-viewer-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.992);
+  }
+}
+
+.image-viewer-head,
+.image-viewer-foot {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 96rem);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-bg) 76%, transparent);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+.image-viewer-head {
+  min-height: 3rem;
+  justify-content: space-between;
+  padding: 0.45rem 0.5rem 0.45rem 0.8rem;
+  border-top-color: var(--color-line-bright);
+}
+
+.image-viewer-identity,
+.image-viewer-actions {
+  display: flex;
+  align-items: center;
+}
+
+.image-viewer-identity {
+  gap: 0.6rem;
+  color: var(--color-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.image-viewer-signal {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+.image-viewer-actions {
+  gap: 0.4rem;
+}
+
+.image-viewer-action,
+.image-viewer-close {
+  min-height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface) 56%, transparent);
+  color: var(--color-faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.16s,
+    border-color 0.16s,
+    background 0.16s;
+}
+
+.image-viewer-action {
+  min-width: 3.2rem;
+  gap: 0.35rem;
+  padding-inline: 0.65rem;
+}
+
+.image-viewer-action:hover,
+.image-viewer-action[aria-pressed='true'],
+.image-viewer-close:hover {
+  border-color: var(--color-accent-soft);
+  background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
+  color: var(--color-accent);
+}
+
+.image-viewer-close {
+  position: relative;
+  width: 2rem;
+  padding: 0;
+}
+
+.image-viewer-close span::before,
+.image-viewer-close span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background: currentColor;
+}
+
+.image-viewer-close span::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.image-viewer-close span::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.image-viewer-stage {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  overflow: hidden;
+  cursor: default;
+}
+
+.image-viewer-stage img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid color-mix(in srgb, var(--color-line-bright) 72%, transparent);
+  background: var(--color-bg);
+  box-shadow: 0 30px 80px -28px rgb(0 0 0 / 0.92);
+  cursor: zoom-in;
+  transition:
+    opacity 0.2s,
+    transform 0.28s var(--ease-out-expo);
+}
+
+.image-viewer[data-zoomed='true'] .image-viewer-stage {
+  display: block;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.image-viewer[data-zoomed='true'] .image-viewer-stage img {
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  cursor: zoom-out;
+}
+
+.image-viewer-foot {
+  min-height: 3rem;
+  justify-content: space-between;
+  padding: 0.65rem 0.8rem;
+  color: var(--color-dim);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.image-viewer-foot p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-viewer-dim {
+  flex: 0 0 auto;
+  color: var(--color-faint);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .prose .prose-figure {
+    margin-block: 2rem;
+  }
+
+  .prose .figure-trigger::before {
+    top: 0.55rem;
+    right: 0.55rem;
+    width: 2.15rem;
+    height: 2.15rem;
+    opacity: 0.82;
+    transform: none;
+  }
+
+  .prose .figure-trigger::after {
+    display: none;
+  }
+
+  .prose .prose-figcaption {
+    grid-template-columns: 1fr;
+    gap: 0.18rem;
+    margin-top: 0.55rem;
+    padding-inline: 0.1rem;
+  }
+
+  .prose .figure-label::after {
+    display: none;
+  }
+
+  .image-viewer-shell {
+    padding:
+      max(0.5rem, env(safe-area-inset-top, 0px))
+      max(0.55rem, env(safe-area-inset-right, 0px))
+      max(0.5rem, env(safe-area-inset-bottom, 0px))
+      max(0.55rem, env(safe-area-inset-left, 0px));
+    background-size:
+      32px 32px,
+      32px 32px,
+      auto;
+  }
+
+  .image-viewer-head {
+    min-height: 3.15rem;
+    padding-left: 0.65rem;
+  }
+
+  .image-viewer-action,
+  .image-viewer-close {
+    min-height: 2.35rem;
+  }
+
+  .image-viewer-action {
+    min-width: 2.8rem;
+    padding-inline: 0.55rem;
+  }
+
+  .image-viewer-close {
+    width: 2.35rem;
+  }
+
+  .image-viewer-stage {
+    padding: 0.75rem 0;
+  }
+
+  .image-viewer-foot {
+    min-height: 3.4rem;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 0.6rem 0.65rem;
+  }
+
+  .image-viewer-foot p {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@media (max-width: 420px) {
+  .image-viewer-action[data-viewer-original] {
+    font-size: 0;
+  }
+
+  .image-viewer-action[data-viewer-original]::before {
+    content: 'open';
+    font-size: 0.64rem;
+  }
+
+  .image-viewer-action[data-viewer-original] span {
+    font-size: 0.64rem;
+  }
+
+  .image-viewer-dim {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose .figure-trigger,
+  .prose .figure-trigger::before,
+  .prose .figure-trigger::after,
+  .prose .figure-trigger img,
+  .image-viewer-shell,
+  .image-viewer-stage img {
+    animation: none;
+    transition: none;
+  }
+
+  .prose .figure-trigger:hover img {
+    transform: none;
+  }
+}

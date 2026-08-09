@@ -1,0 +1,507 @@
+---
+import type { Post } from '../lib/posts'
+import { postUrl, readingStats } from '../lib/posts'
+import type { SeriesSummary } from '../lib/series'
+import { seriesUrl } from '../lib/series'
+import { coverSvgUrl } from '../lib/covers'
+import { getSeriesVisual } from '../lib/seriesVisual'
+
+interface Props {
+  start?: SeriesSummary
+  deep?: Post
+  postsCount: number
+  pathsCount: number
+  tagsCount: number
+}
+
+const { start, deep, postsCount, pathsCount, tagsCount } = Astro.props
+const startVisual = start ? getSeriesVisual(start.name) : null
+const deepStats = deep ? readingStats(deep.body ?? '') : null
+---
+
+<section class="editorial" aria-labelledby="editorial-title" data-reveal="section" data-reveal-stagger="70">
+  <header class="editorial-head">
+    <div>
+      <p class="mono"><i aria-hidden="true"></i> EDITOR'S ROUTES / CURATED</p>
+      <h2 id="editorial-title">Choose an entry point</h2>
+    </div>
+    <span class="editorial-note mono">three ways into the archive</span>
+  </header>
+
+  <div class="editorial-grid">
+    {
+      start && startVisual && (
+        <a
+          class="route-card route-start"
+          href={seriesUrl(start.name)}
+          style={`--route-accent:${startVisual.palette.accent};--route-glow:${startVisual.palette.glow}`}
+          data-reveal="up"
+          data-spotlight
+          data-tilt="3"
+        >
+          <span class="route-index mono">ROUTE / 01</span>
+          <span class="route-mark mono" aria-hidden="true">{startVisual.mark}</span>
+          <span class="route-ladder" aria-hidden="true" data-parallax="0.10"><i></i><i></i><i></i><i></i></span>
+          <span class="route-kicker mono">start here · {startVisual.code}</span>
+          <strong>{start.name}</strong>
+          <small>沿章节顺序建立基础路径，共 {start.count} 篇。</small>
+          <span class="route-open mono">open learning path <i aria-hidden="true">↗</i></span>
+        </a>
+      )
+    }
+
+    {
+      deep && deepStats && (
+        <a
+          class="route-card route-deep"
+          href={postUrl(deep)}
+          data-reveal="up"
+          data-spotlight
+          data-tilt="3"
+          data-jmp
+          data-jmp-source="editorial / deep dive"
+          data-jmp-title={deep.data.title}
+        >
+          <span class="route-cover" aria-hidden="true" data-no-viewer data-parallax="0.08">
+            <img src={coverSvgUrl(deep)} alt="" width="1200" height="630" loading="lazy" decoding="async" data-no-viewer />
+          </span>
+          <span class="route-index mono">ROUTE / 02</span>
+          <span class="route-kicker mono">essential dossier · {deepStats.minutes} min</span>
+          <strong>{deep.data.title}</strong>
+          <small>从当前知识库中选择的长篇深度记录。</small>
+          <span class="route-open mono">read dossier <i aria-hidden="true">↗</i></span>
+        </a>
+      )
+    }
+
+    <a class="route-card route-map" href="/map/" data-reveal="up" data-spotlight data-tilt="3">
+      <span class="route-index mono">ROUTE / 03</span>
+      <span class="map-glyph" aria-hidden="true">
+        <svg viewBox="0 0 136 116" preserveAspectRatio="none">
+          <path d="M68 58 L17 23 M68 58 L119 31 M68 58 L27 107 M68 58 L111 104" />
+          <path class="map-path-live" d="M17 23 L68 58 L119 31 M27 107 L68 58 L111 104" />
+        </svg>
+        <i></i><i></i><i></i><i></i><i></i>
+        <b></b><b></b>
+      </span>
+      <span class="route-kicker mono">live topology</span>
+      <strong>从关系进入知识库</strong>
+      <small>{postsCount} 篇文章 · {pathsCount} 条路径 · {tagsCount} 个标签信号。</small>
+      <span class="route-open mono">open knowledge map <i aria-hidden="true">↗</i></span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .editorial {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .editorial-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .editorial-head p {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+
+  .editorial-head p i {
+    width: 0.36rem;
+    height: 0.36rem;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px var(--color-accent);
+  }
+
+  .editorial-head h2 {
+    margin-top: 0.3rem;
+    color: var(--color-text-strong);
+    font-size: 1.25rem;
+    font-weight: 620;
+    letter-spacing: -0.025em;
+  }
+
+  .editorial-note {
+    color: var(--color-faint);
+    font-size: 0.57rem;
+    letter-spacing: 0.06em;
+  }
+
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr 0.9fr;
+    border: 1px solid var(--color-line-bright);
+  }
+
+  .route-card {
+    --route-accent: var(--color-accent);
+    --route-glow: color-mix(in srgb, var(--route-accent) 15%, transparent);
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 17rem;
+    overflow: hidden;
+    padding: 1rem 1.1rem 1.15rem;
+    background: color-mix(in srgb, var(--color-bg-soft) 82%, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.28s var(--ease-out-expo);
+  }
+
+  .route-card + .route-card {
+    border-left: 1px solid var(--color-line-bright);
+  }
+
+  .route-card::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    right: -7rem;
+    bottom: -8rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--route-glow), transparent 67%);
+  }
+
+  .route-card:hover,
+  .route-card:focus-visible {
+    z-index: 2;
+    background: color-mix(in srgb, var(--color-surface) 76%, transparent);
+    transform: translateY(-3px);
+  }
+
+  .route-index {
+    color: var(--color-faint);
+    font-size: 0.54rem;
+    letter-spacing: 0.09em;
+  }
+
+  .route-mark {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--route-accent);
+    font-size: 1.2rem;
+  }
+
+  .route-ladder {
+    position: absolute;
+    top: 2.85rem;
+    right: 1.15rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1.15rem);
+    gap: 0.22rem;
+    align-items: end;
+    height: 4.6rem;
+    opacity: 0.42;
+  }
+
+  .route-ladder::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--route-accent), transparent);
+  }
+
+  .route-ladder i {
+    height: 32%;
+    border: 1px solid color-mix(in srgb, var(--route-accent) 42%, var(--color-line));
+    border-bottom: 0;
+    background: linear-gradient(to top, var(--route-glow), transparent);
+    transform-origin: bottom;
+  }
+
+  .route-ladder i:nth-child(2) { height: 54%; }
+  .route-ladder i:nth-child(3) { height: 76%; }
+  .route-ladder i:nth-child(4) { height: 100%; }
+
+  :global(html[data-motion='ready']) .route-ladder i {
+    animation: ladder-signal 2.6s ease-in-out infinite alternate;
+  }
+
+  :global(html[data-motion='ready']) .route-ladder i:nth-child(2) { animation-delay: -0.5s; }
+  :global(html[data-motion='ready']) .route-ladder i:nth-child(3) { animation-delay: -1s; }
+  :global(html[data-motion='ready']) .route-ladder i:nth-child(4) { animation-delay: -1.5s; }
+
+  @keyframes ladder-signal {
+    50% { transform: scaleY(0.58); opacity: 0.42; }
+  }
+
+  .route-kicker {
+    margin-top: auto;
+    color: var(--route-accent);
+    font-size: 0.56rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .route-card > strong {
+    max-width: 24rem;
+    margin-top: 0.55rem;
+    color: var(--color-text-strong);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .route-card > small {
+    margin-top: 0.45rem;
+    color: var(--color-faint);
+    font-size: 0.7rem;
+    line-height: 1.65;
+  }
+
+  .route-open {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-dim);
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+  }
+
+  .route-open i {
+    color: var(--route-accent);
+    font-style: normal;
+  }
+
+  .route-deep {
+    --route-accent: #ae91ff;
+    --route-glow: rgb(174 145 255 / 0.15);
+  }
+
+  .route-cover {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .route-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgb(8 11 15 / 0.38), rgb(8 11 15 / 0.94) 74%),
+      linear-gradient(90deg, rgb(8 11 15 / 0.7), transparent);
+  }
+
+  .route-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.26;
+    filter: saturate(0.8);
+    transition: opacity 0.3s, transform 0.5s var(--ease-out-expo);
+  }
+
+  :global(html[data-motion='ready']) .route-deep .route-cover img {
+    animation: dossier-drift 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes dossier-drift {
+    to { transform: scale(1.035) translate3d(-0.7%, -0.4%, 0); filter: saturate(0.92); }
+  }
+
+  .route-deep:hover .route-cover img {
+    opacity: 0.37;
+    transform: scale(1.018);
+  }
+
+  .route-map {
+    --route-accent: #65d9ed;
+    --route-glow: rgb(101 217 237 / 0.15);
+  }
+
+  .map-glyph {
+    position: absolute;
+    top: 2.25rem;
+    left: 50%;
+    width: 8.5rem;
+    height: 7.2rem;
+    transform: translateX(-50%);
+  }
+
+  .map-glyph svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .map-glyph path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--route-accent) 22%, transparent);
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .map-glyph .map-path-live {
+    stroke: var(--route-accent);
+    stroke-width: 1;
+    stroke-dasharray: 1 12;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+
+  .map-glyph::before,
+  .map-glyph::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    border: 1px solid color-mix(in srgb, var(--route-accent) 24%, var(--color-line));
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .map-glyph::before { width: 6rem; height: 6rem; }
+  .map-glyph::after { width: 3rem; height: 3rem; border-style: dashed; }
+
+  .map-glyph i {
+    position: absolute;
+    z-index: 1;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--route-accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--route-accent) 80%, transparent);
+    animation: node-breathe 2.4s ease-in-out infinite alternate;
+  }
+
+  .map-glyph i:nth-child(1) { left: 50%; top: 50%; }
+  .map-glyph i:nth-child(2) { left: 12%; top: 20%; animation-delay: -0.4s; }
+  .map-glyph i:nth-child(3) { right: 10%; top: 28%; animation-delay: -0.8s; }
+  .map-glyph i:nth-child(4) { left: 19%; bottom: 6%; animation-delay: -1.2s; }
+  .map-glyph i:nth-child(5) { right: 18%; bottom: 10%; animation-delay: -1.6s; }
+
+  .map-glyph b {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    width: 0.22rem;
+    height: 0.22rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0.55rem var(--route-accent);
+    opacity: 0;
+  }
+
+  :global(html[data-motion='ready']) .map-path-live {
+    animation: path-flow 3.2s linear infinite;
+  }
+
+  :global(html[data-motion='ready']) .map-glyph::after {
+    animation: topology-orbit 12s linear infinite;
+  }
+
+  :global(html[data-motion='ready']) .map-glyph b {
+    animation: packet-a 3.2s ease-in-out infinite;
+  }
+
+  :global(html[data-motion='ready']) .map-glyph b:last-child {
+    animation-name: packet-b;
+    animation-delay: -1.6s;
+  }
+
+  @keyframes path-flow { to { stroke-dashoffset: -26; } }
+  @keyframes topology-orbit { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes packet-a {
+    0%, 10% { opacity: 0; transform: translate(0, 0); }
+    30% { opacity: 1; }
+    75% { opacity: 0.85; transform: translate(3.2rem, -1.7rem); }
+    76%, 100% { opacity: 0; transform: translate(3.2rem, -1.7rem); }
+  }
+  @keyframes packet-b {
+    0%, 10% { opacity: 0; transform: translate(0, 0); }
+    30% { opacity: 1; }
+    75% { opacity: 0.85; transform: translate(-2.6rem, 3rem); }
+    76%, 100% { opacity: 0; transform: translate(-2.6rem, 3rem); }
+  }
+
+  @keyframes node-breathe {
+    to { opacity: 0.35; transform: scale(0.72); }
+  }
+
+  @media (max-width: 900px) {
+    .editorial-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .route-map {
+      grid-column: 1 / -1;
+      min-height: 14rem;
+    }
+
+    .route-map {
+      border-left: 0;
+      border-top: 1px solid var(--color-line-bright);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .editorial-head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .editorial-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .route-card,
+    .route-map {
+      grid-column: auto;
+      min-height: 15rem;
+      border-left: 0;
+    }
+
+    .route-card + .route-card {
+      border-top: 1px solid var(--color-line-bright);
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .map-glyph i,
+    .map-glyph b,
+    .map-glyph::after,
+    .map-path-live,
+    .route-ladder i,
+    .route-cover img {
+      animation: none !important;
+      transform: none !important;
+    }
+    .map-glyph b { display: none; }
+  }
+
+  :global(html[data-motion='off']) .map-glyph i,
+  :global(html[data-motion='off']) .map-glyph b,
+  :global(html[data-motion='off']) .map-glyph::after,
+  :global(html[data-motion='off']) .map-path-live,
+  :global(html[data-motion='off']) .route-ladder i,
+  :global(html[data-motion='off']) .route-cover img {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  :global(html[data-motion='off']) .map-glyph b { display: none; }
+</style>

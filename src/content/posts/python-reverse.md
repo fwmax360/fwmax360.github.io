@@ -7,7 +7,7 @@ tags: ['Python', '逆向', 'pyc']
 ---
 ## Python逆向
 
-#### 整体流程概述
+### 整体流程概述
 
 1.  识别Python打包文件：使用Detect It Easy (DIE)工具识别是否为Python打包的EXE
 

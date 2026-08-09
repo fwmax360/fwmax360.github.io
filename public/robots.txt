@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sleep4r.github.io/sitemap-index.xml
+Sitemap: https://fwmax360.github.io/sitemap-index.xml

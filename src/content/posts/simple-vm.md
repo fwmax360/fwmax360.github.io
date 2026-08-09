@@ -5,7 +5,7 @@ pubDate: 2025-08-05
 category: 'Binary'
 tags: ['VM', 'CTF', '虚拟机保护']
 ---
-# VM_learing
+## VM 逆向基础
 
 以GWCTF2019babyvm为例，先简单介绍一下，可以在buuctf里找到，后序有更多例子
 

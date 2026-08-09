@@ -1,4 +1,17 @@
-/* 只保留 latin / latin-ext，中文走系统字体，省掉西里尔/希腊/越南子集 */
+/*
+ * Four-role local type system
+ * EN display / UI  · Geist Variable
+ * EN technical     · JetBrains Mono Variable
+ * ZH reading       · Native UI sans / Noto Sans SC fallback
+ * ZH editorial     · Native Song / Noto Serif SC fallback
+ *
+ * CJK fallback packages use unicode-range segmented WOFF2 files. Platforms with
+ * PingFang / Microsoft YaHei / Songti keep their native screen-tuned glyphs.
+ */
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/noto-sans-sc/wght.css';
+
+/* JetBrains Mono only needs latin / latin-ext; Chinese falls through to the native CJK stack. */
 
 @font-face {
   font-family: 'JetBrains Mono Variable';

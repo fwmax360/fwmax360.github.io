@@ -38,7 +38,7 @@ tags: ['ELF', 'Linux', '可执行文件']
     | Sections             | → 如 .text, .data, .bss, .rodata 等节内容
     +----------------------+
 
-#### ELF Header
+### ELF Header
 
     typedef struct {
         unsigned char e_ident[16]; // 魔数、类、数据格式、版本等
@@ -57,7 +57,7 @@ tags: ['ELF', 'Linux', '可执行文件']
         uint16_t      e_shstrndx;  // 节头表中节名字符串表的索引
     } Elf64_Ehdr;
 
-#### Program Header
+### Program Header
 
     typedef struct {
         uint32_t p_type;   // 段类型，如 PT_LOAD、PT_DYNAMIC、PT_INTERP
@@ -70,7 +70,7 @@ tags: ['ELF', 'Linux', '可执行文件']
         uint64_t p_align;  // 对齐要求
     } Elf64_Phdr;
 
-#### Section Header
+### Section Header
 
     typedef struct {
         uint32_t sh_name;      // 节名称在节字符串表中的偏移
@@ -85,7 +85,7 @@ tags: ['ELF', 'Linux', '可执行文件']
         uint64_t sh_entsize;   // 若节是表格（如符号表），则为表项大小
     } Elf64_Shdr;
 
-#### Sections
+### Sections
 
 节名
 
@@ -95,7 +95,7 @@ tags: ['ELF', 'Linux', '可执行文件']
 
 `.text` 程序代码段 可执行指令 `.data` 已初始化的全局变量 可读写 `.bss` 未初始化的全局变量 占用内存，不占文件空间 `.rodata` 只读数据段 常量、字符串字面量 `.symtab` 符号表 变量和函数名信息 `.strtab` 字符串表 存储名字的实际字符串 `.rel.text` / `.rela.text` 重定位信息 用于链接器进行地址修正
 
-#### 在Linux下段不等于节
+### 在Linux下段不等于节
 
 项目
 
@@ -117,7 +117,7 @@ ELF (Linux/Android)
 
 详细一点为：
 
-#### 读取 ELF Header
+### 读取 ELF Header
 
 - 验证 Magic：\x7F E L F
 
@@ -125,7 +125,7 @@ ELF (Linux/Android)
 
 - 找到程序头表（e_phoff）的位置和数量（e_phnum）
 
-#### 读取 Program Header Table（段表）
+### 读取 Program Header Table（段表）
 
 每一个 Elf64_Phdr 描述一个 Segment（段），Loader 会：
 
@@ -145,7 +145,7 @@ ELF (Linux/Android)
         }
     }
 
-#### 构造用户栈
+### 构造用户栈
 
 内核负责构造初始栈，包括：
 
@@ -155,7 +155,7 @@ ELF (Linux/Android)
 
 - auxv\[\]（用于传递系统级信息，如系统页大小、UID、AT_PHDR 位置等）
 
-#### 跳转入口点 e_entry
+### 跳转入口点 e_entry
 
 内核最终设置好寄存器：
 

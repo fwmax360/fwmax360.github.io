@@ -1,6 +1,6 @@
 ---
 /**
- * 右下角 Live2D 看板娘（miku）——全站每页显示
+ * 右下角 Live2D 看板娘（miku）——桌面空闲时显示，移动端 / 右栏冲突时隐藏
  * 脚本：live2d-widget · 模型：live2d-widget-model-miku
  * 参考：https://joeybling.github.io/live2d-widget.js/examples/
  */
@@ -14,11 +14,31 @@
     interface Window {
       L2Dwidget?: { init: (config: Record<string, unknown>) => void }
       __sleep4rL2D?: boolean
+      __sleep4rL2DBound?: boolean
     }
   }
 
   const SCRIPT = '/live2d/lib/L2Dwidget.min.js'
   const MODEL = '/live2d/model/miku/miku.model.json'
+  const DESKTOP_QUERY = '(min-width: 900px)'
+  const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+  type DisplaySize = {
+    width: number
+    height: number
+    hOffset: number
+    vOffset: number
+    scale: number
+  }
+
+  type IdleWindow = Window & {
+    requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+    cancelIdleCallback?: (handle: number) => void
+  }
+
+  let scheduled: { kind: 'idle' | 'timeout'; handle: number } | null = null
+  let mounting: Promise<void> | null = null
+  let resizeFrame = 0
 
   function loadScript(src: string) {
     const existing = document.querySelector<HTMLScriptElement>(`script[data-l2d="1"]`)
@@ -49,26 +69,93 @@
     const el = document.getElementById('live2d-widget')
     if (!host || !el) return el
     if (el.parentElement !== host) host.appendChild(el)
-    el.style.zIndex = '40'
+    el.setAttribute('aria-hidden', 'true')
+    el.style.zIndex = '20'
     el.style.pointerEvents = 'none'
     const canvas = el.querySelector('canvas')
-    if (canvas instanceof HTMLElement) canvas.style.pointerEvents = 'auto'
+    if (canvas instanceof HTMLElement) canvas.style.pointerEvents = 'none'
     return el
   }
 
-  function displaySize() {
+  function displaySize(): DisplaySize | null {
     const w = window.innerWidth
-    if (w < 640) return { width: 100, height: 200, hOffset: 4, vOffset: -8, scale: 0.45 }
-    if (w < 900) return { width: 140, height: 280, hOffset: 8, vOffset: -12, scale: 0.7 }
-    return { width: 180, height: 360, hOffset: 12, vOffset: -18, scale: 1 }
+    if (w < 900) return null
+    if (w < 1200) return { width: 88, height: 176, hOffset: 6, vOffset: -6, scale: 0.52 }
+    if (w < 1600) return { width: 104, height: 208, hOffset: 8, vOffset: -8, scale: 0.62 }
+    return { width: 124, height: 248, hOffset: 12, vOffset: -10, scale: 0.72 }
+  }
+
+  /**
+   * 首页侧栏和文章 rail 都是 sticky；它们与右下角模型相交时直接隐藏模型。
+   * 透明 canvas 也可能遮字，所以这里按整个矩形留出 12px 安全间距。
+   */
+  function overlapsRightRail(d: DisplaySize) {
+    const widget = {
+      left: window.innerWidth - d.hOffset - d.width,
+      right: window.innerWidth - d.hOffset,
+      top: window.innerHeight - d.height - d.vOffset,
+      bottom: window.innerHeight - d.vOffset,
+    }
+
+    return [...document.querySelectorAll<HTMLElement>('.rail, .col-side')].some((el) => {
+      const style = getComputedStyle(el)
+      if (style.display === 'none' || style.visibility === 'hidden') return false
+      const r = el.getBoundingClientRect()
+      if (!r.width || !r.height) return false
+      const horizontally = r.right > widget.left - 12 && r.left < widget.right + 12
+      const vertically = r.bottom > widget.top - 12 && r.top < widget.bottom + 12
+      return horizontally && vertically
+    })
+  }
+
+  function shouldShow(d: DisplaySize | null): d is DisplaySize {
+    return Boolean(
+      d &&
+        document.documentElement.dataset.motion === 'ready' &&
+        window.matchMedia(DESKTOP_QUERY).matches &&
+        !window.matchMedia(REDUCED_MOTION_QUERY).matches &&
+        !overlapsRightRail(d),
+    )
+  }
+
+  function updateWidget() {
+    const el = adoptWidget()
+    if (!el) return false
+
+    const d = displaySize()
+    if (!shouldShow(d)) {
+      el.dataset.safeHidden = '1'
+      return false
+    }
+
+    delete el.dataset.safeHidden
+    el.style.setProperty('position', 'fixed', 'important')
+    el.style.setProperty('left', 'auto', 'important')
+    el.style.setProperty('right', `${d.hOffset}px`, 'important')
+    el.style.setProperty('bottom', `${d.vOffset}px`, 'important')
+    el.style.setProperty('width', `${d.width}px`, 'important')
+    el.style.setProperty('height', `${d.height}px`, 'important')
+
+    const canvas = el.querySelector<HTMLElement>('canvas')
+    if (canvas) {
+      canvas.style.setProperty('width', `${d.width}px`, 'important')
+      canvas.style.setProperty('height', `${d.height}px`, 'important')
+      canvas.style.setProperty('pointer-events', 'none', 'important')
+    }
+    return true
   }
 
   async function mountLive2D() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const initial = displaySize()
+    if (!shouldShow(initial)) {
+      updateWidget()
+      return
+    }
 
     // 已挂过且 DOM 还在：收进 persist 容器即可
     if (adoptWidget()) {
       window.__sleep4rL2D = true
+      updateWidget()
       return
     }
 
@@ -80,62 +167,140 @@
     } catch {
       return
     }
+    // 空闲等待期间可能旋转到移动端，或切到带右栏的页面。
+    const current = displaySize()
+    if (!shouldShow(current)) return
     if (!window.L2Dwidget) return
     if (document.getElementById('live2d-widget')) {
-      adoptWidget()
+      updateWidget()
       window.__sleep4rL2D = true
       return
     }
 
-    const d = displaySize()
     window.__sleep4rL2D = true
     window.L2Dwidget.init({
       model: {
         jsonPath: MODEL,
-        scale: d.scale,
+        scale: current.scale,
       },
       display: {
         position: 'right',
-        width: d.width,
-        height: d.height,
-        hOffset: d.hOffset,
-        vOffset: d.vOffset,
+        width: current.width,
+        height: current.height,
+        hOffset: current.hOffset,
+        vOffset: current.vOffset,
       },
       mobile: {
-        show: true,
-        scale: 0.5,
+        show: false,
       },
       react: {
-        opacityDefault: 0.92,
-        opacityOnHover: 0.7,
+        opacityDefault: 0.88,
+        opacityOnHover: 0.88,
       },
       dialog: {
         enable: false,
       },
     })
 
-    requestAnimationFrame(adoptWidget)
-    setTimeout(adoptWidget, 400)
-    setTimeout(adoptWidget, 1200)
+    requestAnimationFrame(updateWidget)
+    setTimeout(updateWidget, 300)
+    setTimeout(updateWidget, 900)
+    setTimeout(updateWidget, 1600)
   }
 
-  mountLive2D()
-  document.addEventListener('astro:page-load', mountLive2D)
+  function ensureMounted() {
+    if (mounting) return mounting
+    mounting = mountLive2D().finally(() => {
+      mounting = null
+    })
+    return mounting
+  }
+
+  function cancelScheduledMount() {
+    if (!scheduled) return
+    const idleWindow = window as IdleWindow
+    if (scheduled.kind === 'idle') idleWindow.cancelIdleCallback?.(scheduled.handle)
+    else window.clearTimeout(scheduled.handle)
+    scheduled = null
+  }
+
+  function scheduleMount() {
+    cancelScheduledMount()
+
+    // 移动端和减弱动效模式立即隐藏，且不请求脚本或模型资源。
+    const d = displaySize()
+    if (!shouldShow(d)) {
+      updateWidget()
+      return
+    }
+
+    // persist 的实例只需同步尺寸/显隐，不再排一次初始化。
+    if (document.getElementById('live2d-widget')) {
+      updateWidget()
+      return
+    }
+
+    const run = () => {
+      scheduled = null
+      void ensureMounted()
+    }
+    const idleWindow = window as IdleWindow
+    if (idleWindow.requestIdleCallback) {
+      scheduled = {
+        kind: 'idle',
+        handle: idleWindow.requestIdleCallback(run, { timeout: 1400 }),
+      }
+    } else {
+      scheduled = { kind: 'timeout', handle: window.setTimeout(run, 450) }
+    }
+  }
+
+  function handleViewportChange() {
+    window.cancelAnimationFrame(resizeFrame)
+    resizeFrame = window.requestAnimationFrame(() => {
+      if (!window.matchMedia(DESKTOP_QUERY).matches) cancelScheduledMount()
+      // 已挂载时只做便宜的碰撞/尺寸更新；未挂载时等空闲再初始化。
+      if (document.getElementById('live2d-widget')) updateWidget()
+      else scheduleMount()
+    })
+  }
+
+  if (!window.__sleep4rL2DBound) {
+    window.__sleep4rL2DBound = true
+    window.addEventListener('resize', handleViewportChange, { passive: true })
+    window.addEventListener('scroll', handleViewportChange, { passive: true })
+    document.addEventListener('sleep4r:motionchange', scheduleMount)
+    document.addEventListener('astro:page-load', scheduleMount)
+  }
+  scheduleMount()
 </script>
 
 <style is:global>
   #live2d-host {
-    position: contents;
-  }
-
-  #live2d-widget {
-    z-index: 40 !important;
+    display: contents;
     pointer-events: none !important;
   }
 
+  #live2d-widget {
+    z-index: 20 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+  }
+
   #live2d-widget canvas {
-    pointer-events: auto !important;
+    pointer-events: none !important;
     filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+  }
+
+  #live2d-widget[data-safe-hidden='1'] {
+    display: none !important;
+  }
+
+  @media (max-width: 899px) {
+    #live2d-host,
+    #live2d-widget {
+      display: none !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

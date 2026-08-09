@@ -44,7 +44,8 @@ const sheetW = Math.round(SHEET_W * mikuScale)
     height: var(--sm-h);
     max-height: var(--sm-h);
     overflow: visible;
-    z-index: 51;
+    /* 阅读进度位于导航下层，滚动角色不再压住导航按钮 */
+    z-index: 49;
     pointer-events: none;
   }
 
@@ -108,10 +109,16 @@ const sheetW = Math.round(SHEET_W * mikuScale)
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  /* 窄屏保留阅读进度轨，隐藏会伸入正文的像素角色。 */
+  @media (max-width: 720px) {
     .sm-runner {
-      animation: none;
-      transition: none;
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-miku {
+      display: none;
     }
   }
 </style>
@@ -121,13 +128,25 @@ const sheetW = Math.round(SHEET_W * mikuScale)
 
   function setupScrollMiku() {
     ac?.abort()
-    ac = new AbortController()
+    ac = null
 
     const root = document.querySelector<HTMLElement>('[data-scroll-miku]')
     const bar = document.querySelector<HTMLElement>('[data-sm-bar]')
     const fill = document.querySelector<HTMLElement>('[data-sm-fill]')
     const runner = document.querySelector<HTMLElement>('[data-sm-runner]')
     if (!root || !bar || !fill || !runner) return
+
+    // Save-Data、慢网络、低硬件与减弱动效均由 Motion 能力层统一降级。
+    if (document.documentElement.dataset.motion !== 'ready') {
+      delete root.dataset.ready
+      delete root.dataset.active
+      fill.style.removeProperty('width')
+      runner.style.removeProperty('transform')
+      return
+    }
+
+    ac = new AbortController()
+    const { signal } = ac
 
     let ticking = false
     let idle: ReturnType<typeof setTimeout> | undefined
@@ -173,19 +192,20 @@ const sheetW = Math.round(SHEET_W * mikuScale)
       requestAnimationFrame(update)
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true, signal: ac.signal })
+    window.addEventListener('scroll', onScroll, { passive: true, signal })
     window.addEventListener(
       'resize',
       () => {
         ticking = false
         update()
       },
-      { passive: true, signal: ac.signal },
+      { passive: true, signal },
     )
-    ac.signal.addEventListener('abort', () => clearTimeout(idle))
+    signal.addEventListener('abort', () => clearTimeout(idle))
     update()
   }
 
   setupScrollMiku()
   document.addEventListener('astro:page-load', setupScrollMiku)
+  document.addEventListener('sleep4r:motionchange', setupScrollMiku)
 </script>

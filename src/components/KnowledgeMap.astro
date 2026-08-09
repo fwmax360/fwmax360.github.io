@@ -1,0 +1,1439 @@
+---
+import type { KnowledgeMapData, KnowledgeNode } from '../lib/knowledgeMap'
+
+interface Props {
+  data: KnowledgeMapData
+}
+
+const { data } = Astro.props
+const rootNode = data.nodes.find((node) => node.kind === 'root')!
+const nodePayload = Object.fromEntries(
+  data.nodes.map((node) => [
+    node.id,
+    {
+      id: node.id,
+      kind: node.kind,
+      label: node.label,
+      eyebrow: node.eyebrow,
+      detail: node.detail,
+      meta: node.meta,
+      href: node.href,
+      count: node.count,
+    },
+  ]),
+)
+const payloadJson = JSON.stringify(nodePayload).replaceAll('<', '\\u003c')
+
+const treeCategories = data.categories.map((category) => {
+  const posts = data.posts.filter((post) => post.category === category.name)
+  const series = data.series
+    .map((item) => ({
+      ...item,
+      posts: posts
+        .filter((post) => post.series === item.name)
+        .sort(
+          (a, b) =>
+            (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) ||
+            a.date.localeCompare(b.date),
+        ),
+    }))
+    .filter((item) => item.posts.length > 0)
+
+  return {
+    ...category,
+    series,
+    standalone: posts.filter((post) => !post.series),
+  }
+})
+
+const nodeStyle = (node: KnowledgeNode) => `--node-accent:${node.accent}`
+const postSearch = (node: KnowledgeNode) =>
+  [node.label, node.detail, node.category, node.series, ...(node.tags ?? [])].filter(Boolean).join(' ')
+---
+
+<section
+  class="knowledge-map col-side"
+  data-knowledge-map
+  data-payload-id="knowledge-map-payload"
+  aria-labelledby="knowledge-map-title"
+>
+  <header class="map-toolbar">
+    <div class="query-field">
+      <label class="mono" for="knowledge-query">filter / keyword</label>
+      <div class="query-control">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.25"></circle>
+          <path d="m12.5 12.5 4 4"></path>
+        </svg>
+        <input
+          id="knowledge-query"
+          data-map-query
+          type="search"
+          placeholder="标题、系列、标签…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+    </div>
+
+    <div class="category-field">
+      <label class="mono" for="knowledge-category">scope / category</label>
+      <select id="knowledge-category" data-map-category>
+        <option value="">全部分类</option>
+        {data.categories.map((category) => (
+          <option value={category.name}>{category.name} · {String(category.count).padStart(2, '0')}</option>
+        ))}
+      </select>
+    </div>
+
+    <button class="clear-filter mono" type="button" data-map-clear disabled>
+      clear
+    </button>
+
+    <div class="filter-status mono" aria-live="polite">
+      <i aria-hidden="true"></i>
+      <span data-map-results>{data.stats.posts} / {data.stats.posts} articles visible</span>
+    </div>
+  </header>
+
+  <div class="signal-strip" aria-label="高频标签">
+    <span class="signal-label mono">HIGH-FREQ SIGNALS</span>
+    <div class="signal-tags mono">
+      {data.highTags.map((tag) => (
+        <a href={tag.href} data-map-node-ref={`tag:${tag.name}`}>
+          #{tag.name}<sup>{tag.count}</sup>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="map-legend mono" aria-label="图例">
+    <span><i class="root-key" aria-hidden="true"></i>core</span>
+    <span><i class="category-key" aria-hidden="true"></i>category</span>
+    <span><i class="series-key" aria-hidden="true"></i>series</span>
+    <span><i class="tag-key" aria-hidden="true"></i>tag signal</span>
+    <span><i class="post-key" aria-hidden="true"></i>article</span>
+    <span class="legend-hint">hover / focus to trace</span>
+  </div>
+
+  <div class="map-workbench">
+    <div class="map-visual">
+      <div class="map-canvas" data-map-canvas>
+        <svg
+          class="knowledge-graph"
+          viewBox={`0 0 ${data.width} ${data.height}`}
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-labelledby="graph-title graph-description"
+        >
+          <title id="graph-title">sleep4r 博客交互知识图谱</title>
+          <desc id="graph-description">
+            从中心知识库连接分类、系列、高频标签与全部文章。节点均可通过键盘聚焦并打开对应页面。
+          </desc>
+
+          <defs>
+            <pattern id="map-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 L 0 0 0 32" class="grid-line"></path>
+            </pattern>
+            <radialGradient id="core-halo">
+              <stop offset="0" stop-color="#52e198" stop-opacity="0.2"></stop>
+              <stop offset="1" stop-color="#52e198" stop-opacity="0"></stop>
+            </radialGradient>
+          </defs>
+
+          <rect class="graph-grid" width={data.width} height={data.height} fill="url(#map-grid)"></rect>
+          <circle class="core-halo" cx={rootNode.x} cy={rootNode.y} r="166" fill="url(#core-halo)"></circle>
+          <circle class="core-orbit orbit-a" cx={rootNode.x} cy={rootNode.y} r="116"></circle>
+          <circle class="core-orbit orbit-b" cx={rootNode.x} cy={rootNode.y} r="154"></circle>
+
+          <g class="map-edges" aria-hidden="true">
+            {data.edges.map((edge) => (
+              <path
+                class:list={['map-edge', `edge--${edge.relation}`]}
+                d={edge.path}
+                data-edge-from={edge.from}
+                data-edge-to={edge.to}
+                data-post-ids={edge.postIds.join(',')}
+                style={`--edge-accent:${edge.accent}`}
+                vector-effect="non-scaling-stroke"
+              ></path>
+            ))}
+          </g>
+
+          <g class="map-nodes">
+            {data.nodes.map((node) => (
+              <a
+                href={node.href}
+                class:list={['map-node', `node--${node.kind}`]}
+                style={nodeStyle(node)}
+                data-node-id={node.id}
+                data-node-kind={node.kind}
+                data-jmp={node.kind === 'post' ? '' : undefined}
+                data-jmp-source={node.kind === 'post' ? 'knowledge map' : undefined}
+                data-jmp-title={node.kind === 'post' ? node.label : undefined}
+                data-post-id={node.kind === 'post' ? node.postIds[0] : undefined}
+                data-post-ids={node.postIds.join(',')}
+                data-category={node.category}
+                data-search={node.kind === 'post' ? postSearch(node) : undefined}
+                tabindex="0"
+                aria-label={`${node.eyebrow}：${node.label}，${node.count} 篇关联文章`}
+              >
+                <title>{node.eyebrow} · {node.label}</title>
+                <g transform={`translate(${node.x} ${node.y})`}>
+                  {node.kind === 'root' && (
+                    <>
+                      <rect class="node-frame" x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}></rect>
+                      <path class="core-corners" d={`M ${-node.width / 2} -24 v-13 h18 M ${node.width / 2} -24 v-13 h-18 M ${-node.width / 2} 24 v13 h18 M ${node.width / 2} 24 v13 h-18`}></path>
+                      <text class="node-eyebrow" y="-15" text-anchor="middle">KNOWLEDGE CORE</text>
+                      <text class="node-label root-label" y="5" text-anchor="middle">sleep4r / map</text>
+                      <text class="node-count" y="24" text-anchor="middle">{String(node.count).padStart(2, '0')} INDEXED ARTICLES</text>
+                    </>
+                  )}
+
+                  {(node.kind === 'category' || node.kind === 'series') && (
+                    <>
+                      <rect class="node-frame" x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}></rect>
+                      <rect class="node-rail" x={-node.width / 2} y={-node.height / 2} width="3" height={node.height}></rect>
+                      <text class="node-eyebrow" x={-node.width / 2 + 16} y="-9">{node.eyebrow}</text>
+                      <text class="node-label" x={-node.width / 2 + 16} y="12">{node.shortLabel}</text>
+                      <text class="node-count" x={node.width / 2 - 12} y="12" text-anchor="end">{String(node.count).padStart(2, '0')}</text>
+                    </>
+                  )}
+
+                  {node.kind === 'tag' && (
+                    <>
+                      <rect class="node-frame" x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}></rect>
+                      <text class="node-label tag-label" x={-node.width / 2 + 11} y="5">{node.shortLabel}</text>
+                      <text class="node-count" x={node.width / 2 - 9} y="5" text-anchor="end">{node.count}</text>
+                    </>
+                  )}
+
+                  {node.kind === 'post' && (
+                    <>
+                      <rect class="node-frame" x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}></rect>
+                      <circle class="article-port" cx={-node.width / 2 + 13} cy="0" r="3.5"></circle>
+                      <text class="node-eyebrow" x={-node.width / 2 + 25} y="-7">{node.eyebrow}</text>
+                      <text class="node-label article-label" x={-node.width / 2 + 25} y="11">{node.shortLabel}</text>
+                      <path class="article-arrow" d={`M ${node.width / 2 - 21} -4 l 7 4 -7 4`}></path>
+                    </>
+                  )}
+                </g>
+              </a>
+            ))}
+          </g>
+        </svg>
+      </div>
+
+      <section class="knowledge-tree" aria-labelledby="knowledge-tree-title">
+        <header class="tree-head">
+          <div>
+            <p class="mono">MOBILE KNOWLEDGE TREE</p>
+            <h2 id="knowledge-tree-title">按路径浏览</h2>
+          </div>
+          <span class="tree-count mono">{data.stats.posts} nodes</span>
+        </header>
+
+        <p class="tree-empty mono" data-tree-empty hidden>NO_MATCHING_ARTICLES</p>
+
+        {treeCategories.map((category, categoryIndex) => (
+          <details
+            class="tree-category"
+            data-filter-group
+            data-post-ids={category.postIds.join(',')}
+            open={categoryIndex === 0}
+          >
+            <summary>
+              <span class="tree-index mono">0{categoryIndex + 1}</span>
+              <span class="tree-category-name">{category.name}</span>
+              <span class="tree-category-count mono">{String(category.count).padStart(2, '0')} articles</span>
+            </summary>
+
+            <div class="tree-branches">
+              {category.series.map((series) => (
+                <section class="tree-series" data-filter-group data-post-ids={series.posts.map((post) => post.id).join(',')}>
+                  <header>
+                    <span class="branch-line" aria-hidden="true"></span>
+                    <a href={series.href} data-map-node-ref={`series:${series.name}`}>{series.name}</a>
+                    <span class="mono">series · {String(series.posts.length).padStart(2, '0')}</span>
+                  </header>
+                  <ol>
+                    {series.posts.map((post) => (
+                      <li
+                        class="tree-post"
+                        data-post-id={post.id}
+                        data-category={post.category}
+                        data-search={[post.title, post.description, post.category, post.series, ...post.tags].filter(Boolean).join(' ')}
+                      >
+                        <a
+                          href={post.href}
+                          data-map-node-ref={post.nodeId}
+                          data-jmp
+                          data-jmp-source="knowledge tree"
+                          data-jmp-title={post.title}
+                        >
+                          <span class="tree-order mono">{String(post.order ?? 0).padStart(2, '0')}</span>
+                          <span class="tree-post-copy">
+                            <strong>{post.title}</strong>
+                            <small class="mono">{post.tags.slice(0, 3).map((tag) => `#${tag}`).join('  ')}</small>
+                          </span>
+                          <span class="tree-open mono" aria-hidden="true">↗</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+
+              {category.standalone.length > 0 && (
+                <section class="tree-series tree-standalone" data-filter-group data-post-ids={category.standalone.map((post) => post.id).join(',')}>
+                  <header>
+                    <span class="branch-line" aria-hidden="true"></span>
+                    <span>独立文章</span>
+                    <span class="mono">standalone · {String(category.standalone.length).padStart(2, '0')}</span>
+                  </header>
+                  <ol>
+                    {category.standalone.map((post, index) => (
+                      <li
+                        class="tree-post"
+                        data-post-id={post.id}
+                        data-category={post.category}
+                        data-search={[post.title, post.description, post.category, ...post.tags].join(' ')}
+                      >
+                        <a
+                          href={post.href}
+                          data-map-node-ref={post.nodeId}
+                          data-jmp
+                          data-jmp-source="knowledge tree"
+                          data-jmp-title={post.title}
+                        >
+                          <span class="tree-order mono">{String(index + 1).padStart(2, '0')}</span>
+                          <span class="tree-post-copy">
+                            <strong>{post.title}</strong>
+                            <small class="mono">{post.tags.slice(0, 3).map((tag) => `#${tag}`).join('  ')}</small>
+                          </span>
+                          <span class="tree-open mono" aria-hidden="true">↗</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              )}
+            </div>
+          </details>
+        ))}
+      </section>
+    </div>
+
+    <aside class="map-inspector" aria-labelledby="inspector-title" aria-live="polite">
+      <header class="inspector-head mono">
+        <span><i aria-hidden="true"></i> NODE INSPECTOR</span>
+        <span data-inspector-index>0x00</span>
+      </header>
+      <div class="inspector-scan" aria-hidden="true"><span></span></div>
+      <p class="inspector-type mono" data-inspector-type>{rootNode.eyebrow}</p>
+      <h2 id="inspector-title" data-inspector-title>{rootNode.label}</h2>
+      <p class="inspector-detail" data-inspector-detail>{rootNode.detail}</p>
+      <p class="inspector-meta mono" data-inspector-meta>{rootNode.meta}</p>
+      <dl class="inspector-stats mono">
+        <div><dt>articles</dt><dd>{String(data.stats.posts).padStart(2, '0')}</dd></div>
+        <div><dt>relations</dt><dd>{String(data.stats.relations).padStart(2, '0')}</dd></div>
+        <div><dt>signals</dt><dd>{String(data.stats.tags).padStart(2, '0')}</dd></div>
+      </dl>
+      <a class="inspector-link mono" href={rootNode.href} data-inspector-link>
+        explore node <span aria-hidden="true">↗</span>
+      </a>
+      <p class="inspector-help mono">TAB TO NAVIGATE<br />ENTER TO OPEN NODE</p>
+    </aside>
+  </div>
+
+  <script id="knowledge-map-payload" type="application/json" set:html={payloadJson} is:inline></script>
+</section>
+
+<script>
+  type InspectorNode = {
+    id: string
+    kind: 'root' | 'category' | 'series' | 'tag' | 'post'
+    label: string
+    eyebrow: string
+    detail: string
+    meta: string
+    href: string
+    count: number
+  }
+
+  const initKnowledgeMaps = () => {
+    document.querySelectorAll<HTMLElement>('[data-knowledge-map]').forEach((map) => {
+      if (map.dataset.mapReady === 'true') return
+      map.dataset.mapReady = 'true'
+
+      const payloadElement = document.getElementById(map.dataset.payloadId ?? '')
+      if (!payloadElement?.textContent) return
+      const payload = JSON.parse(payloadElement.textContent) as Record<string, InspectorNode>
+      const query = map.querySelector<HTMLInputElement>('[data-map-query]')
+      const category = map.querySelector<HTMLSelectElement>('[data-map-category]')
+      const clear = map.querySelector<HTMLButtonElement>('[data-map-clear]')
+      const results = map.querySelector<HTMLElement>('[data-map-results]')
+      const treeEmpty = map.querySelector<HTMLElement>('[data-tree-empty]')
+      const canvas = map.querySelector<HTMLElement>('[data-map-canvas]')
+      const graphPosts = [...map.querySelectorAll<SVGElement>('.map-node.node--post')]
+      const allPostIds = graphPosts.map((node) => node.dataset.postId ?? '').filter(Boolean)
+      const nodeElements = [...map.querySelectorAll<SVGElement>('.map-node')]
+      const edgeElements = [...map.querySelectorAll<SVGPathElement>('.map-edge')]
+      let visiblePostIds = new Set(allPostIds)
+
+      const inspectorType = map.querySelector<HTMLElement>('[data-inspector-type]')
+      const inspectorTitle = map.querySelector<HTMLElement>('[data-inspector-title]')
+      const inspectorDetail = map.querySelector<HTMLElement>('[data-inspector-detail]')
+      const inspectorMeta = map.querySelector<HTMLElement>('[data-inspector-meta]')
+      const inspectorLink = map.querySelector<HTMLAnchorElement>('[data-inspector-link]')
+      const inspectorIndex = map.querySelector<HTMLElement>('[data-inspector-index]')
+
+      const postIdsFor = (element: Element) =>
+        (element.getAttribute('data-post-ids') ?? '').split(',').filter(Boolean)
+
+      const setInspector = (id = 'root') => {
+        const node = payload[id] ?? payload.root
+        if (!node) return
+        if (inspectorType) inspectorType.textContent = node.eyebrow
+        if (inspectorTitle) inspectorTitle.textContent = node.label
+        if (inspectorDetail) inspectorDetail.textContent = node.detail
+        if (inspectorMeta) inspectorMeta.textContent = node.meta
+        if (inspectorLink) {
+          inspectorLink.href = node.href
+          inspectorLink.firstChild!.textContent = node.kind === 'post' ? 'read article ' : 'explore node '
+        }
+        if (inspectorIndex) {
+          const index = Math.max(0, Object.keys(payload).indexOf(id))
+          inspectorIndex.textContent = `0x${index.toString(16).toUpperCase().padStart(2, '0')}`
+        }
+      }
+
+      const activateNode = (id: string) => {
+        if (!payload[id]) return
+        const activeEdges = edgeElements.filter(
+          (edge) => edge.dataset.edgeFrom === id || edge.dataset.edgeTo === id,
+        )
+        const related = new Set<string>()
+        activeEdges.forEach((edge) => {
+          if (edge.dataset.edgeFrom) related.add(edge.dataset.edgeFrom)
+          if (edge.dataset.edgeTo) related.add(edge.dataset.edgeTo)
+        })
+        related.delete(id)
+
+        map.classList.toggle('is-inspecting', id !== 'root')
+        nodeElements.forEach((node) => {
+          node.classList.toggle('is-active', node.dataset.nodeId === id)
+          node.classList.toggle('is-related', related.has(node.dataset.nodeId ?? ''))
+        })
+        edgeElements.forEach((edge) => edge.classList.toggle('is-active', activeEdges.includes(edge)))
+        setInspector(id)
+      }
+
+      const resetInspector = () => {
+        map.classList.remove('is-inspecting')
+        nodeElements.forEach((node) => node.classList.remove('is-active', 'is-related'))
+        edgeElements.forEach((edge) => edge.classList.remove('is-active'))
+        setInspector('root')
+      }
+
+      const referencedNode = (target: EventTarget | null) => {
+        if (!(target instanceof Element)) return null
+        const element = target.closest<HTMLElement>('[data-node-id], [data-map-node-ref]')
+        if (!element || !map.contains(element)) return null
+        return element.dataset.nodeId ?? element.dataset.mapNodeRef ?? null
+      }
+
+      map.addEventListener('pointerover', (event) => {
+        const id = referencedNode(event.target)
+        if (id) activateNode(id)
+      })
+      map.addEventListener('focusin', (event) => {
+        const id = referencedNode(event.target)
+        if (id) activateNode(id)
+      })
+      canvas?.addEventListener('pointerleave', () => {
+        if (!canvas.contains(document.activeElement)) resetInspector()
+      })
+      map.addEventListener('focusout', (event) => {
+        if (!(event.relatedTarget instanceof Node) || !map.contains(event.relatedTarget)) resetInspector()
+      })
+
+      const applyFilters = () => {
+        const term = query?.value.trim().toLocaleLowerCase('zh-CN') ?? ''
+        const selectedCategory = category?.value ?? ''
+        visiblePostIds = new Set<string>()
+
+        for (const node of graphPosts) {
+          const matchesTerm = !term || (node.dataset.search ?? '').toLocaleLowerCase('zh-CN').includes(term)
+          const matchesCategory = !selectedCategory || node.dataset.category === selectedCategory
+          const visible = matchesTerm && matchesCategory
+          const postId = node.dataset.postId
+          if (visible && postId) visiblePostIds.add(postId)
+        }
+
+        map.querySelectorAll<HTMLElement>('[data-post-id]').forEach((element) => {
+          const postId = element.dataset.postId ?? ''
+          const visible = visiblePostIds.has(postId)
+          if (element.matches('.tree-post')) element.hidden = !visible
+          if (element.matches('.map-node')) {
+            element.classList.toggle('is-filtered', !visible)
+            element.setAttribute('aria-hidden', String(!visible))
+            element.setAttribute('tabindex', visible ? '0' : '-1')
+          }
+        })
+
+        edgeElements.forEach((edge) => {
+          const edgePosts = postIdsFor(edge)
+          edge.classList.toggle('is-filtered', edgePosts.length > 0 && !edgePosts.some((id) => visiblePostIds.has(id)))
+        })
+        nodeElements.forEach((node) => {
+          if (node.dataset.nodeKind === 'root' || node.dataset.nodeKind === 'post') return
+          const nodePosts = postIdsFor(node)
+          const empty = nodePosts.length > 0 && !nodePosts.some((id) => visiblePostIds.has(id))
+          node.classList.toggle('is-empty', empty)
+          node.setAttribute('aria-hidden', String(empty))
+          node.setAttribute('tabindex', empty ? '-1' : '0')
+        })
+        map.querySelectorAll<HTMLElement>('[data-filter-group]').forEach((group) => {
+          const groupPosts = postIdsFor(group)
+          const hidden = groupPosts.length > 0 && !groupPosts.some((id) => visiblePostIds.has(id))
+          group.hidden = hidden
+          if (!hidden && (term || selectedCategory) && group.matches('.tree-category')) {
+            const details = group as HTMLDetailsElement
+            details.open = true
+          }
+        })
+
+        if (results) results.textContent = `${visiblePostIds.size} / ${allPostIds.length} articles visible`
+        if (treeEmpty) treeEmpty.hidden = visiblePostIds.size > 0
+        if (clear) clear.disabled = !term && !selectedCategory
+        resetInspector()
+      }
+
+      query?.addEventListener('input', applyFilters)
+      category?.addEventListener('change', applyFilters)
+      clear?.addEventListener('click', () => {
+        if (query) query.value = ''
+        if (category) category.value = ''
+        applyFilters()
+        query?.focus()
+      })
+      setInspector('root')
+    })
+  }
+
+  initKnowledgeMaps()
+  document.addEventListener('astro:page-load', initKnowledgeMaps)
+</script>
+
+<style>
+  .knowledge-map {
+    --map-green: #52e198;
+    --map-cyan: #65d9ed;
+    --map-amber: #f2bd5b;
+    --map-violet: #ae91ff;
+    margin-top: 2rem;
+  }
+
+  .map-toolbar {
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(11rem, 0.42fr) auto auto;
+    gap: 0.85rem;
+    align-items: end;
+    padding: 1rem;
+    border: 1px solid var(--color-line-bright);
+    border-bottom: 0;
+    background: color-mix(in srgb, var(--color-panel-strong) 92%, transparent);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  .query-field,
+  .category-field {
+    min-width: 0;
+  }
+
+  .query-field > label,
+  .category-field > label {
+    display: block;
+    margin-bottom: 0.38rem;
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .query-control {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.55rem;
+    align-items: center;
+    min-height: 2.65rem;
+    padding: 0 0.7rem;
+    border: 1px solid var(--color-line-bright);
+    background: rgb(5 8 12 / 0.72);
+  }
+
+  .query-control:focus-within {
+    border-color: color-mix(in srgb, var(--map-green) 62%, var(--color-line));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--map-green) 18%, transparent);
+  }
+
+  .query-control svg {
+    width: 1rem;
+    fill: none;
+    stroke: var(--color-faint);
+    stroke-width: 1.4;
+  }
+
+  .query-control input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-text-strong);
+    font: 0.8rem/1.2 var(--font-mono);
+  }
+
+  .query-control input::placeholder {
+    color: var(--color-faint);
+  }
+
+  .category-field select {
+    width: 100%;
+    min-height: 2.65rem;
+    padding: 0 2rem 0 0.7rem;
+    border: 1px solid var(--color-line-bright);
+    border-radius: 0;
+    outline: 0;
+    background: rgb(5 8 12 / 0.88);
+    color: var(--color-text);
+    font: 0.75rem var(--font-mono);
+  }
+
+  .category-field select:focus-visible {
+    border-color: var(--map-green);
+  }
+
+  .clear-filter {
+    min-height: 2.65rem;
+    padding: 0 0.85rem;
+    border: 1px solid var(--color-line-bright);
+    background: transparent;
+    color: var(--map-green);
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .clear-filter:hover:not(:disabled) {
+    border-color: var(--map-green);
+    background: color-mix(in srgb, var(--map-green) 7%, transparent);
+  }
+
+  .clear-filter:disabled {
+    color: var(--color-faint);
+    cursor: default;
+    opacity: 0.45;
+  }
+
+  .filter-status {
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: max-content;
+    color: var(--color-faint);
+    font-size: 0.62rem;
+  }
+
+  .filter-status i {
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 50%;
+    background: var(--map-green);
+    box-shadow: 0 0 0.75rem var(--map-green);
+  }
+
+  .signal-strip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 2.65rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--color-line-bright);
+    border-bottom: 0;
+    background: rgb(7 10 14 / 0.78);
+  }
+
+  .signal-label {
+    flex: none;
+    color: var(--map-amber);
+    font-size: 0.57rem;
+    letter-spacing: 0.12em;
+  }
+
+  .signal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.8rem;
+  }
+
+  .signal-tags a {
+    color: var(--color-faint);
+    font-size: 0.64rem;
+    text-decoration: none;
+  }
+
+  .signal-tags a:hover,
+  .signal-tags a:focus-visible {
+    color: var(--map-amber);
+  }
+
+  .signal-tags sup {
+    margin-left: 0.18rem;
+    color: var(--map-amber);
+    font-size: 0.48rem;
+  }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem 1.15rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--color-line-bright);
+    border-bottom: 0;
+    background: rgb(5 8 12 / 0.74);
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .map-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+  }
+
+  .map-legend i {
+    width: 0.42rem;
+    height: 0.42rem;
+    background: currentColor;
+    box-shadow: 0 0 0.45rem currentColor;
+  }
+
+  .map-legend .root-key { color: var(--map-green); }
+  .map-legend .category-key { color: var(--map-cyan); }
+  .map-legend .series-key { color: var(--map-violet); }
+  .map-legend .tag-key { color: var(--map-amber); }
+  .map-legend .post-key { color: var(--color-text); }
+  .map-legend .legend-hint { margin-left: auto; }
+
+  .map-workbench {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17.5rem;
+    min-height: 46rem;
+    border: 1px solid var(--color-line-bright);
+    background: color-mix(in srgb, #070a0e 88%, transparent);
+    box-shadow: 0 2rem 6rem -4rem rgb(0 0 0 / 0.95);
+  }
+
+  .map-visual {
+    min-width: 0;
+    border-right: 1px solid var(--color-line-bright);
+  }
+
+  .map-canvas {
+    position: relative;
+    min-height: 46rem;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 50%, rgb(22 55 47 / 0.2), transparent 36%),
+      linear-gradient(180deg, rgb(13 18 24 / 0.66), rgb(5 8 12 / 0.92));
+  }
+
+  .map-canvas::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(101 217 237 / 0.025), transparent 28%, transparent 72%, rgb(174 145 255 / 0.025));
+    box-shadow: inset 0 0 4rem rgb(0 0 0 / 0.38);
+  }
+
+  .knowledge-graph {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 46rem;
+  }
+
+  .graph-grid {
+    fill: url('#map-grid');
+    opacity: 0.48;
+  }
+
+  .grid-line {
+    fill: none;
+    stroke: rgb(114 139 158 / 0.12);
+    stroke-width: 0.65;
+  }
+
+  .core-halo {
+    opacity: 0.7;
+  }
+
+  .core-orbit {
+    fill: none;
+    stroke: rgb(82 225 152 / 0.16);
+    stroke-width: 0.8;
+    stroke-dasharray: 2 9;
+    transform-origin: 600px 460px;
+    animation: orbit-spin 30s linear infinite;
+  }
+
+  .orbit-b {
+    stroke: rgb(101 217 237 / 0.1);
+    stroke-dasharray: 14 16;
+    animation-duration: 48s;
+    animation-direction: reverse;
+  }
+
+  @keyframes orbit-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .map-edge {
+    fill: none;
+    stroke: var(--edge-accent, var(--color-line-bright));
+    stroke-width: 0.85;
+    opacity: 0.15;
+    transition: opacity 180ms ease, stroke-width 180ms ease;
+  }
+
+  .edge--root { opacity: 0.28; stroke-width: 1.05; }
+  .edge--series { opacity: 0.23; }
+  .edge--category { opacity: 0.16; }
+  .edge--tag { opacity: 0.025; stroke-dasharray: 2 6; }
+
+  .map-edge.is-active {
+    stroke-width: 1.8;
+    opacity: 0.94;
+  }
+
+  .map-edge.is-filtered {
+    opacity: 0 !important;
+  }
+
+  .map-node {
+    --node-accent: var(--map-green);
+    color: var(--node-accent);
+    cursor: pointer;
+    opacity: 0.92;
+    transition: opacity 180ms ease, filter 180ms ease;
+  }
+
+  .node-frame {
+    fill: rgb(8 12 17 / 0.95);
+    stroke: color-mix(in srgb, var(--node-accent) 56%, #26303c);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition: fill 180ms ease, stroke 180ms ease;
+  }
+
+  .node-rail,
+  .article-port {
+    fill: var(--node-accent);
+  }
+
+  .node-eyebrow,
+  .node-count,
+  .node-label {
+    pointer-events: none;
+    font-family: var(--font-mono);
+  }
+
+  .node-eyebrow {
+    fill: color-mix(in srgb, var(--node-accent) 84%, #fff);
+    font-size: 7.5px;
+    letter-spacing: 1px;
+  }
+
+  .node-label {
+    fill: #e7edf5;
+    font-size: 12.5px;
+    font-weight: 590;
+  }
+
+  .node-count {
+    fill: color-mix(in srgb, var(--node-accent) 80%, #fff);
+    font-size: 8px;
+    letter-spacing: 0.7px;
+  }
+
+  .node--root .node-frame {
+    fill: rgb(7 17 16 / 0.96);
+    stroke-width: 1.4;
+  }
+
+  .core-corners,
+  .article-arrow {
+    fill: none;
+    stroke: var(--node-accent);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .root-label {
+    fill: #f3fff8;
+    font-size: 16px;
+    font-weight: 620;
+  }
+
+  .node--tag .node-frame {
+    fill: rgb(21 17 9 / 0.94);
+    stroke-dasharray: 2 2;
+  }
+
+  .tag-label {
+    font-size: 10px;
+  }
+
+  .node--post .node-frame {
+    fill: rgb(8 11 16 / 0.9);
+    stroke: rgb(73 88 105 / 0.72);
+  }
+
+  .node--post .article-port {
+    filter: drop-shadow(0 0 4px var(--node-accent));
+  }
+
+  .article-label {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+  }
+
+  .map-node:hover,
+  .map-node:focus-visible,
+  .map-node.is-active {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--node-accent) 40%, transparent));
+    outline: none;
+  }
+
+  .map-node:hover .node-frame,
+  .map-node:focus-visible .node-frame,
+  .map-node.is-active .node-frame {
+    fill: color-mix(in srgb, var(--node-accent) 10%, #090d12);
+    stroke: var(--node-accent);
+  }
+
+  .knowledge-map.is-inspecting .map-node:not(.is-active):not(.is-related) {
+    opacity: 0.16;
+  }
+
+  .knowledge-map.is-inspecting .map-edge:not(.is-active) {
+    opacity: 0.018;
+  }
+
+  .map-node.is-related {
+    opacity: 0.94;
+  }
+
+  .map-node.is-filtered,
+  .map-node.is-empty {
+    pointer-events: none;
+    opacity: 0.055 !important;
+    filter: grayscale(1);
+  }
+
+  .knowledge-tree {
+    display: none;
+  }
+
+  .map-inspector {
+    position: relative;
+    min-width: 0;
+    padding: 1.25rem;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgb(12 17 23 / 0.96), rgb(7 10 14 / 0.96)),
+      var(--color-panel-strong);
+  }
+
+  .map-inspector::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgb(255 255 255 / 0.012) 3px 4px);
+  }
+
+  .inspector-head {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+  }
+
+  .inspector-head span:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .inspector-head i {
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 50%;
+    background: var(--map-green);
+    box-shadow: 0 0 0.7rem var(--map-green);
+  }
+
+  .inspector-scan {
+    position: relative;
+    height: 8.5rem;
+    margin: 1rem -1.25rem 1.15rem;
+    overflow: hidden;
+    border-block: 1px solid var(--color-line);
+    background:
+      radial-gradient(circle at 50% 50%, rgb(82 225 152 / 0.12), transparent 45%),
+      linear-gradient(90deg, transparent 49.8%, rgb(101 217 237 / 0.12) 50%, transparent 50.2%),
+      linear-gradient(0deg, transparent 49.8%, rgb(101 217 237 / 0.12) 50%, transparent 50.2%);
+  }
+
+  .inspector-scan::before,
+  .inspector-scan::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4.5rem;
+    height: 4.5rem;
+    border: 1px solid rgb(82 225 152 / 0.24);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .inspector-scan::after {
+    width: 2.15rem;
+    height: 2.15rem;
+    border-color: rgb(101 217 237 / 0.38);
+  }
+
+  .inspector-scan span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-top: 1px solid var(--map-green);
+    transform-origin: 0 0;
+    animation: scan-spin 4.5s linear infinite;
+  }
+
+  @keyframes scan-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .inspector-type {
+    position: relative;
+    margin: 0;
+    color: var(--map-green);
+    font-size: 0.61rem;
+    letter-spacing: 0.12em;
+  }
+
+  .map-inspector h2 {
+    position: relative;
+    margin-top: 0.55rem;
+    color: var(--color-text-strong);
+    font-size: 1.25rem;
+    font-weight: 650;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  .inspector-detail {
+    position: relative;
+    margin-top: 0.85rem;
+    color: var(--color-dim);
+    font-size: 0.82rem;
+    line-height: 1.75;
+  }
+
+  .inspector-meta {
+    position: relative;
+    margin-top: 0.85rem;
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    line-height: 1.75;
+  }
+
+  .inspector-stats {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    padding-block: 0.85rem;
+    border-block: 1px solid var(--color-line);
+  }
+
+  .inspector-stats dt {
+    color: var(--color-faint);
+    font-size: 0.48rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .inspector-stats dd {
+    margin-top: 0.15rem;
+    color: var(--color-text-strong);
+    font-size: 0.9rem;
+  }
+
+  .inspector-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.65rem;
+    margin-top: 1rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--color-line-bright);
+    color: var(--map-green);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .inspector-link:hover {
+    border-color: var(--map-green);
+    background: rgb(82 225 152 / 0.06);
+  }
+
+  .inspector-help {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.2rem;
+    left: 1.25rem;
+    color: var(--color-faint);
+    font-size: 0.52rem;
+    line-height: 1.8;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 980px) {
+    .map-toolbar {
+      grid-template-columns: minmax(15rem, 1fr) minmax(10rem, 0.5fr) auto;
+    }
+
+    .filter-status {
+      grid-column: 1 / -1;
+    }
+
+    .map-workbench {
+      grid-template-columns: minmax(0, 1fr) 15rem;
+    }
+
+    .article-label {
+      font-size: 10.5px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .map-workbench {
+      grid-template-columns: 1fr;
+    }
+
+    .map-visual {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-line-bright);
+    }
+
+    .map-inspector {
+      min-height: 25rem;
+    }
+
+    .inspector-help {
+      display: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .knowledge-map {
+      margin-top: 1.25rem;
+    }
+
+    .map-toolbar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.7rem;
+      padding: 0.85rem;
+    }
+
+    .query-field {
+      grid-column: 1 / -1;
+    }
+
+    .category-field {
+      min-width: 0;
+    }
+
+    .filter-status {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+
+    .signal-strip {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 0.75rem 0.85rem;
+    }
+
+    .signal-tags {
+      gap: 0.35rem 0.65rem;
+    }
+
+    .map-legend {
+      gap: 0.55rem 0.85rem;
+      padding: 0.65rem 0.8rem;
+    }
+
+    .map-legend .legend-hint {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .map-workbench {
+      min-height: 0;
+    }
+
+    .map-canvas {
+      display: none;
+    }
+
+    .knowledge-tree {
+      display: block;
+      padding: 0.95rem;
+      background: linear-gradient(180deg, rgb(10 14 19 / 0.95), rgb(6 9 13 / 0.98));
+    }
+
+    .tree-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.15rem 0 0.9rem;
+      border-bottom: 1px solid var(--color-line-bright);
+    }
+
+    .tree-head p {
+      color: var(--map-green);
+      font-size: 0.55rem;
+      letter-spacing: 0.11em;
+    }
+
+    .tree-head h2 {
+      margin-top: 0.2rem;
+      color: var(--color-text-strong);
+      font-size: 1.15rem;
+    }
+
+    .tree-count {
+      color: var(--color-faint);
+      font-size: 0.58rem;
+    }
+
+    .tree-empty {
+      padding: 2rem 0;
+      color: var(--color-faint);
+      font-size: 0.65rem;
+      text-align: center;
+    }
+
+    .tree-category {
+      border-bottom: 1px solid var(--color-line-bright);
+    }
+
+    .tree-category[hidden],
+    .tree-series[hidden],
+    .tree-post[hidden] {
+      display: none;
+    }
+
+    .tree-category summary {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 0.65rem;
+      align-items: center;
+      min-height: 3.35rem;
+      color: var(--color-text-strong);
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .tree-category summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tree-category summary::after {
+      content: '+';
+      grid-column: 4;
+      color: var(--map-green);
+      font: 0.8rem var(--font-mono);
+    }
+
+    .tree-category[open] summary::after {
+      content: '−';
+    }
+
+    .tree-index {
+      color: var(--map-green);
+      font-size: 0.6rem;
+    }
+
+    .tree-category-name {
+      min-width: 0;
+      font-size: 0.95rem;
+      font-weight: 620;
+    }
+
+    .tree-category-count {
+      color: var(--color-faint);
+      font-size: 0.53rem;
+    }
+
+    .tree-branches {
+      padding: 0 0 1rem 0.8rem;
+      border-left: 1px solid color-mix(in srgb, var(--map-green) 36%, var(--color-line));
+    }
+
+    .tree-series + .tree-series {
+      margin-top: 1rem;
+    }
+
+    .tree-series > header {
+      display: grid;
+      grid-template-columns: 1.1rem minmax(0, 1fr) auto;
+      gap: 0.45rem;
+      align-items: center;
+      margin-left: -0.8rem;
+      min-height: 2rem;
+    }
+
+    .branch-line {
+      height: 1px;
+      background: color-mix(in srgb, var(--map-cyan) 60%, var(--color-line));
+    }
+
+    .tree-series > header > a,
+    .tree-series > header > span:nth-child(2) {
+      overflow: hidden;
+      color: var(--map-cyan);
+      font-size: 0.75rem;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tree-series > header > span:last-child {
+      color: var(--color-faint);
+      font-size: 0.5rem;
+    }
+
+    .tree-series ol {
+      margin: 0.3rem 0 0 1.1rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tree-post a {
+      display: grid;
+      grid-template-columns: 1.7rem minmax(0, 1fr) auto;
+      gap: 0.55rem;
+      align-items: center;
+      min-height: 3.65rem;
+      padding: 0.55rem 0;
+      border-top: 1px solid var(--color-line);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .tree-post a:hover strong,
+    .tree-post a:focus-visible strong {
+      color: var(--map-green);
+    }
+
+    .tree-order {
+      color: var(--map-green);
+      font-size: 0.58rem;
+    }
+
+    .tree-post-copy {
+      display: block;
+      min-width: 0;
+    }
+
+    .tree-post-copy strong {
+      display: block;
+      color: var(--color-text);
+      font-size: 0.78rem;
+      font-weight: 560;
+      line-height: 1.45;
+    }
+
+    .tree-post-copy small {
+      display: block;
+      overflow: hidden;
+      margin-top: 0.22rem;
+      color: var(--color-faint);
+      font-size: 0.5rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tree-open {
+      color: var(--color-faint);
+      font-size: 0.65rem;
+    }
+
+    .map-inspector {
+      min-height: 0;
+      padding: 1rem;
+    }
+
+    .inspector-scan {
+      display: none;
+    }
+
+    .inspector-type {
+      margin-top: 1.15rem;
+    }
+
+    .inspector-stats {
+      margin-top: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .core-orbit,
+    .inspector-scan span {
+      animation: none;
+    }
+
+    .map-node,
+    .map-edge {
+      transition: none;
+    }
+  }
+</style>

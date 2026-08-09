@@ -1,82 +1,533 @@
 ---
-import { SITE, SOCIAL } from '../consts'
+import { NAV, SITE, SOCIAL } from '../consts'
+import { formatDate, getPostsByDateDesc, postUrl } from '../lib/posts'
+import { getSeriesSummaries, seriesUrl } from '../lib/series'
 
 const year = new Date().getFullYear()
+const [latestPosts, series] = await Promise.all([getPostsByDateDesc(), getSeriesSummaries()])
+const latest = latestPosts[0]
 
 const linkAttrs = (href: string) => {
   const external = href.startsWith('http')
   const hard = href.endsWith('.xml') || href.endsWith('.xsl')
   return {
     href,
-    class: 'footer-link',
     ...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
     ...(hard ? { 'data-astro-reload': true } : {}),
   }
 }
 ---
 
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-left">
-      <p class="mono footer-sig">
-        <span class="text-accent">$</span> echo "{SITE.handle}"
-      </p>
-      <p class="footer-note">© {year} {SITE.author} · 内容采用 CC BY-NC-SA 4.0 授权</p>
-    </div>
+<footer class="footer" data-reveal="fade" data-reveal-once>
+  <div class="footer-stream" aria-hidden="true">
+    <span class="stream-base"></span>
+    <span class="stream-signal"></span>
+    <i></i><i></i><i></i><i></i><i></i>
+  </div>
 
-    <div class="footer-right">
-      {SOCIAL.map((s) => <a {...linkAttrs(s.href)}>{s.label}</a>)}
+  <div class="footer-telemetry mono" aria-hidden="true">
+    <div>
+      <span>RX 0x7F454C46</span><i>•</i><span>ARM64 / LE</span><i>•</i><span>TRACE 0000:7FF8</span><i>•</i><span>MAPS SYNCED</span><i>•</i><span>RSS ONLINE</span><i>•</i><span>INDEX 21/21</span><i>•</i>
+      <span>RX 0x7F454C46</span><i>•</i><span>ARM64 / LE</span><i>•</i><span>TRACE 0000:7FF8</span><i>•</i><span>MAPS SYNCED</span><i>•</i><span>RSS ONLINE</span><i>•</i><span>INDEX 21/21</span><i>•</i>
     </div>
+  </div>
+
+  <div class="footer-inner col-side" data-reveal-stagger="70">
+    <section class="footer-brand" aria-labelledby="footer-brand-title" data-reveal="up">
+      <p class="footer-eyebrow mono"><span aria-hidden="true">●</span> independent research node</p>
+      <h2 id="footer-brand-title" class="footer-sig mono">
+        <span aria-hidden="true">$</span> {SITE.title}<i aria-hidden="true"></i>
+      </h2>
+      <p class="footer-desc">安卓逆向、二进制安全与系统底层的持续研究记录。</p>
+      <dl class="footer-metrics mono" aria-label="站点索引统计">
+        <div><dt>notes</dt><dd data-count-up>{String(latestPosts.length).padStart(2, '0')}</dd></div>
+        <div><dt>paths</dt><dd data-count-up>{String(series.length).padStart(2, '0')}</dd></div>
+        <div><dt>state</dt><dd class="state">online</dd></div>
+      </dl>
+    </section>
+
+    <nav class="footer-column" aria-labelledby="footer-nav-title" data-reveal="up">
+      <h2 id="footer-nav-title" class="footer-heading mono">// navigate</h2>
+      <ul class="footer-list mono">
+        {NAV.map((item, index) => (
+          <li>
+            <a href={item.href}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              {item.label}
+              <i aria-hidden="true">↗</i>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="footer-column" aria-labelledby="footer-series-title" data-reveal="up">
+      <h2 id="footer-series-title" class="footer-heading mono">// active paths</h2>
+      <ul class="footer-list path-list">
+        {series.slice(0, 4).map((item, index) => (
+          <li>
+            <a href={seriesUrl(item.name)}>
+              <span class="mono">S{String(index + 1).padStart(2, '0')}</span>
+              <span class="path-copy">
+                <strong>{item.name}</strong>
+                <small class="mono">{String(item.count).padStart(2, '0')} chapters</small>
+              </span>
+              <i aria-hidden="true">→</i>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <section class="footer-column footer-dispatch" aria-labelledby="footer-dispatch-title" data-reveal="up">
+      <h2 id="footer-dispatch-title" class="footer-heading mono">// latest dispatch</h2>
+      {
+        latest && (
+          <a
+            class="latest-note"
+            href={postUrl(latest)}
+            data-spotlight
+            data-tilt
+            data-tilt-strength="2"
+            data-jmp
+            data-jmp-source="footer / latest dispatch"
+            data-jmp-title={latest.data.title}
+          >
+            <time class="mono" datetime={latest.data.pubDate.toISOString()}>{formatDate(latest.data.pubDate)}</time>
+            <strong>{latest.data.title}</strong>
+            <span class="mono">read field note ↗</span>
+          </a>
+        )
+      }
+      <div class="footer-actions">
+        {SOCIAL.map((item) => <a {...linkAttrs(item.href)} class="footer-action mono">{item.label}</a>)}
+        <button type="button" class="footer-action mono" data-search-open>Search <span aria-hidden="true">/</span></button>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer-bottom mono">
+    <p>© {year} {SITE.author} · CC BY-NC-SA 4.0</p>
+    <p><span aria-hidden="true">●</span> static build / system online / cn-edge</p>
   </div>
 </footer>
 
 <style>
   .footer {
-    margin-top: 6rem;
-    border-top: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-bg-soft) 60%, transparent);
+    position: relative;
+    overflow: hidden;
+    margin-top: clamp(5rem, 9vw, 8rem);
+    border-top: 1px solid var(--color-line-bright);
+    background:
+      radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 28rem),
+      linear-gradient(180deg, rgb(12 16 21 / 0.88), rgb(5 7 10 / 0.98));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.018);
+  }
+
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.014) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 82%);
+    mask-image: linear-gradient(to bottom, #000, transparent 82%);
+  }
+
+  .footer-stream {
+    position: relative;
+    z-index: 1;
+    height: 1.6rem;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    border-inline: 1px solid var(--color-line);
+  }
+
+  .stream-base,
+  .stream-signal {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  .stream-base {
+    background: repeating-linear-gradient(90deg, var(--color-line-bright) 0 0.4rem, transparent 0.4rem 0.75rem);
+  }
+
+  .stream-signal {
+    width: 20%;
+    right: auto;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 70%, transparent));
+    animation: footer-scan 7s linear infinite;
+  }
+
+  .footer-stream i {
+    position: absolute;
+    top: calc(50% - 2px);
+    width: 5px;
+    height: 5px;
+    background: var(--color-line-bright);
+    transform: rotate(45deg);
+  }
+
+  .footer-stream i:nth-of-type(1) { left: 8%; }
+  .footer-stream i:nth-of-type(2) { left: 29%; }
+  .footer-stream i:nth-of-type(3) { left: 52%; background: var(--color-accent); }
+  .footer-stream i:nth-of-type(4) { left: 74%; }
+  .footer-stream i:nth-of-type(5) { left: 92%; }
+
+  @keyframes footer-scan {
+    from { transform: translateX(-105%); }
+    to { transform: translateX(600%); }
+  }
+
+  .footer-telemetry {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    border: 1px solid var(--color-line);
+    border-bottom: 0;
+    color: var(--color-faint);
+    font-size: 0.5rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+
+  .footer-telemetry > div {
+    display: inline-flex;
+    gap: 1.15rem;
+    min-width: max-content;
+    padding-block: 0.48rem;
+    animation: footer-telemetry-run 24s linear infinite;
+  }
+
+  .footer-telemetry i {
+    color: var(--color-accent);
+    font-style: normal;
+    text-shadow: 0 0 8px var(--color-accent);
+  }
+
+  @keyframes footer-telemetry-run {
+    to { transform: translateX(-50%); }
   }
 
   .footer-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(17rem, 1.25fr) minmax(9rem, 0.62fr) minmax(14rem, 0.9fr) minmax(16rem, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
     max-width: var(--container-wide);
     margin-inline: auto;
-    padding: 2.25rem 1.25rem;
+    padding: clamp(2.6rem, 5vw, 4.5rem) 1.5rem 3rem;
+  }
+
+  .footer-brand,
+  .footer-column {
+    min-width: 0;
+  }
+
+  .footer-eyebrow {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-faint);
+    font-size: 0.59rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .footer-eyebrow span {
+    color: var(--color-accent);
+    font-size: 0.48rem;
+    text-shadow: 0 0 10px var(--color-accent);
   }
 
   .footer-sig {
-    font-size: 0.85rem;
-    color: var(--color-dim);
-  }
-
-  .text-accent {
-    color: var(--color-accent);
-  }
-
-  .footer-note {
-    margin-top: 0.4rem;
-    font-size: 0.78rem;
-    color: var(--color-faint);
-  }
-
-  .footer-right {
     display: flex;
-    gap: 1.25rem;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    color: var(--color-text-strong);
+    font-size: 1.65rem;
+    font-weight: 620;
+    letter-spacing: -0.04em;
   }
 
-  .footer-link {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+  .footer-sig > span {
+    color: var(--color-accent);
+    font-weight: 420;
+  }
+
+  .footer-sig i {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 68%, transparent);
+  }
+
+  .footer-desc {
+    max-width: 21rem;
+    margin-top: 0.8rem;
     color: var(--color-dim);
-    text-decoration: none;
-    transition: color 0.18s;
+    font-size: 0.82rem;
+    line-height: 1.75;
   }
 
-  .footer-link:hover {
+  .footer-metrics {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 1.25rem;
+  }
+
+  .footer-metrics div {
+    padding-left: 0.55rem;
+    border-left: 1px solid var(--color-line-bright);
+  }
+
+  .footer-metrics dt {
+    color: var(--color-faint);
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .footer-metrics dd {
+    margin-top: 0.15rem;
+    color: var(--color-text);
+    font-size: 0.78rem;
+  }
+
+  .footer-metrics .state {
     color: var(--color-accent);
   }
+
+  .footer-heading {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-faint);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .footer-list {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-list a {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: center;
+    min-height: 2rem;
+    color: var(--color-dim);
+    font-size: 0.72rem;
+    text-decoration: none;
+    transition: color 0.16s, transform 0.2s var(--ease-out-expo);
+  }
+
+  .footer-list a > span:first-child {
+    color: var(--color-faint);
+    font-size: 0.56rem;
+  }
+
+  .footer-list a > i {
+    color: var(--color-line-bright);
+    font-style: normal;
+  }
+
+  .footer-list a:hover,
+  .footer-list a:focus-visible {
+    color: var(--color-accent);
+    transform: translateX(0.2rem);
+  }
+
+  .footer-list a:hover > i,
+  .footer-list a:focus-visible > i {
+    color: var(--color-accent);
+  }
+
+  .path-list a {
+    min-height: 2.6rem;
+  }
+
+  .path-copy {
+    min-width: 0;
+  }
+
+  .path-copy strong,
+  .path-copy small {
+    display: block;
+  }
+
+  .path-copy strong {
+    overflow: hidden;
+    color: inherit;
+    font-size: 0.7rem;
+    font-weight: 540;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .path-copy small {
+    margin-top: 0.13rem;
+    color: var(--color-faint);
+    font-size: 0.5rem;
+  }
+
+  .latest-note {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    overflow: hidden;
+    padding: 0.8rem;
+    border: 1px solid var(--color-line);
+    background: rgb(255 255 255 / 0.012);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .latest-note time,
+  .latest-note > span {
+    color: var(--color-faint);
+    font-size: 0.54rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .latest-note strong {
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 560;
+    line-height: 1.5;
+  }
+
+  .latest-note > span {
+    color: var(--color-accent);
+  }
+
+  .latest-note:hover,
+  .latest-note:focus-visible {
+    border-color: var(--color-accent-soft);
+  }
+
+  .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+  }
+
+  .footer-action {
+    min-height: 2rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-dim);
+    font-size: 0.62rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.16s, border-color 0.16s, background 0.16s;
+  }
+
+  .footer-action:hover,
+  .footer-action:focus-visible {
+    border-color: var(--color-accent-soft);
+    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    color: var(--color-accent);
+  }
+
+  .footer-bottom {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding: 0.9rem 1.5rem max(1rem, env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-line);
+    color: var(--color-faint);
+    font-size: 0.55rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .footer-bottom p:last-child span {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 1040px) {
+    .footer-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer-stream {
+      margin-inline: 1rem;
+    }
+
+    .footer-inner {
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+      padding-inline: 1rem;
+    }
+
+    .footer-telemetry {
+      margin-inline: 1rem;
+    }
+
+    .footer-brand {
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .footer-list a,
+    .footer-action {
+      min-height: 2.75rem;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      padding-inline: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stream-signal,
+    .footer-telemetry > div {
+      animation: none;
+    }
+
+    .stream-signal { transform: translateX(200%); }
+  }
+
+  :global(html[data-motion='off']) .stream-signal,
+  :global(html[data-motion='off']) .footer-telemetry > div {
+    animation: none;
+  }
+
+  :global(html[data-motion='off']) .stream-signal { transform: translateX(200%); }
 </style>

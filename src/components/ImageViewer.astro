@@ -1,0 +1,310 @@
+---
+/**
+ * 正文图片增强：运行时生成编号 / 图注，并提供原生 dialog 沉浸查看。
+ * Markdown 无 JS 时仍保留原始 img；增强过程在 Astro 客户端换页后重新绑定。
+ */
+---
+
+<dialog
+  class="image-viewer"
+  data-image-viewer
+  aria-labelledby="image-viewer-title"
+  aria-describedby="image-viewer-caption"
+>
+  <div class="image-viewer-shell">
+    <header class="image-viewer-head mono">
+      <div class="image-viewer-identity">
+        <span class="image-viewer-signal" aria-hidden="true"></span>
+        <span id="image-viewer-title" data-viewer-title>FIG.--</span>
+      </div>
+
+      <div class="image-viewer-actions">
+        <button
+          type="button"
+          class="image-viewer-action"
+          data-viewer-zoom
+          aria-label="查看原始尺寸"
+          aria-pressed="false"
+        >
+          <span data-viewer-zoom-label>1:1</span>
+        </button>
+        <a
+          class="image-viewer-action"
+          data-viewer-original
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="在新窗口打开原图"
+        >
+          original <span aria-hidden="true">↗</span>
+        </a>
+        <button
+          type="button"
+          class="image-viewer-close"
+          data-viewer-close
+          aria-label="关闭图片查看器"
+          autofocus
+        >
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="image-viewer-stage" data-viewer-stage>
+      <img data-viewer-image alt="" decoding="async" />
+    </div>
+
+    <footer class="image-viewer-foot">
+      <p id="image-viewer-caption" data-viewer-caption></p>
+      <span class="image-viewer-dim mono" data-viewer-dim aria-live="polite"></span>
+    </footer>
+  </div>
+</dialog>
+
+<script>
+  type FigureRecord = {
+    trigger: HTMLElement
+    image: HTMLImageElement
+    label: string
+    caption: string
+    original: string
+  }
+
+  let controller: AbortController | null = null
+  let activeDialog: HTMLDialogElement | null = null
+  let returnFocus: HTMLElement | null = null
+
+  const onlyContains = (parent: HTMLElement, child: Node) =>
+    [...parent.childNodes].every(
+      (node) => node === child || (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()),
+    )
+
+  const isDecorative = (image: HTMLImageElement) => {
+    const alt = image.getAttribute('alt')
+    const role = image.getAttribute('role')
+    return Boolean(
+      alt === '' ||
+        image.getAttribute('aria-hidden') === 'true' ||
+        role === 'presentation' ||
+        role === 'none' ||
+        image.matches('[data-decorative], [data-no-viewer], .decorative, .emoji') ||
+        image.closest(
+          '[aria-hidden="true"], [data-no-viewer], [data-image-viewer="off"], button, .code-block, .katex',
+        ),
+    )
+  }
+
+  function enhanceFigures(): FigureRecord[] {
+    const images = [...document.querySelectorAll<HTMLImageElement>('.prose img')].filter(
+      (image) => !isDecorative(image),
+    )
+
+    images.forEach((image, index) => {
+      if (image.dataset.figureReady) return
+
+      const number = String(index + 1).padStart(2, '0')
+      const label = `FIG.${number}`
+      let media: HTMLElement = image.closest('picture') ?? image
+      const mediaLink =
+        media.parentElement instanceof HTMLAnchorElement && onlyContains(media.parentElement, media)
+          ? media.parentElement
+          : null
+      if (mediaLink) media = mediaLink
+
+      let figure = image.closest<HTMLElement>('figure')
+      if (!figure) {
+        figure = document.createElement('figure')
+        const paragraph = media.parentElement
+        if (paragraph?.tagName === 'P' && onlyContains(paragraph, media)) {
+          paragraph.replaceWith(figure)
+          figure.appendChild(media)
+        } else {
+          media.before(figure)
+          figure.appendChild(media)
+        }
+      }
+      figure.classList.add('prose-figure')
+      figure.dataset.figure = number
+
+      const authoredCaption = figure.querySelector<HTMLElement>(':scope > figcaption')
+      const authoredText = authoredCaption?.textContent?.trim() ?? ''
+      const rawAlt = image.getAttribute('alt')?.trim() ?? ''
+      const caption = rawAlt || authoredText || image.title.trim() || `正文插图 ${number}`
+      if (!image.hasAttribute('alt')) image.alt = caption
+
+      const figcaption = authoredCaption ?? document.createElement('figcaption')
+      figcaption.id ||= `figure-caption-${number}`
+      figcaption.classList.add('prose-figcaption')
+      figcaption.replaceChildren()
+
+      const captionLabel = document.createElement('span')
+      captionLabel.className = 'figure-label mono'
+      captionLabel.textContent = label
+      const captionText = document.createElement('span')
+      captionText.className = 'figure-caption-text'
+      captionText.textContent = caption
+      figcaption.append(captionLabel, captionText)
+      if (!authoredCaption) figure.appendChild(figcaption)
+
+      let trigger: HTMLElement
+      if (media instanceof HTMLAnchorElement) {
+        trigger = media
+        trigger.setAttribute('role', 'button')
+      } else {
+        const button = document.createElement('button')
+        button.type = 'button'
+        media.before(button)
+        button.appendChild(media)
+        trigger = button
+      }
+
+      const original = mediaLink?.href || image.src
+      trigger.classList.add('figure-trigger')
+      trigger.dataset.figureTrigger = number
+      trigger.dataset.viewerCaption = caption
+      trigger.dataset.viewerOriginal = original
+      trigger.setAttribute('aria-haspopup', 'dialog')
+      trigger.setAttribute('aria-label', `查看大图：${caption}`)
+      trigger.setAttribute('aria-describedby', figcaption.id)
+      image.dataset.figureReady = 'true'
+      image.dataset.figureImage = number
+    })
+
+    return [...document.querySelectorAll<HTMLElement>('[data-figure-trigger]')]
+      .map((trigger) => {
+        const image = trigger.querySelector<HTMLImageElement>('img')
+        if (!image) return null
+        const number = trigger.dataset.figureTrigger ?? '--'
+        return {
+          trigger,
+          image,
+          label: `FIG.${number}`,
+          caption: trigger.dataset.viewerCaption ?? image.alt,
+          original: trigger.dataset.viewerOriginal ?? image.src,
+        }
+      })
+      .filter((record): record is FigureRecord => record !== null)
+  }
+
+  function setupImageViewer() {
+    controller?.abort()
+    if (activeDialog?.open) activeDialog.close()
+    document.documentElement.classList.remove('image-viewer-open')
+    controller = new AbortController()
+    const { signal } = controller
+
+    const dialog = document.querySelector<HTMLDialogElement>('[data-image-viewer]')
+    const viewerImage = dialog?.querySelector<HTMLImageElement>('[data-viewer-image]')
+    const title = dialog?.querySelector<HTMLElement>('[data-viewer-title]')
+    const caption = dialog?.querySelector<HTMLElement>('[data-viewer-caption]')
+    const dimensions = dialog?.querySelector<HTMLElement>('[data-viewer-dim]')
+    const original = dialog?.querySelector<HTMLAnchorElement>('[data-viewer-original]')
+    const zoom = dialog?.querySelector<HTMLButtonElement>('[data-viewer-zoom]')
+    const zoomLabel = dialog?.querySelector<HTMLElement>('[data-viewer-zoom-label]')
+    const close = dialog?.querySelector<HTMLButtonElement>('[data-viewer-close]')
+    const stage = dialog?.querySelector<HTMLElement>('[data-viewer-stage]')
+    if (
+      !dialog ||
+      !viewerImage ||
+      !title ||
+      !caption ||
+      !dimensions ||
+      !original ||
+      !zoom ||
+      !zoomLabel ||
+      !close ||
+      !stage
+    ) {
+      return
+    }
+    activeDialog = dialog
+
+    const setZoom = (zoomed: boolean) => {
+      dialog.dataset.zoomed = String(zoomed)
+      zoom.setAttribute('aria-pressed', String(zoomed))
+      zoom.setAttribute('aria-label', zoomed ? '适应窗口' : '查看原始尺寸')
+      zoomLabel.textContent = zoomed ? 'fit' : '1:1'
+      if (!zoomed) stage.scrollTo({ top: 0, left: 0 })
+    }
+
+    const openViewer = (record: FigureRecord) => {
+      returnFocus = record.trigger
+      title.textContent = record.label
+      caption.textContent = record.caption
+      dimensions.textContent = 'loading…'
+      original.href = record.original
+      viewerImage.alt = record.caption
+      viewerImage.src = record.image.currentSrc || record.image.src
+      setZoom(false)
+      document.documentElement.classList.add('image-viewer-open')
+      dialog.showModal()
+    }
+
+    const closeViewer = () => {
+      if (dialog.open) dialog.close()
+    }
+
+    enhanceFigures().forEach((record) => {
+      record.trigger.addEventListener(
+        'click',
+        (event) => {
+          event.preventDefault()
+          openViewer(record)
+        },
+        { signal },
+      )
+      if (record.trigger instanceof HTMLAnchorElement) {
+        record.trigger.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.key !== ' ') return
+            event.preventDefault()
+            openViewer(record)
+          },
+          { signal },
+        )
+      }
+    })
+
+    close.addEventListener('click', closeViewer, { signal })
+    zoom.addEventListener('click', () => setZoom(dialog.dataset.zoomed !== 'true'), { signal })
+    viewerImage.addEventListener('click', () => setZoom(dialog.dataset.zoomed !== 'true'), { signal })
+    viewerImage.addEventListener(
+      'load',
+      () => {
+        dimensions.textContent = `${viewerImage.naturalWidth} × ${viewerImage.naturalHeight} px`
+      },
+      { signal },
+    )
+    viewerImage.addEventListener('error', () => (dimensions.textContent = 'image unavailable'), { signal })
+    stage.addEventListener(
+      'click',
+      (event) => {
+        if (event.target === stage) closeViewer()
+      },
+      { signal },
+    )
+    dialog.addEventListener(
+      'click',
+      (event) => {
+        if (event.target === dialog) closeViewer()
+      },
+      { signal },
+    )
+    dialog.addEventListener(
+      'close',
+      () => {
+        document.documentElement.classList.remove('image-viewer-open')
+        setZoom(false)
+        viewerImage.removeAttribute('src')
+        const target = returnFocus
+        returnFocus = null
+        if (target?.isConnected) requestAnimationFrame(() => target.focus())
+      },
+      { signal },
+    )
+  }
+
+  setupImageViewer()
+  document.addEventListener('astro:page-load', setupImageViewer)
+</script>

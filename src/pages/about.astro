@@ -1,7 +1,21 @@
 ---
 import Base from '../layouts/Base.astro'
 import AboutShell from '../components/AboutShell.astro'
+import '../styles/editorial-font.css'
 import { SITE, SOCIAL } from '../consts'
+import { getCategories, getPosts } from '../lib/posts'
+import { getSeriesSummaries } from '../lib/series'
+
+const [posts, categories, series] = await Promise.all([getPosts(), getCategories(), getSeriesSummaries()])
+
+const principles = [
+  { code: '01', title: 'Observe', text: '先保留现场与行为证据，再给机制下结论。' },
+  { code: '02', title: 'Isolate', text: '把复杂链路拆成最小可验证假设，逐项排除噪声。' },
+  { code: '03', title: 'Verify', text: '同一结论尽量用静态、动态与运行结果交叉确认。' },
+  { code: '04', title: 'Document', text: '记录版本、失败路径和限制，让过程真正可复用。' },
+]
+
+const currentFocus = ['Native runtime', 'Anti-debug', 'Protocol tracing', 'Custom VM']
 
 const skills = [
   {
@@ -57,38 +71,97 @@ const faqs = [
 ]
 ---
 
-<Base title="关于" description={`关于 ${SITE.author}：${SITE.subtitle}`} width="content">
-  <header class="page-head">
-    <button type="button" class="name-btn mono" data-name-poke aria-label="点我有惊喜">
-      <span class="name-sigil">$</span>
-      <span data-name-text>{SITE.author}</span>
-      <span class="name-hint" aria-hidden="true">· click</span>
-    </button>
-    <h1 class="page-title mono">about</h1>
-    <p class="page-sub">安卓逆向工程师的自我介绍，附赠终端彩蛋。</p>
-  </header>
+<Base title="关于" description={`关于 ${SITE.author}：${SITE.subtitle}`} width="wide">
+  <div class="about-frame">
+    <header class="page-head about-hero" data-reveal="hero" data-parallax="0.045">
+      <div class="hero-copy">
+        <button type="button" class="name-btn mono" data-name-poke aria-label="点我有惊喜">
+          <span class="name-sigil">$</span>
+          <span data-name-text>{SITE.author}</span>
+          <span class="name-hint" aria-hidden="true">· operator</span>
+        </button>
+        <p class="hero-eyebrow mono">independent research / android & binary</p>
+        <h1 class="page-title font-display">把复杂机制，<br />还原成可验证的路径。</h1>
+        <p class="page-sub">
+          这里记录安卓逆向、二进制安全与系统底层研究。保留判断依据，也保留失败路线。
+        </p>
+        <nav class="hero-actions mono" aria-label="关于页快捷入口">
+          <a href="/series/">browse paths <span aria-hidden="true">↗</span></a>
+          <a href="/map/">open topology <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
 
-  <AboutShell />
+      <aside class="identity-panel col-side" data-spotlight data-tilt data-tilt-strength="3" aria-label="站点研究概况">
+        <header class="identity-head mono">
+          <span><i aria-hidden="true"></i> OPERATOR PROFILE</span>
+          <span>0xS4R</span>
+        </header>
+        <div class="identity-mark" aria-hidden="true">
+          <span>&lt;/&gt;</span>
+          <i></i><i></i><i></i>
+        </div>
+        <dl class="identity-stats mono">
+          <div><dt>field notes</dt><dd data-count-up>{String(posts.length).padStart(2, '0')}</dd></div>
+          <div><dt>paths</dt><dd data-count-up>{String(series.length).padStart(2, '0')}</dd></div>
+          <div><dt>domains</dt><dd data-count-up>{String(categories.length).padStart(2, '0')}</dd></div>
+        </dl>
+        <p class="identity-status mono"><span aria-hidden="true"></span> research node online</p>
+      </aside>
+    </header>
 
-  <div class="prose">
-    <p>
-      我是 <strong>{SITE.author}</strong>，主要方向是<strong>安卓逆向</strong>和<strong>二进制安全</strong>。这个博客用来记录分析过程中的踩坑、方法论和一些能复用的套路。
-    </p>
-    <p>写在这里的东西大致分三类：</p>
-    <ul>
-      <li>具体目标的分析记录，包括失败的尝试和绕路</li>
-      <li>某个机制的原理梳理，比如加载器、链接器、运行时</li>
-      <li>工具链的用法和自己写的小工具</li>
-    </ul>
-  </div>
+    <section class="manifesto" aria-labelledby="manifesto-title" data-reveal="section">
+      <div class="manifesto-copy">
+        <p class="section-label mono">// research manifesto</p>
+        <h2 id="manifesto-title" class="font-editorial">结论只是终点，路径才是正文。</h2>
+        <p>
+          我是 <strong>{SITE.author}</strong>，主要方向是安卓逆向与二进制安全。文章会尽量交代观察、假设、验证和限制，而不是只留下一个最终答案。
+        </p>
+      </div>
+      <ul class="manifesto-types mono col-side" aria-label="内容类型">
+        <li><span>01</span><strong>analysis</strong><small>目标分析与失败路线</small></li>
+        <li><span>02</span><strong>mechanism</strong><small>加载器、链接器与运行时</small></li>
+        <li><span>03</span><strong>tooling</strong><small>工具链、脚本与实验记录</small></li>
+      </ul>
+    </section>
 
-  <section class="block">
+    <section class="protocol" aria-labelledby="protocol-title" data-reveal="section" data-reveal-stagger="70">
+      <header class="section-intro">
+        <p class="section-label mono">// operating protocol</p>
+        <h2 id="protocol-title">研究方法</h2>
+      </header>
+      <ol class="protocol-grid col-side">
+        {principles.map((item) => (
+          <li data-reveal="up" data-spotlight data-tilt data-tilt-strength="2.6">
+            <span class="protocol-code mono">{item.code}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="focus-strip mono" aria-label="当前关注方向">
+        <span>CURRENT FOCUS</span>
+        {currentFocus.map((item) => <i>{item}</i>)}
+      </div>
+    </section>
+
+    <section class="console-block" aria-labelledby="console-title" data-reveal="section">
+      <header class="console-head">
+        <div>
+          <p class="section-label mono">// personality layer</p>
+          <h2 id="console-title">Operator console</h2>
+        </div>
+        <p>研究之外，留一块可以乱敲命令的地方。</p>
+      </header>
+      <AboutShell />
+    </section>
+
+  <section class="block" data-reveal="section">
     <h2 class="kicker">// stack</h2>
     <p class="block-hint mono">点一项看吐槽 · 再点收起</p>
     <div class="skills" data-skills>
       {
         skills.map((s) => (
-          <div class="skill">
+          <div class="skill" data-spotlight data-tilt data-tilt-strength="1.8">
             <h3 class="skill-group mono">{s.group}</h3>
             <ul class="skill-items">
               {s.items.map((i) => (
@@ -114,7 +187,7 @@ const faqs = [
     </div>
   </section>
 
-  <section class="block">
+  <section class="block" data-reveal="section">
     <h2 class="kicker">// faq</h2>
     <p class="block-hint mono">点开看回答</p>
     <div class="faqs" data-faqs>
@@ -132,10 +205,10 @@ const faqs = [
     </div>
   </section>
 
-  <section class="block">
+  <section class="block" data-reveal="section">
     <h2 class="kicker">// anti-debug demo</h2>
     <p class="block-hint mono">假装你在调试这个页面</p>
-    <div class="adbg" data-adbg>
+    <div class="adbg" data-adbg data-spotlight data-tilt data-tilt-strength="2">
       <div class="adbg-row mono">
         <span class="adbg-k">TracerPid</span>
         <span class="adbg-v" data-adbg-pid>0</span>
@@ -151,7 +224,7 @@ const faqs = [
     </div>
   </section>
 
-  <section class="block">
+  <section class="block" data-reveal="section">
     <h2 class="kicker">// contact</h2>
     <ul class="contacts">
       {
@@ -172,6 +245,7 @@ const faqs = [
       }
     </ul>
   </section>
+  </div>
 </Base>
 
 <script>
@@ -185,7 +259,12 @@ const faqs = [
     '好吧，再点一次我假装没看见。',
   ]
 
+  let protocolTimer = 0
+
   function setupAbout() {
+    window.clearInterval(protocolTimer)
+    protocolTimer = 0
+
     // 点名字轮换
     const nameBtn = document.querySelector<HTMLButtonElement>('[data-name-poke]')
     const nameText = document.querySelector<HTMLElement>('[data-name-text]')
@@ -246,10 +325,27 @@ const faqs = [
         adbg.classList.toggle('alert', attached)
       })
     }
+
+    const protocol = [...document.querySelectorAll<HTMLElement>('.protocol-grid > li')]
+    if (
+      protocol.length > 1 &&
+      document.documentElement.dataset.motion === 'ready' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      let active = 0
+      const advance = () => {
+        if (document.hidden) return
+        protocol.forEach((item, index) => item.classList.toggle('is-scan-active', index === active))
+        active = (active + 1) % protocol.length
+      }
+      advance()
+      protocolTimer = window.setInterval(advance, 2200)
+    }
   }
 
   setupAbout()
   document.addEventListener('astro:after-swap', setupAbout)
+  document.addEventListener('sleep4r:motionchange', setupAbout)
 </script>
 
 <style>
@@ -524,4 +620,531 @@ const faqs = [
   .contact:hover .contact-val {
     color: var(--color-accent);
   }
+
+
+  /* Editorial profile layer */
+  .about-frame {
+    max-width: 68rem;
+    margin-inline: auto;
+  }
+
+  .about-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: end;
+    margin-bottom: clamp(3rem, 6vw, 5.5rem);
+    padding-bottom: clamp(2.3rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .hero-copy {
+    min-width: 0;
+  }
+
+  .hero-eyebrow,
+  .section-label {
+    color: var(--color-accent);
+    font-size: 0.62rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .hero-eyebrow {
+    margin: 1rem 0 0.85rem;
+  }
+
+  .about-hero .page-title {
+    max-width: 43rem;
+    color: var(--color-text-strong);
+    font-size: clamp(2.45rem, 5.2vw, 3.95rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .about-hero .page-title::before {
+    content: none;
+  }
+
+  .about-hero .page-sub {
+    max-width: 39rem;
+    margin-top: 1.15rem;
+    color: var(--color-dim);
+    font-size: 0.98rem;
+    line-height: 1.8;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.45rem;
+  }
+
+  .hero-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 10.5rem;
+    min-height: 2.55rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--color-line-bright);
+    color: var(--color-dim);
+    font-size: 0.68rem;
+    text-decoration: none;
+    transition: color 0.18s, border-color 0.18s, background 0.18s, transform 0.22s var(--ease-out-expo);
+  }
+
+  .hero-actions a:hover,
+  .hero-actions a:focus-visible {
+    border-color: var(--color-accent-soft);
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .identity-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 22rem;
+    padding: 1rem;
+    border: 1px solid var(--color-line-bright);
+    border-left: 2px solid var(--color-accent);
+    background:
+      linear-gradient(rgb(255 255 255 / 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px),
+      color-mix(in srgb, var(--color-bg-soft) 88%, transparent);
+    background-size: 32px 32px, 32px 32px, auto;
+    box-shadow: 0 2rem 5rem -4rem rgb(0 0 0 / 0.95);
+  }
+
+  .identity-panel::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    right: 0;
+    left: 0;
+    height: 3.5rem;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent);
+    animation: identity-scan 5.8s linear infinite;
+    pointer-events: none;
+  }
+
+  .identity-panel::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    right: -7rem;
+    bottom: -7rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 68%);
+  }
+
+  .identity-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-faint);
+    font-size: 0.55rem;
+    letter-spacing: 0.09em;
+  }
+
+  .identity-head span:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .identity-head i {
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 9px var(--color-accent);
+  }
+
+  .identity-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 9.5rem;
+    height: 9.5rem;
+    margin: 1.3rem auto 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, var(--color-line));
+    border-radius: 50%;
+    color: var(--color-accent);
+    font: 1.45rem var(--font-mono);
+  }
+
+  .identity-mark::before,
+  .identity-mark::after {
+    content: '';
+    position: absolute;
+    border: 1px solid var(--color-line-bright);
+    border-radius: 50%;
+  }
+
+  .identity-mark::before { inset: 0.8rem;animation:identity-ring 10s linear infinite; }
+  .identity-mark::after { inset: 2rem;border-style:dashed;animation:identity-ring 7s linear infinite reverse; }
+
+  .identity-mark i {
+    position: absolute;
+    width: 0.34rem;
+    height: 0.34rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    animation: identity-node 1.8s ease-in-out infinite;
+  }
+
+  .identity-mark i:nth-of-type(1) { top: 0.65rem; left: 50%; }
+  .identity-mark i:nth-of-type(2) { right: 1.25rem; bottom: 1.7rem;animation-delay:-.6s; }
+  .identity-mark i:nth-of-type(3) { left: 1.1rem; bottom: 2.15rem;animation-delay:-1.2s; }
+
+  .identity-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-block: 1px solid var(--color-line);
+  }
+
+  .identity-stats div {
+    padding: 0.65rem 0.3rem;
+    text-align: center;
+  }
+
+  .identity-stats div + div {
+    border-left: 1px solid var(--color-line);
+  }
+
+  .identity-stats dt {
+    color: var(--color-faint);
+    font-size: 0.48rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .identity-stats dd {
+    margin-top: 0.2rem;
+    color: var(--color-text-strong);
+    font-size: 0.83rem;
+  }
+
+  .identity-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+    color: var(--color-faint);
+    font-size: 0.53rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .identity-status span {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    animation: identity-node 1.8s ease-in-out infinite;
+  }
+
+  .manifesto {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(19rem, 0.85fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .manifesto-copy h2,
+  .section-intro h2,
+  .console-head h2 {
+    margin-top: 0.55rem;
+    color: var(--color-text-strong);
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+  }
+
+  .manifesto-copy h2 {
+    font-weight: 560;
+    letter-spacing: 0;
+    line-height: 1.25;
+  }
+
+  .manifesto-copy > p:last-child {
+    max-width: 39rem;
+    margin-top: 1rem;
+    color: var(--color-dim);
+    font-size: 0.94rem;
+    line-height: 1.9;
+  }
+
+  .manifesto-types {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-line-bright);
+  }
+
+  .manifesto-types li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.1rem 0.65rem;
+    padding: 0.8rem 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    transition:padding-left .28s var(--ease-out-expo),background .2s;
+  }
+
+  .manifesto-types li:is(:hover,:focus-within) { padding-left:.65rem;background:linear-gradient(90deg,color-mix(in srgb,var(--color-accent) 6%,transparent),transparent); }
+
+  .manifesto-types li > span {
+    grid-row: 1 / 3;
+    color: var(--color-accent);
+    font-size: 0.6rem;
+  }
+
+  .manifesto-types strong {
+    color: var(--color-text);
+    font-size: 0.72rem;
+    font-weight: 520;
+  }
+
+  .manifesto-types small {
+    color: var(--color-faint);
+    font-size: 0.58rem;
+  }
+
+  .protocol,
+  .console-block {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .section-intro,
+  .console-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--color-line-bright);
+  }
+
+  .protocol-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .protocol-grid li {
+    position: relative;
+    isolation: isolate;
+    min-height: 11rem;
+    overflow: hidden;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    background: color-mix(in srgb, var(--color-bg-soft) 72%, transparent);
+    transition:border-color .3s,background .3s,box-shadow .3s;
+  }
+
+  .protocol-grid li::before { content:'';position:absolute;z-index:-1;top:0;bottom:0;left:-45%;width:38%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--color-accent) 8%,transparent),transparent);transform:skewX(-16deg);opacity:0;transition:transform .7s var(--ease-out-expo),opacity .25s;pointer-events:none; }
+  .protocol-grid li.is-scan-active { border-color:color-mix(in srgb,var(--color-accent) 38%,var(--color-line));background:color-mix(in srgb,var(--color-accent) 5%,var(--color-bg-soft));box-shadow:inset 0 -1px color-mix(in srgb,var(--color-accent) 35%,transparent); }
+  .protocol-grid li.is-scan-active::before { opacity:1;transform:translateX(390%) skewX(-16deg); }
+
+  .protocol-grid li + li {
+    border-left: 0;
+  }
+
+  .protocol-code {
+    color: var(--color-accent);
+    font-size: 0.6rem;
+  }
+
+  .protocol-grid h3 {
+    margin-top: 1.9rem;
+    color: var(--color-text-strong);
+    font-size: 1rem;
+    font-weight: 620;
+  }
+
+  .protocol-grid p {
+    margin-top: 0.55rem;
+    color: var(--color-faint);
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+
+  .focus-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+    align-items: center;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-top: 0;
+    color: var(--color-faint);
+    font-size: 0.58rem;
+    background-image:linear-gradient(90deg,transparent,color-mix(in srgb,var(--color-accent) 4%,transparent),transparent);
+    background-size:42% 100%;
+    background-repeat:no-repeat;
+    animation:focus-strip-scan 6s linear infinite;
+  }
+
+  .focus-strip > span {
+    margin-right: auto;
+    color: var(--color-accent);
+    letter-spacing: 0.08em;
+  }
+
+  .focus-strip i {
+    color: var(--color-dim);
+    font-style: normal;
+  }
+
+  .focus-strip i::before {
+    content: '·';
+    margin-right: 0.35rem;
+    color: var(--color-accent);
+  }
+
+  .console-head > p {
+    max-width: 24rem;
+    color: var(--color-faint);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    text-align: right;
+  }
+
+  .console-block :global(.shell) {
+    margin-bottom: 0;
+  }
+
+  .about-frame .block {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .about-frame .skills {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .about-frame .skill {
+    position: relative;
+    isolation: isolate;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    background: color-mix(in srgb, var(--color-bg-soft) 64%, transparent);
+  }
+
+  @keyframes identity-scan { from { transform:translateY(-140%); } to { transform:translateY(700%); } }
+  @keyframes identity-ring { to { transform:rotate(1turn); } }
+  @keyframes identity-node { 50% { opacity:.35;box-shadow:0 0 14px var(--color-accent);transform:scale(.72); } }
+  @keyframes focus-strip-scan { from { background-position:-70% 0; } to { background-position:170% 0; } }
+
+  @media (max-width: 860px) {
+    .about-hero,
+    .manifesto {
+      grid-template-columns: 1fr;
+    }
+
+    .identity-panel {
+      min-height: 0;
+    }
+
+    .identity-mark {
+      width: 8rem;
+      height: 8rem;
+    }
+
+    .protocol-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .protocol-grid li:nth-child(3) {
+      border-left: 1px solid var(--color-line);
+    }
+
+    .protocol-grid li:nth-child(n + 3) {
+      border-top: 0;
+    }
+
+    .about-frame .skills {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .about-hero {
+      gap: 2rem;
+    }
+
+    .about-hero .page-title {
+      font-size: clamp(2.25rem, 12vw, 3.25rem);
+    }
+
+    .hero-actions {
+      display: grid;
+    }
+
+    .hero-actions a {
+      width: 100%;
+      min-height: 2.8rem;
+    }
+
+    .manifesto-types,
+    .protocol-grid,
+    .about-frame .skills {
+      grid-template-columns: 1fr;
+    }
+
+    .protocol-grid li + li,
+    .protocol-grid li:nth-child(3) {
+      border-left: 1px solid var(--color-line);
+      border-top: 0;
+    }
+
+    .section-intro,
+    .console-head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .console-head > p {
+      text-align: left;
+    }
+
+    .focus-strip {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .identity-stats dd {
+      font-size: 0.76rem;
+    }
+  }
+
+  :global(html[data-motion='off']) .identity-panel::before,
+  :global(html[data-motion='off']) .identity-mark::before,
+  :global(html[data-motion='off']) .identity-mark::after,
+  :global(html[data-motion='off']) .identity-mark i,
+  :global(html[data-motion='off']) .identity-status span,
+  :global(html[data-motion='off']) .focus-strip { animation:none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .identity-panel::before,.identity-mark::before,.identity-mark::after,.identity-mark i,.identity-status span,.focus-strip { animation:none; }
+    .protocol-grid li::before { display:none; }
+  }
+
 </style>

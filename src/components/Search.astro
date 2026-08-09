@@ -14,17 +14,32 @@
         autocomplete="off"
         spellcheck="false"
         aria-label="搜索关键词"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="search-results"
+        aria-expanded="false"
       />
+      <button type="button" class="search-action search-clear" data-search-clear aria-label="清空搜索" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M6 8h12M9 8V5h6v3m-8 0 1 11h8l1-11M10 11v5m4-5v5"></path>
+        </svg>
+      </button>
       <kbd class="search-esc">esc</kbd>
+      <button type="button" class="search-action search-close" data-search-close aria-label="关闭搜索">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18"></path>
+        </svg>
+      </button>
     </div>
 
-    <div class="search-body" data-search-results role="status" aria-live="polite">
+    <p class="sr-only" data-search-status aria-live="polite"></p>
+    <div class="search-body" id="search-results" data-search-results role="listbox" aria-label="搜索结果">
       <p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>
     </div>
 
     <div class="search-foot mono">
-      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
-      <span><kbd>↵</kbd> 打开</span>
+      <span class="search-shortcut"><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span class="search-shortcut"><kbd>↵</kbd> 打开</span>
       <span class="search-brand">pagefind</span>
     </div>
   </div>
@@ -43,9 +58,9 @@
   }
 
   .search::backdrop {
-    background: color-mix(in srgb, #000 72%, transparent);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    background: color-mix(in srgb, #030507 78%, transparent);
+    -webkit-backdrop-filter: blur(8px) saturate(0.8);
+    backdrop-filter: blur(8px) saturate(0.8);
   }
 
   .search[open] .search-box {
@@ -68,12 +83,13 @@
   .search-box {
     width: min(42rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
     margin: max(12vh, calc(env(safe-area-inset-top, 0px) + 4.5rem)) auto 0;
-    background: var(--color-surface);
+    background: var(--color-panel-strong);
     border: 1px solid var(--color-line-bright);
     border-radius: var(--radius);
     box-shadow:
-      0 0 0 1px var(--color-line-bright),
-      0 16px 40px -20px rgb(0 0 0 / 0.9);
+      0 0 0 1px rgb(255 255 255 / 2%),
+      0 32px 100px -38px rgb(0 0 0 / 96%),
+      var(--shadow-accent);
     overflow: hidden;
     /* iOS Safari dialog 里用 max-height 防止被键盘顶出视口 */
     max-height: min(85vh, 85dvh);
@@ -87,6 +103,7 @@
     gap: 0.7rem;
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--color-line);
+    background: linear-gradient(180deg, rgb(255 255 255 / 2.5%), transparent);
   }
 
   .search-prompt {
@@ -96,6 +113,7 @@
 
   .search-input {
     flex: 1;
+    min-width: 0;
     background: transparent;
     border: 0;
     outline: 0;
@@ -127,6 +145,41 @@
     color: var(--color-faint);
   }
 
+  .search-action {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-faint);
+    cursor: pointer;
+    transition:
+      color 0.16s,
+      border-color 0.16s,
+      background 0.16s;
+  }
+
+  .search-action[hidden] {
+    display: none;
+  }
+
+  .search-action:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent-soft);
+    background: var(--color-surface-2);
+  }
+
+  .search-action svg {
+    width: 16px;
+    height: 16px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .search-body {
     flex: 1;
     min-height: 0;
@@ -150,7 +203,7 @@
     gap: 1rem;
     padding: 0.5rem 1rem;
     border-top: 1px solid var(--color-line);
-    background: var(--color-bg-soft);
+    background: rgb(5 7 10 / 64%);
     font-size: 0.7rem;
     color: var(--color-faint);
   }
@@ -163,6 +216,27 @@
     margin-left: auto;
     opacity: 0.5;
   }
+
+  @media (max-width: 640px), (pointer: coarse) {
+    .search-box {
+      margin-top: max(6vh, calc(env(safe-area-inset-top, 0px) + 4rem));
+    }
+
+    .search-head {
+      gap: 0.45rem;
+      padding-inline: 0.75rem;
+    }
+
+    .search-esc,
+    .search-shortcut {
+      display: none;
+    }
+
+    .search-action {
+      width: 40px;
+      height: 40px;
+    }
+  }
 </style>
 
 <style is:global>
@@ -172,12 +246,17 @@
     border-radius: var(--radius);
     text-decoration: none;
     border: 1px solid transparent;
+    transition:
+      background 0.16s,
+      border-color 0.16s,
+      transform 0.16s var(--ease-out-expo);
   }
 
   .search-item:hover,
   .search-item[data-active='true'] {
-    background: var(--color-surface-2);
+    background: linear-gradient(90deg, rgb(61 220 132 / 6%), rgb(255 255 255 / 2%));
     border-color: var(--color-line-bright);
+    transform: translateX(2px);
   }
 
   .search-item-title {
@@ -190,6 +269,11 @@
 
   .search-item[data-active='true'] .search-item-title {
     color: var(--color-accent);
+  }
+
+  .search-item[aria-selected='true'] {
+    outline: 1px solid var(--color-accent-soft);
+    outline-offset: -1px;
   }
 
   .search-item-excerpt {
@@ -226,7 +310,8 @@
   const dynamicImport = new Function('path', 'return import(path)') as (p: string) => Promise<Pagefind>
 
   async function loadPagefind() {
-    if (pagefind || loading) return loading
+    if (pagefind) return
+    if (loading) return loading
     loading = (async () => {
       try {
         pagefind = await dynamicImport('/pagefind/pagefind.js')
@@ -235,7 +320,11 @@
         pagefind = null
       }
     })()
-    return loading
+    try {
+      await loading
+    } finally {
+      loading = null
+    }
   }
 
   // document 不随 View Transitions 替换，重新 setup 前必须撤掉上一轮的监听
@@ -249,27 +338,52 @@
     const dialog = document.querySelector<HTMLDialogElement>('[data-search]')
     const input = document.querySelector<HTMLInputElement>('[data-search-input]')
     const list = document.querySelector<HTMLElement>('[data-search-results]')
-    if (!dialog || !input || !list) return
+    const status = document.querySelector<HTMLElement>('[data-search-status]')
+    const clearButton = document.querySelector<HTMLButtonElement>('[data-search-clear]')
+    const closeButton = document.querySelector<HTMLButtonElement>('[data-search-close]')
+    if (!dialog || !input || !list || !status || !clearButton || !closeButton) return
 
     // 弹窗开着时发生客户端跳转，close 事件不会触发，滚动会被永久锁住
     if (!dialog.open) document.body.style.overflow = ''
 
     let cursor = -1
+    let requestId = 0
 
     const items = () => [...list.querySelectorAll<HTMLAnchorElement>('.search-item')]
+
+    const announce = (message: string) => {
+      status.textContent = message
+    }
+
+    const setActive = (next: number) => {
+      const all = items()
+      cursor = next
+      all.forEach((el, i) => {
+        const active = i === cursor
+        el.setAttribute('data-active', String(active))
+        el.setAttribute('aria-selected', String(active))
+      })
+      const active = all[cursor]
+      if (active?.id) input.setAttribute('aria-activedescendant', active.id)
+      else input.removeAttribute('aria-activedescendant')
+      active?.scrollIntoView({ block: 'nearest' })
+    }
 
     const move = (delta: number) => {
       const all = items()
       if (!all.length) return
-      cursor = (cursor + delta + all.length) % all.length
-      all.forEach((el, i) => el.setAttribute('data-active', String(i === cursor)))
-      all[cursor].scrollIntoView({ block: 'nearest' })
+      if (cursor === -1) {
+        setActive(delta > 0 ? 0 : all.length - 1)
+        return
+      }
+      setActive((cursor + delta + all.length) % all.length)
     }
 
     const open = () => {
       if (dialog.open) return
       dialog.showModal()
       document.body.style.overflow = 'hidden'
+      input.setAttribute('aria-expanded', 'true')
       input.focus()
       void loadPagefind()
     }
@@ -277,50 +391,70 @@
     const close = () => {
       dialog.close()
       document.body.style.overflow = ''
+      input.setAttribute('aria-expanded', 'false')
     }
 
     const render = (html: string) => {
       list.innerHTML = html
-      cursor = -1
+      setActive(-1)
     }
 
     const run = async (query: string) => {
+      const currentRequest = ++requestId
+      clearButton.hidden = !query
       if (!query.trim()) {
         render('<p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>')
+        announce('等待输入搜索关键词')
         return
       }
 
       await loadPagefind()
+      if (currentRequest !== requestId) return
       if (!pagefind) {
         render('<p class="search-empty">搜索索引尚未生成。执行 <code>npm run build</code> 后可用。</p>')
+        announce('搜索索引加载失败')
         return
       }
 
       const search = await pagefind.debouncedSearch(query, undefined, 200)
+      if (currentRequest !== requestId) return
       if (!search) return
 
       if (!search.results.length) {
         render(`<p class="search-empty">没有匹配 “${escapeHtml(query)}” 的内容。</p>`)
+        announce('没有搜索结果')
         return
       }
 
       const top = await Promise.all(search.results.slice(0, 8).map((r) => r.data()))
+      if (currentRequest !== requestId) return
       render(
         top
           .map(
-            (d) => `<a class="search-item" href="${d.url}">
+            (d, i) => `<a class="search-item" id="search-result-${i}" role="option" aria-selected="false" href="${d.url}">
               <span class="search-item-title">${escapeHtml(d.meta.title ?? '未命名')}</span>
               <span class="search-item-excerpt">${d.excerpt}</span>
             </a>`,
           )
           .join(''),
       )
+      announce(`找到 ${top.length} 条结果`)
     }
 
     const escapeHtml = (s: string) =>
       s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
     input.addEventListener('input', () => void run(input.value), { signal })
+    clearButton.addEventListener(
+      'click',
+      () => {
+        input.value = ''
+        void run('')
+        input.focus()
+      },
+      { signal },
+    )
+    closeButton.addEventListener('click', close, { signal })
 
     document
       .querySelectorAll('[data-search-open]')
@@ -338,6 +472,8 @@
       'close',
       () => {
         document.body.style.overflow = ''
+        input.setAttribute('aria-expanded', 'false')
+        input.removeAttribute('aria-activedescendant')
       },
       { signal },
     )

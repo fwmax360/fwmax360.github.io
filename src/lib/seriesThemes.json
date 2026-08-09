@@ -1,0 +1,46 @@
+{
+  "toneOrder": ["green", "cyan", "amber", "violet"],
+  "signatureOrder": ["layers", "signal", "cipher", "split"],
+  "palettes": {
+    "green": {
+      "accent": "#52e198",
+      "soft": "#267950",
+      "glow": "rgb(82 225 152 / 0.16)",
+      "ink": "#baf6d4",
+      "angle": "135deg"
+    },
+    "cyan": {
+      "accent": "#65d9ed",
+      "soft": "#287b89",
+      "glow": "rgb(101 217 237 / 0.15)",
+      "ink": "#c4f4fb",
+      "angle": "90deg"
+    },
+    "amber": {
+      "accent": "#f2bd5b",
+      "soft": "#896529",
+      "glow": "rgb(242 189 91 / 0.15)",
+      "ink": "#fae1ad",
+      "angle": "45deg"
+    },
+    "violet": {
+      "accent": "#ae91ff",
+      "soft": "#624c9c",
+      "glow": "rgb(174 145 255 / 0.16)",
+      "ink": "#ded3ff",
+      "angle": "-45deg"
+    }
+  },
+  "signatureMarks": {
+    "layers": "⟪·⟫",
+    "signal": "≋",
+    "cipher": "⌗",
+    "split": "◇"
+  },
+  "known": {
+    "逆向基础": { "tone": "green", "code": "REV", "signature": "layers" },
+    "抓包实战": { "tone": "cyan", "code": "NET", "signature": "signal" },
+    "密码学基础": { "tone": "amber", "code": "CRY", "signature": "cipher" },
+    "腾讯游戏安全2026": { "tone": "violet", "code": "TGS", "signature": "split" }
+  }
+}

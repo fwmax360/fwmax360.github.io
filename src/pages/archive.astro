@@ -1,95 +1,561 @@
 ---
 import Base from '../layouts/Base.astro'
-import PostRow from '../components/PostRow.astro'
-import { getPostsByDate, groupByYear } from '../lib/posts'
+import { coverSvgUrl } from '../lib/covers'
+import { categoryUrl, formatDate, getPostsByDateDesc, postUrl, tagUrl } from '../lib/posts'
+import { seriesUrl } from '../lib/series'
 
-const posts = await getPostsByDate()
-const years = groupByYear(posts)
+const posts = await getPostsByDateDesc()
+const categories = [...new Set(posts.map((post) => post.data.category))].sort((a, b) => a.localeCompare(b, 'zh-CN'))
+const series = [...new Set(posts.map((post) => post.data.series).filter((name): name is string => Boolean(name)))].sort((a, b) => a.localeCompare(b, 'zh-CN'))
+
+const dossiers = [...new Set(posts.map((post) => post.data.pubDate.getFullYear()))]
+  .sort((a, b) => b - a)
+  .map((year) => {
+    const yearPosts = posts.filter((post) => post.data.pubDate.getFullYear() === year)
+    const monthMap = new Map<number, typeof yearPosts>()
+    for (const post of yearPosts) {
+      const month = post.data.pubDate.getMonth() + 1
+      monthMap.set(month, [...(monthMap.get(month) ?? []), post])
+    }
+    const months = [...monthMap]
+      .sort((a, b) => b[0] - a[0])
+      .map(([month, monthPosts]) => ({ month, posts: monthPosts }))
+    return { year, posts: yearPosts, lead: yearPosts[0], months }
+  })
+
+const latest = posts[0]
 ---
 
-<Base title="归档" description="全部文章，按时间升序（越早越靠前）。">
-  <header class="page-head">
-    <h1 class="page-title">archive</h1>
-    <p class="page-sub mono">{posts.length} 篇 · {years.length} 年 · oldest first</p>
+<Base title="归档" description="全部文章，按年度与月度卷宗浏览。">
+  <header class="page-head" data-reveal data-parallax="0.06">
+    <p class="page-eyebrow mono"><span aria-hidden="true"></span> editorial dossier index</p>
+    <div class="page-title-row">
+      <div>
+        <h1 class="page-title">archive</h1>
+        <p class="page-sub">按年度与月份编排研究卷宗，用分类、系列和阅读密度定位记录。</p>
+      </div>
+      <dl class="page-metrics mono">
+        <div><dt>POSTS</dt><dd data-count-up>{String(posts.length).padStart(2, '0')}</dd></div>
+        <div><dt>YEARS</dt><dd data-count-up>{String(dossiers.length).padStart(2, '0')}</dd></div>
+        <div><dt>LATEST</dt><dd>{latest ? formatDate(latest.data.pubDate) : '—'}</dd></div>
+      </dl>
+    </div>
   </header>
 
-  {
-    years.map(([year, list]) => (
-      <section class="year">
-        <div class="year-head">
-          <h2 class="year-num mono">{year}</h2>
-          <div class="rule" />
-          <span class="year-count mono">{list.length}</span>
-        </div>
-        <div class="year-list">
-          {list.map((post, i) => (
-            <PostRow post={post} index={i} />
+  <section class="archive-system" data-archive data-archive-density="editorial">
+    <header class="archive-controls col-side" data-reveal>
+      <div class="filter-field">
+        <label class="mono" for="archive-category">category</label>
+        <select id="archive-category" data-archive-category>
+          <option value="">全部分类</option>
+          {categories.map((category) => <option value={category}>{category}</option>)}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label class="mono" for="archive-series">series</label>
+        <select id="archive-series" data-archive-series>
+          <option value="">全部系列</option>
+          {series.map((name) => <option value={name}>{name}</option>)}
+        </select>
+      </div>
+      <fieldset class="density-switch">
+        <legend class="mono">density</legend>
+        <button type="button" class="mono active" data-density="editorial" aria-pressed="true">editorial</button>
+        <button type="button" class="mono" data-density="compact" aria-pressed="false">compact</button>
+      </fieldset>
+      <p class="archive-status mono" aria-live="polite">
+        <span aria-hidden="true"></span><b data-archive-count>{posts.length}</b> / {posts.length} dossiers
+      </p>
+
+      {latest && (
+        <figure class="cover-preview" data-archive-preview data-spotlight data-tilt data-tilt-strength="2">
+          <img src={coverSvgUrl(latest)} width="1200" height="630" alt={`《${latest.data.title}》封面预览`} data-preview-image />
+          <figcaption>
+            <span class="mono" data-preview-meta>{latest.data.category} / {formatDate(latest.data.pubDate)}</span>
+            <strong data-preview-title>{latest.data.title}</strong>
+          </figcaption>
+        </figure>
+      )}
+    </header>
+
+    <div class="archive-layout">
+      <nav class="archive-rail mono" aria-label="年度与月份目录" data-reveal>
+        <p>// dossier rail</p>
+        <ol>
+          {dossiers.map((dossier) => (
+            <li data-year-link={dossier.year}>
+              <a href={`#year-${dossier.year}`} class="rail-year">
+                <span>{dossier.year}</span><b>{String(dossier.posts.length).padStart(2, '0')}</b>
+              </a>
+              <ol>
+                {dossier.months.map((month) => (
+                  <li data-month-link={`${dossier.year}-${month.month}`}>
+                    <a href={`#month-${dossier.year}-${String(month.month).padStart(2, '0')}`}>
+                      <span>M{String(month.month).padStart(2, '0')}</span><b>{month.posts.length}</b>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </li>
           ))}
-        </div>
-      </section>
-    ))
+        </ol>
+      </nav>
+
+      <div class="dossier-stack col-side">
+        {dossiers.map((dossier) => (
+          <section
+            class="year-dossier"
+            id={`year-${dossier.year}`}
+            data-archive-year={dossier.year}
+            data-archive-ids={dossier.posts.map((post) => post.id).join(',')}
+            data-reveal
+          >
+            <header class="year-head">
+              <div>
+                <p class="mono">ANNUAL DOSSIER</p>
+                <h2>{dossier.year}</h2>
+              </div>
+              <span class="year-count mono">{String(dossier.posts.length).padStart(2, '0')} entries</span>
+            </header>
+
+            {dossier.lead && (
+              <article
+                class="lead-dossier"
+                data-archive-item
+                data-post-id={dossier.lead.id}
+                data-category={dossier.lead.data.category}
+                data-series={dossier.lead.data.series ?? ''}
+                data-cover={coverSvgUrl(dossier.lead)}
+                data-title={dossier.lead.data.title}
+                data-meta={`${dossier.lead.data.category} / ${formatDate(dossier.lead.data.pubDate)}`}
+                data-spotlight
+                data-tilt
+                data-tilt-strength="2.2"
+              >
+                <a
+                  href={postUrl(dossier.lead)}
+                  class="lead-cover"
+                  aria-label={`阅读年度首篇《${dossier.lead.data.title}》`}
+                  data-jmp
+                  data-jmp-source="archive / lead dossier"
+                  data-jmp-title={dossier.lead.data.title}
+                >
+                  <img src={coverSvgUrl(dossier.lead)} width="1200" height="630" alt={`《${dossier.lead.data.title}》文章封面`} loading="lazy" />
+                </a>
+                <div class="lead-copy">
+                  <p class="lead-kicker mono">LEAD DOSSIER / {formatDate(dossier.lead.data.pubDate)}</p>
+                  <h3>
+                    <a
+                      href={postUrl(dossier.lead)}
+                      data-jmp
+                      data-jmp-source="archive / lead dossier"
+                      data-jmp-title={dossier.lead.data.title}
+                    >{dossier.lead.data.title}</a>
+                  </h3>
+                  <p class="lead-desc">{dossier.lead.data.description}</p>
+                  <footer class="lead-meta mono">
+                    <a href={categoryUrl(dossier.lead.data.category)}>{dossier.lead.data.category}</a>
+                    {dossier.lead.data.series && <a href={seriesUrl(dossier.lead.data.series)}>series / {dossier.lead.data.series}</a>}
+                    <span>{dossier.lead.data.tags.slice(0, 3).map((tag) => `#${tag}`).join('  ')}</span>
+                  </footer>
+                </div>
+              </article>
+            )}
+
+            <div class="month-ledger">
+              {dossier.months.map((month) => (
+                <section
+                  class="month-group"
+                  id={`month-${dossier.year}-${String(month.month).padStart(2, '0')}`}
+                  data-archive-month={`${dossier.year}-${month.month}`}
+                  data-archive-ids={month.posts.map((post) => post.id).join(',')}
+                >
+                  <header class="month-head mono">
+                    <span>M{String(month.month).padStart(2, '0')}</span>
+                    <h3>{month.month} 月</h3>
+                    <i aria-hidden="true"></i>
+                    <b>{String(month.posts.length).padStart(2, '0')}</b>
+                  </header>
+                  <ol class="entry-list">
+                    {month.posts.filter((post) => post.id !== dossier.lead?.id).map((post, index) => (
+                      <li>
+                        <article
+                          class="archive-entry"
+                          data-archive-item
+                          data-post-id={post.id}
+                          data-category={post.data.category}
+                          data-series={post.data.series ?? ''}
+                          data-cover={coverSvgUrl(post)}
+                          data-title={post.data.title}
+                          data-meta={`${post.data.category} / ${formatDate(post.data.pubDate)}`}
+                          data-spotlight
+                        >
+                          <a
+                            class="entry-hit"
+                            href={postUrl(post)}
+                            aria-label={`阅读《${post.data.title}》`}
+                            data-jmp
+                            data-jmp-source="archive / ledger"
+                            data-jmp-title={post.data.title}
+                          ></a>
+                          <div class="entry-index mono">
+                            <span>{String(index + 1).padStart(2, '0')}</span>
+                            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                          </div>
+                          <div class="entry-copy">
+                            <h4>{post.data.title}</h4>
+                            <p>{post.data.description}</p>
+                            <div class="entry-meta mono">
+                              <a href={categoryUrl(post.data.category)}>{post.data.category}</a>
+                              {post.data.series && <a href={seriesUrl(post.data.series)}>series / {post.data.series}</a>}
+                              {post.data.tags.slice(0, 3).map((tag) => <a href={tagUrl(tag)}>#{tag}</a>)}
+                            </div>
+                          </div>
+                          <span class="entry-open mono" aria-hidden="true">open ↗</span>
+                        </article>
+                      </li>
+                    ))}
+                  </ol>
+                  {month.posts.length === 1 && month.posts[0]?.id === dossier.lead?.id && (
+                    <p class="lead-month-note mono">lead dossier indexed above</p>
+                  )}
+                </section>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        <p class="archive-empty mono" data-archive-empty hidden>NO_DOSSIERS_MATCH_FILTER</p>
+        {posts.length === 0 && <p class="archive-empty mono">还没有文章。</p>}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  let archiveSpy: IntersectionObserver | null = null
+  let archiveSpyRoot: HTMLElement | null = null
+
+  const setupArchiveIndex = () => {
+    const nextRoot = document.querySelector<HTMLElement>('[data-archive]')
+    if (nextRoot && nextRoot === archiveSpyRoot && nextRoot.dataset.bound === 'true') return
+    archiveSpy?.disconnect()
+    archiveSpy = null
+    archiveSpyRoot = nextRoot
+
+    if (!nextRoot) return
+
+    document.querySelectorAll<HTMLElement>('[data-archive]').forEach((root) => {
+      if (root.dataset.bound === 'true') return
+      root.dataset.bound = 'true'
+      const category = root.querySelector<HTMLSelectElement>('[data-archive-category]')
+      const series = root.querySelector<HTMLSelectElement>('[data-archive-series]')
+      const count = root.querySelector<HTMLElement>('[data-archive-count]')
+      const empty = root.querySelector<HTMLElement>('[data-archive-empty]')
+      const items = [...root.querySelectorAll<HTMLElement>('[data-archive-item]')]
+      const previewImage = root.querySelector<HTMLImageElement>('[data-preview-image]')
+      const previewTitle = root.querySelector<HTMLElement>('[data-preview-title]')
+      const previewMeta = root.querySelector<HTMLElement>('[data-preview-meta]')
+      const preview = root.querySelector<HTMLElement>('[data-archive-preview]')
+
+      const motionEnabled = () =>
+        document.documentElement.dataset.motion === 'ready' &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+      const setPreview = (item: HTMLElement) => {
+        if (previewTitle?.textContent === (item.dataset.title ?? '')) return
+        if (previewImage && item.dataset.cover) {
+          previewImage.src = item.dataset.cover
+          previewImage.alt = `《${item.dataset.title ?? ''}》封面预览`
+        }
+        if (previewTitle) previewTitle.textContent = item.dataset.title ?? ''
+        if (previewMeta) previewMeta.textContent = item.dataset.meta ?? ''
+        if (preview && motionEnabled()) {
+          preview.animate(
+            [
+              { opacity: 0.3, transform: 'translate3d(0, 4px, 0)', filter: 'blur(2px)' },
+              { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0)' },
+            ],
+            { duration: 260, easing: 'cubic-bezier(.16,1,.3,1)' },
+          )
+        }
+      }
+
+      const setRailActive = (year?: string, month?: string) => {
+        root.querySelectorAll<HTMLElement>('[data-year-link]').forEach((item) => {
+          const active = Boolean(year && item.dataset.yearLink === year)
+          item.classList.toggle('is-current', active)
+          const link = item.querySelector('a')
+          if (active) link?.setAttribute('aria-current', month ? 'location' : 'true')
+          else link?.removeAttribute('aria-current')
+        })
+        root.querySelectorAll<HTMLElement>('[data-month-link]').forEach((item) => {
+          const active = Boolean(month && item.dataset.monthLink === month)
+          item.classList.toggle('is-current', active)
+          const link = item.querySelector('a')
+          if (active) link?.setAttribute('aria-current', 'location')
+          else link?.removeAttribute('aria-current')
+        })
+        root.querySelectorAll<HTMLElement>('[data-archive-month]').forEach((item) => {
+          item.classList.toggle('is-current', Boolean(month && item.dataset.archiveMonth === month))
+        })
+      }
+
+      const idsFor = (element: HTMLElement) =>
+        (element.dataset.archiveIds ?? '').split(',').filter(Boolean)
+
+      const filter = () => {
+        const selectedCategory = category?.value ?? ''
+        const selectedSeries = series?.value ?? ''
+        const visible = new Set<string>()
+        items.forEach((item) => {
+          const show =
+            (!selectedCategory || item.dataset.category === selectedCategory) &&
+            (!selectedSeries || item.dataset.series === selectedSeries)
+          const wasHidden = item.hidden
+          item.hidden = !show
+          if (show && item.dataset.postId) visible.add(item.dataset.postId)
+          if (show && wasHidden && motionEnabled()) {
+            item.animate(
+              [
+                { opacity: 0, transform: 'translate3d(0, 8px, 0)' },
+                { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+              ],
+              { duration: 320, easing: 'cubic-bezier(.16,1,.3,1)' },
+            )
+          }
+        })
+        root.querySelectorAll<HTMLElement>('[data-archive-year],[data-archive-month]').forEach((group) => {
+          group.hidden = !idsFor(group).some((id) => visible.has(id))
+        })
+        root.querySelectorAll<HTMLElement>('[data-year-link]').forEach((link) => {
+          const year = link.dataset.yearLink
+          link.hidden = !root.querySelector(`[data-archive-year="${year}"]:not([hidden])`)
+        })
+        root.querySelectorAll<HTMLElement>('[data-month-link]').forEach((link) => {
+          const month = link.dataset.monthLink
+          link.hidden = !root.querySelector(`[data-archive-month="${month}"]:not([hidden])`)
+        })
+        if (count) count.textContent = String(visible.size)
+        if (empty) empty.hidden = visible.size > 0
+        const first = items.find((item) => !item.hidden)
+        if (first) {
+          setPreview(first)
+          const month = first.closest<HTMLElement>('[data-archive-month]')?.dataset.archiveMonth
+          const year = first.closest<HTMLElement>('[data-archive-year]')?.dataset.archiveYear
+          setRailActive(year, month)
+        }
+      }
+
+      root.addEventListener('pointerover', (event) => {
+        if (!(event.target instanceof Element)) return
+        const item = event.target.closest<HTMLElement>('[data-archive-item]')
+        if (item && root.contains(item) && !item.hidden) setPreview(item)
+      })
+      root.addEventListener('focusin', (event) => {
+        if (!(event.target instanceof Element)) return
+        const item = event.target.closest<HTMLElement>('[data-archive-item]')
+        if (item && root.contains(item) && !item.hidden) setPreview(item)
+      })
+      category?.addEventListener('change', filter)
+      series?.addEventListener('change', filter)
+      root.querySelectorAll<HTMLButtonElement>('[data-density]').forEach((button) => {
+        button.addEventListener('click', () => {
+          root.dataset.archiveDensity = button.dataset.density ?? 'editorial'
+          root.querySelectorAll<HTMLButtonElement>('[data-density]').forEach((item) => {
+            const active = item === button
+            item.classList.toggle('active', active)
+            item.setAttribute('aria-pressed', String(active))
+          })
+        })
+      })
+
+      if ('IntersectionObserver' in window) {
+        archiveSpy = new IntersectionObserver(
+          (entries) => {
+            const active = entries
+              .filter((entry) => entry.isIntersecting && !(entry.target as HTMLElement).hidden)
+              .sort((a, b) => {
+                const aMonth = Number(Boolean((a.target as HTMLElement).dataset.archiveMonth))
+                const bMonth = Number(Boolean((b.target as HTMLElement).dataset.archiveMonth))
+                return bMonth - aMonth || Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top)
+              })[0]
+            if (!active) return
+            const target = active.target as HTMLElement
+            const month = target.dataset.archiveMonth
+            const year = target.dataset.archiveYear ?? month?.split('-')[0]
+            setRailActive(year, month)
+          },
+          { rootMargin: '-18% 0px -70% 0px', threshold: 0 },
+        )
+        root.querySelectorAll<HTMLElement>('[data-archive-year],[data-archive-month]').forEach((section) => {
+          archiveSpy?.observe(section)
+        })
+      }
+
+      const firstYear = root.querySelector<HTMLElement>('[data-archive-year]:not([hidden])')
+      setRailActive(firstYear?.dataset.archiveYear)
+    })
   }
 
-  {posts.length === 0 && <p class="empty mono">还没有文章。</p>}
-</Base>
+  setupArchiveIndex()
+  document.addEventListener('astro:page-load', setupArchiveIndex)
+</script>
 
 <style>
   .page-head {
-    margin-bottom: 3rem;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    border: 1px solid var(--color-line);
+    background: linear-gradient(110deg, rgb(61 220 132 / 6%), transparent 38%), var(--color-panel);
+    box-shadow: var(--shadow-panel), inset 0 1px rgb(255 255 255 / 0.02);
+  }
+  .page-head::after { content:'';position:absolute;z-index:-1;top:-20%;bottom:-20%;left:-28%;width:22%;background:linear-gradient(90deg,transparent,rgb(82 225 152 / .055),transparent);transform:skewX(-18deg);animation:archive-head-scan 8s ease-in-out infinite;pointer-events:none; }
+  .page-eyebrow { display:flex;align-items:center;gap:.5rem;margin-bottom:1.1rem;color:var(--color-faint);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase; }
+  .page-eyebrow span { width:.4rem;height:.4rem;background:var(--color-accent);box-shadow:0 0 12px rgb(61 220 132 / .42); }
+  .page-title-row { display:flex;align-items:end;justify-content:space-between;gap:2rem; }
+  .page-title { color:var(--color-text-strong);font:620 clamp(2.4rem,5vw,3.7rem)/1 var(--font-display);letter-spacing:-.025em; }
+  .page-title::before { content:'$ ';color:var(--color-accent);font-family:var(--font-mono);font-weight:500; }
+  .page-sub { max-width:38rem;margin-top:.9rem;color:var(--color-dim);font-size:.92rem; }
+  .page-metrics { display:flex;flex-wrap:wrap;justify-content:flex-end;gap:1.5rem; }
+  .page-metrics div { min-width:4.25rem; }
+  .page-metrics dt { color:var(--color-faint);font-size:.55rem;letter-spacing:.12em; }
+  .page-metrics dd { margin-top:.2rem;color:var(--color-text-strong);font-size:.8rem; }
+
+  .archive-controls { display:grid;grid-template-columns:minmax(10rem,.7fr) minmax(10rem,.7fr) auto auto minmax(13rem,1fr);gap:.75rem;align-items:end;padding:1rem;border:1px solid var(--color-line-bright);background:rgb(7 10 14 / .88); }
+  .filter-field label,.density-switch legend { display:block;margin-bottom:.35rem;color:var(--color-faint);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase; }
+  .filter-field select { width:100%;min-height:2.6rem;padding:0 .7rem;border:1px solid var(--color-line-bright);border-radius:0;background:#080c11;color:var(--color-text);font:.7rem var(--font-mono); }
+  .density-switch { display:grid;grid-template-columns:1fr 1fr;border:0;padding:0;margin:0; }
+  .density-switch legend { grid-column:1/-1; }
+  .density-switch button { min-height:2.6rem;padding:0 .65rem;border:1px solid var(--color-line-bright);background:transparent;color:var(--color-faint);font-size:.58rem;text-transform:uppercase;cursor:pointer; }
+  .density-switch button + button { border-left:0; }
+  .density-switch button.active { background:rgb(61 220 132 / .08);color:var(--color-accent); }
+  .archive-status { align-self:center;display:flex;align-items:center;gap:.4rem;white-space:nowrap;color:var(--color-faint);font-size:.58rem; }
+  .archive-status span { width:.38rem;height:.38rem;background:var(--color-accent);box-shadow:0 0 8px var(--color-accent);animation:archive-pulse 1.8s ease-in-out infinite; }
+  .archive-status b { color:var(--color-text);font-weight:500; }
+  .cover-preview { position:relative;display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:.65rem;overflow:hidden;min-width:0;margin:0; }
+  .cover-preview::after { content:'';position:absolute;top:-30%;bottom:-30%;left:-42%;width:35%;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .07),transparent);transform:skewX(-18deg);animation:archive-preview-scan 5.4s ease-in-out infinite;pointer-events:none; }
+  .cover-preview img { width:6.5rem;aspect-ratio:1200/630;object-fit:cover;border:1px solid var(--color-line-bright); }
+  .cover-preview figcaption { min-width:0;align-self:center; }
+  .cover-preview span { display:block;color:var(--color-faint);font-size:.5rem; }
+  .cover-preview strong { display:-webkit-box;overflow:hidden;margin-top:.25rem;color:var(--color-text);font-size:.68rem;line-height:1.35;-webkit-line-clamp:2;-webkit-box-orient:vertical; }
+
+  .archive-layout { display:grid;grid-template-columns:10.5rem minmax(0,1fr);gap:2rem;margin-top:2rem; }
+  .archive-rail { position:sticky;top:calc(var(--nav-offset) + 1.25rem);align-self:start;max-height:calc(100vh - var(--nav-offset) - 2.5rem);overflow:auto;padding-right:1rem;border-right:1px solid var(--color-line); }
+  .archive-rail > p { margin-bottom:.8rem;color:var(--color-faint);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase; }
+  .archive-rail ol { margin:0;padding:0;list-style:none; }
+  .archive-rail > ol > li + li { margin-top:1rem; }
+  .archive-rail a { display:flex;align-items:center;justify-content:space-between;gap:.5rem;color:var(--color-faint);font-size:.62rem;text-decoration:none; }
+  .archive-rail a:hover,.archive-rail a:focus-visible { color:var(--color-accent); }
+  .archive-rail li.is-current > a { color:var(--color-accent);text-shadow:0 0 12px color-mix(in srgb,var(--color-accent) 42%,transparent); }
+  .archive-rail li.is-current > a::before { content:'›';margin-right:.18rem;color:var(--color-accent);animation:archive-rail-cursor 1s steps(2,end) infinite; }
+  .archive-rail .rail-year { color:var(--color-text);font-size:.72rem; }
+  .archive-rail li ol { margin:.45rem 0 0 .55rem;padding-left:.65rem;border-left:1px solid var(--color-line); }
+  .archive-rail li li + li { margin-top:.25rem; }
+  .archive-rail b { color:var(--color-faint);font-size:.52rem;font-weight:400; }
+  [hidden] { display:none !important; }
+
+  .year-dossier + .year-dossier { margin-top:4.5rem; }
+  .year-head { display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:.9rem;padding-bottom:.65rem;border-bottom:1px solid var(--color-line-bright); }
+  .year-head p { color:var(--color-accent);font-size:.55rem;letter-spacing:.12em; }
+  .year-head h2 { margin-top:.15rem;color:var(--color-text-strong);font:600 1.65rem var(--font-mono); }
+  .year-count { color:var(--color-faint);font-size:.6rem; }
+  .lead-dossier { position:relative;display:grid;grid-template-columns:minmax(15rem,.8fr) minmax(0,1fr);overflow:hidden;border:1px solid var(--color-line-bright);border-left:2px solid var(--color-accent);background:linear-gradient(120deg,rgb(16 24 28 / .9),rgb(8 11 16 / .94)); }
+  .lead-dossier::after { content:'';position:absolute;right:0;bottom:0;left:0;height:1px;background:linear-gradient(90deg,transparent,var(--color-accent),transparent);transform:translateX(-105%);transition:transform .7s var(--ease-out-expo);pointer-events:none; }
+  .lead-dossier:is(:hover,:focus-within)::after { transform:translateX(105%); }
+  .lead-cover { display:block;min-height:14rem;overflow:hidden;border-right:1px solid var(--color-line); }
+  .lead-cover img { width:100%;height:100%;object-fit:cover;opacity:.82;transition:transform .45s var(--ease-out-expo),opacity .25s; }
+  .lead-dossier:hover .lead-cover img,.lead-cover:focus-visible img { transform:scale(1.025);opacity:1; }
+  .lead-copy { align-self:center;min-width:0;padding:clamp(1.25rem,3vw,2rem); }
+  .lead-kicker { color:var(--color-accent);font-size:.58rem;letter-spacing:.1em; }
+  .lead-copy h3 { margin-top:.6rem;color:var(--color-text-strong);font-size:clamp(1.25rem,2.5vw,1.8rem);line-height:1.35; }
+  .lead-copy h3 a { color:inherit;text-decoration:none; }
+  .lead-copy h3 a:hover { color:var(--color-accent); }
+  .lead-desc { display:-webkit-box;overflow:hidden;margin-top:.75rem;color:var(--color-dim);font-size:.86rem;line-height:1.75;-webkit-line-clamp:3;-webkit-box-orient:vertical; }
+  .lead-meta { display:flex;flex-wrap:wrap;gap:.45rem .8rem;margin-top:1rem;color:var(--color-faint);font-size:.58rem; }
+  .lead-meta a { position:relative;z-index:2;color:var(--color-faint);text-decoration:none; }
+  .lead-meta a:hover { color:var(--color-accent); }
+
+  .month-group { scroll-margin-top:calc(var(--nav-offset) + 1rem); }
+  .month-group + .month-group { margin-top:1.8rem; }
+  .month-head { display:flex;align-items:center;gap:.65rem;margin:1.6rem 0 .25rem;color:var(--color-faint);transition:color .24s ease; }
+  .month-group.is-current .month-head { color:var(--color-text); }
+  .month-group.is-current .month-head i { background:linear-gradient(90deg,var(--color-accent-soft),var(--color-line-bright),transparent);background-size:180% 100%;animation:archive-track 2.8s linear infinite; }
+  .month-head > span { color:var(--color-accent-soft);font-size:.58rem; }
+  .month-head h3 { color:var(--color-text);font-size:.8rem;font-weight:500; }
+  .month-head i { flex:1;height:1px;background:linear-gradient(90deg,var(--color-line-bright),transparent); }
+  .month-head b { font-size:.55rem;font-weight:400; }
+  .entry-list { margin:0;padding:0;list-style:none;border-top:1px solid var(--color-line); }
+  .archive-entry { position:relative;display:grid;grid-template-columns:6.8rem minmax(0,1fr) auto;gap:1rem;align-items:start;padding:1rem .75rem;border-bottom:1px solid var(--color-line);border-left:1px solid transparent;transition:background .18s,border-color .18s,padding-left .2s; }
+  .archive-entry:hover,.archive-entry:focus-within { padding-left:1rem;border-left-color:var(--color-accent);background:rgb(61 220 132 / .035); }
+  .entry-hit { position:absolute;inset:0;z-index:1; }
+  .entry-index { display:flex;flex-direction:column;color:var(--color-faint);font-size:.58rem; }
+  .entry-index span { color:var(--color-accent-soft); }
+  .entry-copy { min-width:0; }
+  .entry-copy h4 { color:var(--color-text-strong);font-size:1rem;line-height:1.45; }
+  .entry-copy > p { display:-webkit-box;overflow:hidden;margin-top:.25rem;color:var(--color-dim);font-size:.78rem;line-height:1.6;-webkit-line-clamp:2;-webkit-box-orient:vertical; }
+  .entry-meta { position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:.3rem .65rem;margin-top:.45rem;font-size:.56rem; }
+  .entry-meta a { color:var(--color-faint);text-decoration:none; }
+  .entry-meta a:hover { color:var(--color-accent); }
+  .entry-open { align-self:center;color:var(--color-faint);font-size:.55rem;opacity:0;transition:opacity .18s; }
+  .archive-entry:hover .entry-open,.archive-entry:focus-within .entry-open { opacity:1;color:var(--color-accent); }
+  .lead-month-note { padding:.6rem 0;color:var(--color-faint);font-size:.55rem; }
+  .archive-empty { padding:4rem 1rem;border:1px solid var(--color-line);color:var(--color-faint);font-size:.7rem;text-align:center; }
+
+  [data-archive-density='compact'] .lead-dossier { grid-template-columns:12rem minmax(0,1fr); }
+  [data-archive-density='compact'] .lead-cover { min-height:8rem; }
+  [data-archive-density='compact'] .lead-copy { padding:1rem; }
+  [data-archive-density='compact'] .lead-desc,[data-archive-density='compact'] .entry-copy > p,[data-archive-density='compact'] .entry-meta { display:none; }
+  [data-archive-density='compact'] .lead-copy h3 { font-size:1.15rem; }
+  [data-archive-density='compact'] .archive-entry { grid-template-columns:6.4rem minmax(0,1fr) auto;padding-block:.65rem; }
+
+  @media (max-width: 900px) {
+    .archive-controls { grid-template-columns:1fr 1fr auto; }
+    .archive-status { grid-column:1/-1; }
+    .cover-preview { display:none; }
+    .archive-layout { grid-template-columns:8rem minmax(0,1fr);gap:1.25rem; }
+    .lead-dossier { grid-template-columns:13rem minmax(0,1fr); }
+  }
+  @media (max-width: 700px) {
+    .page-title-row { display:block; }
+    .page-metrics { justify-content:flex-start;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--color-line); }
+    .archive-controls { grid-template-columns:minmax(0,1fr) auto;padding:.8rem; }
+    .filter-field:first-child { grid-column:1/-1; }
+    .density-switch button { padding-inline:.45rem; }
+    .archive-layout { display:block;margin-top:1.5rem; }
+    .archive-rail { position:static;display:flex;overflow-x:auto;max-height:none;margin-bottom:1.25rem;padding:0 0 .65rem;border-right:0;border-bottom:1px solid var(--color-line); }
+    .archive-rail > p { display:none; }
+    .archive-rail > ol { display:flex;gap:1.3rem; }
+    .archive-rail > ol > li + li { margin-top:0; }
+    .archive-rail li ol { display:none; }
+    .rail-year { gap:.7rem !important;white-space:nowrap; }
+    .year-dossier + .year-dossier { margin-top:3rem; }
+    .lead-dossier,[data-archive-density='compact'] .lead-dossier { grid-template-columns:1fr; }
+    .lead-cover,[data-archive-density='compact'] .lead-cover { min-height:0;aspect-ratio:1200/630;border-right:0;border-bottom:1px solid var(--color-line); }
+    .lead-copy { padding:1.1rem; }
+    .archive-entry,[data-archive-density='compact'] .archive-entry { grid-template-columns:1fr;gap:.35rem;padding:.85rem .55rem; }
+    .entry-index { flex-direction:row;gap:.65rem; }
+    .entry-open { display:none; }
+    .entry-copy > p { -webkit-line-clamp:2; }
   }
 
-  .page-title {
-    font-family: var(--font-mono);
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-text-strong);
-    letter-spacing: -0.02em;
-  }
+  @keyframes archive-head-scan { 0%,18% { transform:translateX(0) skewX(-18deg);opacity:0; } 36%,62% { opacity:1; } 82%,100% { transform:translateX(760%) skewX(-18deg);opacity:0; } }
+  @keyframes archive-preview-scan { 0%,28% { transform:translateX(0) skewX(-18deg);opacity:0; } 44%,68% { opacity:1; } 88%,100% { transform:translateX(520%) skewX(-18deg);opacity:0; } }
+  @keyframes archive-pulse { 50% { opacity:.4;box-shadow:0 0 16px var(--color-accent); } }
+  @keyframes archive-rail-cursor { 50% { opacity:.28; } }
+  @keyframes archive-track { to { background-position:-180% 0; } }
 
-  .page-title::before {
-    content: '$ ';
-    color: var(--color-accent);
-  }
+  :global(html[data-motion='off']) .page-head::after,
+  :global(html[data-motion='off']) .cover-preview::after,
+  :global(html[data-motion='off']) .archive-status span,
+  :global(html[data-motion='off']) .archive-rail li.is-current > a::before,
+  :global(html[data-motion='off']) .month-group.is-current .month-head i { animation:none; }
 
-  .page-sub {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--color-faint);
-  }
-
-  .year {
-    margin-bottom: 3.5rem;
-  }
-
-  .year-head {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .year-num {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--color-accent-soft);
-  }
-
-  .year-head .rule {
-    flex: 1;
-  }
-
-  .year-count {
-    font-size: 0.75rem;
-    color: var(--color-faint);
-  }
-
-  .year-list {
-    border-top: 1px solid var(--color-line);
-  }
-
-  .empty {
-    padding: 4rem 0;
-    text-align: center;
-    color: var(--color-faint);
+  @media (prefers-reduced-motion: reduce) {
+    .page-head::after,.cover-preview::after,.archive-status span,.archive-rail li.is-current > a::before,.month-group.is-current .month-head i { animation:none; }
+    .lead-dossier::after { display:none; }
   }
 </style>

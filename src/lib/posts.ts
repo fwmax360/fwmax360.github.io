@@ -4,12 +4,12 @@ export type Post = CollectionEntry<'posts'>
 
 const isVisible = (p: Post) => import.meta.env.DEV || !p.data.draft
 
-/** 全部可见文章，置顶优先，其余按发布时间升序（越早越靠前） */
+/** 全部可见文章，置顶优先，同一置顶权重内按发布时间降序 */
 export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection('posts', isVisible)
   return posts.sort((a, b) => {
     if (a.data.pinned !== b.data.pinned) return b.data.pinned - a.data.pinned
-    return a.data.pubDate.getTime() - b.data.pubDate.getTime()
+    return b.data.pubDate.getTime() - a.data.pubDate.getTime()
   })
 }
 
@@ -17,6 +17,12 @@ export async function getPosts(): Promise<Post[]> {
 export async function getPostsByDate(): Promise<Post[]> {
   const posts = await getCollection('posts', isVisible)
   return posts.sort((a, b) => a.data.pubDate.getTime() - b.data.pubDate.getTime())
+}
+
+/** 纯按时间降序，用于 RSS 等最新内容流 */
+export async function getPostsByDateDesc(): Promise<Post[]> {
+  const posts = await getCollection('posts', isVisible)
+  return posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
 }
 
 export type Counted = { name: string; count: number }
@@ -49,7 +55,7 @@ export async function getSeries(name: string): Promise<Post[]> {
     .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
 }
 
-/** 按年份分组，用于归档页 */
+/** 按年份分组，用于归档页；最近年份优先 */
 export function groupByYear(posts: Post[]): [string, Post[]][] {
   const map = new Map<string, Post[]>()
   for (const p of posts) {
@@ -57,7 +63,7 @@ export function groupByYear(posts: Post[]): [string, Post[]][] {
     if (!map.has(y)) map.set(y, [])
     map.get(y)!.push(p)
   }
-  return [...map.entries()].sort((a, b) => Number(a[0]) - Number(b[0]))
+  return [...map.entries()].sort((a, b) => Number(b[0]) - Number(a[0]))
 }
 
 /**
@@ -77,7 +83,7 @@ export async function getRelated(current: Post, limit = 3): Promise<Post[]> {
       return { post: p, score }
     })
     .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score || a.post.data.pubDate.getTime() - b.post.data.pubDate.getTime())
+    .sort((a, b) => b.score - a.score || b.post.data.pubDate.getTime() - a.post.data.pubDate.getTime())
     .slice(0, limit)
     .map((x) => x.post)
 }

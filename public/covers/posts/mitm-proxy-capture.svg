@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="cover-title cover-desc">
+  <title id="cover-title">MITM 代理抓包：原理、Reqable 配置与代理检测对抗</title>
+  <desc id="cover-desc">Android · 2026-02-03 · 抓包实战 第 1 章</desc>
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#25303d" stroke-width="1" opacity="0.42"/>
+      <circle cx="0" cy="0" r="1.25" fill="#354456" opacity="0.58"/>
+    </pattern>
+    <radialGradient id="glow" cx="84%" cy="30%" r="66%">
+      <stop offset="0" stop-color="#65d9ed" stop-opacity="0.16"/>
+      <stop offset="0.52" stop-color="#65d9ed" stop-opacity="0.045"/>
+      <stop offset="1" stop-color="#65d9ed" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#65d9ed" stop-opacity="0.95"/>
+      <stop offset="0.58" stop-color="#65d9ed" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#65d9ed" stop-opacity="0"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#65d9ed"/>
+    </marker>
+    <style>
+      .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; }
+      .sans { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; }
+      .micro { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .75px; }
+      .chip { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; font-size: 12px; font-weight: 600; }
+      .diagram-label { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="630" fill="#07090d"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.7"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <path d="M 0 0 H 1200 V 630 H 0 Z M 15 15 V 615 H 1185 V 15 Z" fill="#0d1219" fill-rule="evenodd" opacity="0.54"/>
+  <rect x="15" y="15" width="1170" height="600" fill="none" stroke="#354456" stroke-width="1" opacity="0.64"/>
+  <rect x="15" y="15" width="380" height="2" fill="url(#rail)"/>
+
+  <circle cx="72" cy="63" r="4" fill="#65d9ed"/>
+  <text x="88" y="68" class="mono" font-size="13" font-weight="700" letter-spacing="1.1" fill="#f1f5f9">FWMAX360 / ARTICLE_COVER</text>
+  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">12 / 21 · 925CFA</text>
+  <line x1="72" y1="91" x2="1128" y2="91" stroke="#25303d"/>
+
+  <rect x="72" y="119" width="107" height="28" rx="3" fill="#65d9ed" opacity="0.12" stroke="#65d9ed"/>
+  <text x="87" y="138" class="mono" font-size="11" font-weight="700" letter-spacing="1.2" fill="#65d9ed">ANDROID</text>
+  <text x="183" y="138" class="mono" font-size="12" fill="#93a1b2">2026-02-03</text>
+  <text x="780" y="138" class="mono" font-size="10" text-anchor="end" letter-spacing=".8" fill="#566475">/mitm-proxy-capture</text>
+
+  <text class="sans" font-size="52" font-weight="760" letter-spacing="-1.1" fill="#f1f5f9"><tspan x="72" y="207">MITM 代理抓包：原理、</tspan><tspan x="72" y="273">Reqable 配置与代理检测对抗</tspan></text>
+  <rect x="72" y="305" width="4" height="37" rx="2" fill="#65d9ed"/>
+  <text x="91" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">SERIES</text>
+  <text x="91" y="338" class="sans" font-size="15" font-weight="700" fill="#93a1b2">抓包实战</text>
+  <line x1="300" y1="309" x2="300" y2="341" stroke="#354456"/>
+  <text x="319" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">CHAPTER</text>
+  <text x="319" y="338" class="mono" font-size="15" font-weight="700" fill="#65d9ed">01</text>
+
+  <rect x="824" y="119" width="304" height="340" rx="7" fill="#0d1219" fill-opacity="0.78" stroke="#25303d"/>
+  <path d="M 824 156 V 126 Q 824 119 831 119 H 861" fill="none" stroke="#65d9ed" stroke-width="2"/>
+  <circle cx="1112" cy="135" r="2" fill="#65d9ed" opacity="0.8"/>
+  
+    <text x="858" y="167" class="diagram-label" fill="#65d9ed">DATA FLOW / PIPELINE</text>
+    <text x="1118" y="167" class="micro" text-anchor="end" fill="#566475">SEQ 925CFA</text>
+    
+        <rect x="858" y="242" width="46" height="95" rx="5" fill="#111821" stroke="#354456"/>
+        <rect x="865" y="253" width="24" height="3" rx="1.5" fill="#65d9ed" opacity="0.38"/>
+        <text x="881" y="359" class="micro" text-anchor="middle" fill="#93a1b2">APP</text>
+        <path d="M 905 289.5 H 922" stroke="#65d9ed" stroke-width="1.5" marker-end="url(#arrow)"/>
+      
+        <rect x="926" y="221" width="46" height="116" rx="5" fill="#111821" stroke="#354456"/>
+        <rect x="933" y="232" width="30" height="3" rx="1.5" fill="#65d9ed" opacity="0.51"/>
+        <text x="949" y="359" class="micro" text-anchor="middle" fill="#93a1b2">TUN</text>
+        <path d="M 973 279 H 990" stroke="#65d9ed" stroke-width="1.5" marker-end="url(#arrow)"/>
+      
+        <rect x="994" y="204" width="46" height="133" rx="5" fill="#111821" stroke="#65d9ed"/>
+        <rect x="1001" y="215" width="25" height="3" rx="1.5" fill="#65d9ed" opacity="0.64"/>
+        <text x="1017" y="359" class="micro" text-anchor="middle" fill="#65d9ed">PROXY</text>
+        <path d="M 1041 270.5 H 1058" stroke="#65d9ed" stroke-width="1.5" marker-end="url(#arrow)"/>
+      
+        <rect x="1062" y="247" width="46" height="90" rx="5" fill="#111821" stroke="#354456"/>
+        <rect x="1069" y="258" width="22" height="3" rx="1.5" fill="#65d9ed" opacity="0.77"/>
+        <text x="1085" y="359" class="micro" text-anchor="middle" fill="#93a1b2">HOST</text>
+        
+      
+    <line x1="858" y1="380" x2="1118" y2="380" stroke="#25303d" stroke-width="1"/>
+    <path d="M 858 397 l 16 0 8 -13 13 27 12 -22 10 13 11 -8 12 0 8 8 18 0 7 -16 15 28 12 -20 12 8 h 106" fill="none" stroke="#65d9ed" stroke-width="1.6" opacity="0.78"/>
+    <text x="858" y="434" class="micro" fill="#93a1b2">RX 08004 B</text>
+    <text x="1118" y="434" class="micro" text-anchor="end" fill="#566475">CRC FA94</text>
+  
+
+  
+      <rect x="72" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="86" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="96" y="500.5" class="chip" fill="#93a1b2">抓包</text>
+    
+      <rect x="144" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="158" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="168" y="500.5" class="chip" fill="#93a1b2">MITM</text>
+    
+      <rect x="216" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="230" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="240" y="500.5" class="chip" fill="#93a1b2">HTTPS</text>
+    
+      <rect x="288" y="480" width="66.57499999999999" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="302" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="312" y="500.5" class="chip" fill="#93a1b2">Reqable</text>
+    
+  <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
+  <text x="72" y="584" class="mono" font-size="14" font-weight="700" letter-spacing=".55" fill="#93a1b2">fwmax360.github.io</text>
+  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">FLOW / 0x925CFA94</text>
+  <rect x="72" y="601" width="88" height="2" fill="#65d9ed"/>
+</svg>

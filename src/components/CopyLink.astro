@@ -2,23 +2,49 @@
 /** 一键复制当前文章链接 */
 ---
 
-<button type="button" class="copy-link mono" data-copy-link aria-label="复制本文链接">
-  <span data-copy-label>copy link</span>
+<button
+  type="button"
+  class="copy-link mono"
+  data-copy-link
+  data-state="idle"
+  aria-label="复制本文链接"
+>
+  <span class="copy-icon" aria-hidden="true">
+    <svg class="icon-link" viewBox="0 0 16 16" fill="none">
+      <path d="M6.4 9.6 9.6 6.4M5.1 11.8l-1 .95a2.2 2.2 0 0 1-3.1-3.1L3.4 7.2a2.2 2.2 0 0 1 3.1 0M10.9 4.2l1-.95a2.2 2.2 0 0 1 3.1 3.1l-2.4 2.45a2.2 2.2 0 0 1-3.1 0" />
+    </svg>
+    <svg class="icon-success" viewBox="0 0 16 16" fill="none">
+      <path d="m3 8.2 3.05 3L13 4.8" />
+    </svg>
+    <svg class="icon-error" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v6M8 12.5v.1" />
+    </svg>
+  </span>
+  <span data-copy-label aria-live="polite">copy link</span>
 </button>
 
 <style>
   .copy-link {
-    padding: 0.2rem 0.55rem;
+    position: relative;
+    min-height: 1.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    padding: 0.28rem 0.62rem;
+    overflow: hidden;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-sm);
-    background: transparent;
+    background: color-mix(in srgb, var(--color-bg) 42%, transparent);
     color: var(--color-faint);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
     cursor: pointer;
     transition:
       color 0.16s,
       border-color 0.16s,
-      background 0.16s;
+      background 0.16s,
+      box-shadow 0.16s;
   }
 
   .copy-link:hover {
@@ -27,32 +53,117 @@
     background: var(--color-surface);
   }
 
-  .copy-link[data-ok='true'] {
+  .copy-link:disabled {
+    cursor: wait;
+    opacity: 0.78;
+  }
+
+  .copy-icon {
+    position: relative;
+    width: 0.85rem;
+    height: 0.85rem;
+    flex: 0 0 auto;
+  }
+
+  .copy-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition:
+      opacity 0.16s,
+      transform 0.2s var(--ease-out-expo);
+  }
+
+  .icon-success,
+  .icon-error {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  .copy-link[data-state='success'] {
     color: var(--color-accent);
     border-color: var(--color-accent-soft);
+    background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg-soft));
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .copy-link[data-state='error'] {
+    color: var(--color-danger);
+    border-color: color-mix(in srgb, var(--color-danger) 45%, var(--color-line));
+    background: color-mix(in srgb, var(--color-danger) 7%, var(--color-bg-soft));
+    box-shadow: inset 2px 0 0 var(--color-danger);
+  }
+
+  .copy-link:is([data-state='success'], [data-state='error']) .icon-link {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  .copy-link[data-state='success'] .icon-success,
+  .copy-link[data-state='error'] .icon-error {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (max-width: 480px) {
+    .copy-link {
+      min-width: 2.2rem;
+      min-height: 2.2rem;
+      padding-inline: 0.55rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .copy-icon svg {
+      transition: none;
+    }
   }
 </style>
 
 <script>
+  const copyText = async (text: string) => {
+    if (!navigator.clipboard) throw new Error('clipboard unavailable')
+    await navigator.clipboard.writeText(text)
+  }
+
   function setup() {
     document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
       if (btn.dataset.bound) return
       btn.dataset.bound = '1'
       const label = btn.querySelector<HTMLElement>('[data-copy-label]')
       const original = label?.textContent ?? 'copy link'
+      let resetTimer = 0
+
+      const setState = (state: 'idle' | 'success' | 'error') => {
+        btn.dataset.state = state
+        btn.setAttribute(
+          'aria-label',
+          state === 'success' ? '文章链接已复制' : state === 'error' ? '文章链接复制失败' : '复制本文链接',
+        )
+        if (label) label.textContent = state === 'success' ? 'copied' : state === 'error' ? 'failed' : original
+      }
 
       btn.addEventListener('click', async () => {
+        window.clearTimeout(resetTimer)
+        btn.disabled = true
+        btn.setAttribute('aria-busy', 'true')
         try {
-          await navigator.clipboard.writeText(location.href)
-          if (label) label.textContent = 'copied'
-          btn.dataset.ok = 'true'
+          const url = new URL(location.href)
+          url.hash = ''
+          await copyText(url.href)
+          setState('success')
         } catch {
-          if (label) label.textContent = 'failed'
+          setState('error')
+        } finally {
+          btn.disabled = false
+          btn.removeAttribute('aria-busy')
         }
-        setTimeout(() => {
-          if (label) label.textContent = original
-          delete btn.dataset.ok
-        }, 1500)
+        resetTimer = window.setTimeout(() => setState('idle'), 1800)
       })
     })
   }

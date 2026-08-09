@@ -1,0 +1,18 @@
+---
+/**
+ * Motion v2 的纯展示层。状态与坐标统一由 Motion.astro 驱动；组件本身无监听器，
+ * 因此 ClientRouter 换页后不会留下重复实例。
+ */
+---
+
+<div class="motion-progress" data-motion-progress aria-hidden="true">
+  <span></span>
+</div>
+
+<div class="motion-ambient" data-motion-ambient aria-hidden="true">
+  <span class="motion-cursor-orb"></span>
+  <span class="motion-dust motion-dust-a"></span>
+  <span class="motion-dust motion-dust-b"></span>
+</div>
+
+<div class="motion-page-scan" data-motion-page-scan aria-hidden="true"></div>
