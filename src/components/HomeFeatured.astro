@@ -42,7 +42,8 @@ const featuredStyle = seriesVisual
         <a
           href={postUrl(post)}
           data-jmp
-          data-jmp-source="featured"
+          data-jmp-source="HOME / FEATURED"
+          data-jmp-trace="HOME › FEATURED › ARTICLE"
           data-jmp-title={title}
         >{title}</a>
       </h2>
@@ -64,7 +65,8 @@ const featuredStyle = seriesVisual
       data-no-viewer
       data-tilt="4"
       data-jmp
-      data-jmp-source="featured specimen"
+      data-jmp-source="HOME / FEATURED SPECIMEN"
+      data-jmp-trace="HOME › FEATURED › ARTICLE"
       data-jmp-title={title}
       transition:name={`post-cover-${post.id}`}
     >
@@ -99,7 +101,8 @@ const featuredStyle = seriesVisual
         href={postUrl(post)}
         class="featured-open mono"
         data-jmp
-        data-jmp-source="featured analysis"
+        data-jmp-source="HOME / FEATURED ANALYSIS"
+        data-jmp-trace="HOME › FEATURED › ARTICLE"
         data-jmp-title={title}
       >
         open analysis <span aria-hidden="true">↗</span>

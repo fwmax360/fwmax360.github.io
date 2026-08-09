@@ -5,11 +5,11 @@
  * <a
  *   href="/posts/example/"
  *   data-jmp
- *   data-jmp-source="FEATURED_DOSSIER"
+ *   data-jmp-source="HOME / FEATURED"
  *   data-jmp-address="0x00401000"
- *   data-jmp-trace="HOME / FEATURED / ARTICLE"
+ *   data-jmp-trace="HOME › FEATURED › ARTICLE"
  *   data-jmp-title="目标文章标题"
- *   data-jmp-delay="520"
+ *   data-jmp-delay="540"
  * >…</a>
  *
  * 属性均可省略；地址、路径和标题会由目标链接自动推导。
@@ -28,7 +28,12 @@ import '../styles/jmp-transition.css'
   aria-hidden="true"
 >
   <div class="jmp-transition__veil" aria-hidden="true"></div>
+  <div class="jmp-transition__grid" aria-hidden="true"></div>
   <div class="jmp-transition__scan" aria-hidden="true"></div>
+  <div class="jmp-transition__scan jmp-transition__scan--back" aria-hidden="true"></div>
+  <div class="jmp-transition__flash" data-jmp-flash aria-hidden="true"></div>
+  <div class="jmp-transition__shockwave" data-jmp-shockwave aria-hidden="true"></div>
+  <div class="jmp-transition__impact" data-jmp-impact aria-hidden="true"></div>
   <svg
     class="jmp-transition__route"
     data-jmp-route
@@ -38,14 +43,28 @@ import '../styles/jmp-transition.css'
     aria-hidden="true"
   >
     <path class="jmp-transition__route-shadow" data-jmp-route-path pathLength="1"></path>
+    <path class="jmp-transition__route-glow" data-jmp-route-path pathLength="1"></path>
     <path class="jmp-transition__route-line" data-jmp-route-path pathLength="1"></path>
   </svg>
+  <div class="jmp-transition__courier jmp-transition__courier--trail" data-jmp-courier-trail aria-hidden="true">
+    <i></i>
+  </div>
+  <div class="jmp-transition__courier jmp-transition__courier--trail jmp-transition__courier--trail-2" data-jmp-courier-trail-2 aria-hidden="true">
+    <i></i>
+  </div>
+  <div class="jmp-transition__courier" data-jmp-courier aria-hidden="true">
+    <i></i>
+  </div>
   <div class="jmp-transition__callsite" aria-hidden="true">
     <i></i>
     <span class="mono">CALLSITE</span>
   </div>
+  <div class="jmp-transition__ghost mono" data-jmp-ghost aria-hidden="true">
+    <span data-jmp-output="ghost">Loading target</span>
+  </div>
 
   <div class="jmp-transition__packet">
+    <div class="jmp-transition__glitch" aria-hidden="true"></div>
     <header class="jmp-transition__head mono">
       <span class="jmp-transition__source">
         <i aria-hidden="true"></i>
@@ -63,11 +82,10 @@ import '../styles/jmp-transition.css'
 
     <div class="jmp-transition__trace mono">
       <span>TRACE</span>
-      <span data-jmp-output="trace">/ → /</span>
+      <span data-jmp-output="trace">HOME › ARTICLE</span>
     </div>
 
     <footer class="jmp-transition__foot mono">
-      <span data-jmp-output="path">/</span>
       <span data-jmp-output="status">BRANCH COMMITTED</span>
     </footer>
 
@@ -82,6 +100,7 @@ import '../styles/jmp-transition.css'
     controller: AbortController
     navigationTimer: number
     resetTimer: number
+    scrambleTimer: number
     sequence: number
     navigating: boolean
   }
@@ -97,10 +116,14 @@ import '../styles/jmp-transition.css'
 
   const LINK_SELECTOR = 'a[href]'
   const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
-  const DEFAULT_DELAY = 520
+  const DEFAULT_DELAY = 540
   const MIN_DELAY = 460
   const MAX_DELAY = 600
   const RESET_DELAY = 220
+  const SCRAMBLE_START = 190
+  const SCRAMBLE_STEP = 42
+  const SCRAMBLE_FRAMES = 3
+  const HEX = '0123456789ABCDEF'
 
   const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value))
@@ -125,6 +148,16 @@ import '../styles/jmp-transition.css'
       hash = Math.imul(hash, 0x01000193)
     }
     return `0x${(hash >>> 0).toString(16).toUpperCase().padStart(8, '0')}`
+  }
+
+  const scrambleAddress = (finalAddress: string, frame: number) => {
+    const body = finalAddress.replace(/^0x/i, '').padStart(8, '0').slice(0, 8)
+    let next = '0x'
+    for (let index = 0; index < body.length; index += 1) {
+      const settleFrom = body.length - 1 - frame
+      next += index >= settleFrom ? body[index] : HEX[(index * 7 + frame * 11) % HEX.length]
+    }
+    return next
   }
 
   const targetUrl = (anchor: JmpLink) => {
@@ -169,12 +202,61 @@ import '../styles/jmp-transition.css'
     if (element) element.textContent = value
   }
 
+  const sectionLabel = () => {
+    const section = window.location.pathname.split('/').filter(Boolean)[0]
+    if (!section) return 'HOME'
+    if (section === 'posts') return 'ARTICLE'
+    return section.replace(/[-_]+/g, ' ').toUpperCase()
+  }
+
   const inferredSource = () => {
-    const section = window.location.pathname.split('/').filter(Boolean)[0] ?? 'home'
-    return section === 'posts' ? 'ARTICLE / INLINE REFERENCE' : `${section} / ARTICLE ROUTE`
+    const section = sectionLabel()
+    return section === 'ARTICLE' ? 'ARTICLE / INLINE REFERENCE' : `${section} / ARTICLE ROUTE`
+  }
+
+  const inferredTrace = (source: string) => {
+    const lane = source.split('/')[0]?.trim() || 'ROUTE'
+    return `${sectionLabel()} › ${lane} › ARTICLE`
   }
 
   const overlayElement = () => document.querySelector<HTMLElement>('[data-jmp-overlay]')
+
+  const clearScramble = (state: JmpSingleton, overlay?: HTMLElement | null) => {
+    window.clearTimeout(state.scrambleTimer)
+    state.scrambleTimer = 0
+    const address = overlay?.querySelector<HTMLElement>('[data-jmp-output="address"]')
+    address?.removeAttribute('data-jmp-scrambling')
+  }
+
+  const runAddressScramble = (
+    state: JmpSingleton,
+    overlay: HTMLElement,
+    sequence: number,
+    finalAddress: string,
+  ) => {
+    clearScramble(state, overlay)
+    const addressNode = overlay.querySelector<HTMLElement>('[data-jmp-output="address"]')
+    if (!addressNode) return
+
+    addressNode.dataset.jmpScrambling = 'true'
+    output(overlay, 'address', scrambleAddress(finalAddress, 0))
+
+    let frame = 0
+    const tick = () => {
+      if (sequence !== state.sequence) return
+      frame += 1
+      if (frame > SCRAMBLE_FRAMES) {
+        output(overlay, 'address', finalAddress)
+        addressNode.removeAttribute('data-jmp-scrambling')
+        state.scrambleTimer = 0
+        return
+      }
+      output(overlay, 'address', scrambleAddress(finalAddress, frame))
+      state.scrambleTimer = window.setTimeout(tick, SCRAMBLE_STEP)
+    }
+
+    state.scrambleTimer = window.setTimeout(tick, SCRAMBLE_START)
+  }
 
   const positionRoute = (
     overlay: HTMLElement,
@@ -187,9 +269,16 @@ import '../styles/jmp-transition.css'
     const originX = clamp(pointer?.x ?? anchorRect.left + anchorRect.width / 2, 18, viewportWidth - 18)
     const originY = clamp(pointer?.y ?? anchorRect.top + anchorRect.height / 2, 18, viewportHeight - 18)
     const packet = overlay.querySelector<HTMLElement>('.jmp-transition__packet')
+    // packet 在 idle 时仍占布局；用其中心作为 courier 落点与 ghost 吸附点。
     const packetRect = packet?.getBoundingClientRect()
+    const packetCenterX = packetRect
+      ? packetRect.left + packetRect.width / 2
+      : viewportWidth / 2
+    const packetCenterY = packetRect
+      ? packetRect.top + packetRect.height / 2
+      : viewportHeight / 2
     const targetX = packetRect
-      ? originX <= packetRect.left + packetRect.width / 2
+      ? originX <= packetCenterX
         ? packetRect.left
         : packetRect.right
       : viewportWidth / 2
@@ -201,12 +290,22 @@ import '../styles/jmp-transition.css'
 
     overlay.style.setProperty('--jmp-origin-x', `${originX}px`)
     overlay.style.setProperty('--jmp-origin-y', `${originY}px`)
+    overlay.style.setProperty('--jmp-packet-x', `${packetCenterX}px`)
+    overlay.style.setProperty('--jmp-packet-y', `${packetCenterY}px`)
     overlay.dataset.jmpOrigin = originX > viewportWidth * 0.68 ? 'right' : 'left'
 
     const route = overlay.querySelector<SVGSVGElement>('[data-jmp-route]')
     route?.setAttribute('viewBox', `0 0 ${viewportWidth} ${viewportHeight}`)
     overlay.querySelectorAll<SVGPathElement>('[data-jmp-route-path]').forEach((element) => {
       element.setAttribute('d', path)
+    })
+
+    const couriers = overlay.querySelectorAll<HTMLElement>(
+      '[data-jmp-courier], [data-jmp-courier-trail], [data-jmp-courier-trail-2]',
+    )
+    couriers.forEach((courier) => {
+      courier.style.offsetPath = `path("${path}")`
+      courier.style.offsetDistance = '0%'
     })
   }
 
@@ -219,6 +318,7 @@ import '../styles/jmp-transition.css'
     state.resetTimer = 0
     state.navigating = false
     const overlay = overlayElement()
+    clearScramble(state, overlay)
     if (!overlay) {
       clearRootState()
       return
@@ -229,6 +329,16 @@ import '../styles/jmp-transition.css'
     overlay.style.removeProperty('--jmp-duration')
     overlay.style.removeProperty('--jmp-origin-x')
     overlay.style.removeProperty('--jmp-origin-y')
+    overlay.style.removeProperty('--jmp-packet-x')
+    overlay.style.removeProperty('--jmp-packet-y')
+    overlay
+      .querySelectorAll<HTMLElement>(
+        '[data-jmp-courier], [data-jmp-courier-trail], [data-jmp-courier-trail-2]',
+      )
+      .forEach((courier) => {
+        courier.style.removeProperty('offset-path')
+        courier.style.removeProperty('offset-distance')
+      })
     delete overlay.dataset.jmpMode
     delete overlay.dataset.jmpTrigger
     delete overlay.dataset.jmpOrigin
@@ -252,9 +362,8 @@ import '../styles/jmp-transition.css'
       42,
     ).toUpperCase()
     const address = compact(anchor.dataset.jmpAddress, addressFor(url), 32)
-    const from = `${window.location.pathname}${window.location.search}` || '/'
     const path = `${url.pathname}${url.search}${url.hash}` || '/'
-    const trace = compact(anchor.dataset.jmpTrace, `${from}  ›  ${path}`, 150)
+    const trace = compact(anchor.dataset.jmpTrace, inferredTrace(source), 72)
     const title = compact(
       anchor.dataset.jmpTitle ?? anchor.getAttribute('aria-label') ?? anchor.textContent,
       path,
@@ -267,15 +376,16 @@ import '../styles/jmp-transition.css'
 
     window.clearTimeout(state.navigationTimer)
     window.clearTimeout(state.resetTimer)
+    clearScramble(state, overlay)
     state.sequence += 1
     const sequence = state.sequence
     state.navigating = false
 
     output(overlay, 'source', source)
-    output(overlay, 'address', address)
+    output(overlay, 'address', '0x????????')
     output(overlay, 'trace', trace)
     output(overlay, 'title', title)
-    output(overlay, 'path', path)
+    output(overlay, 'ghost', title)
     output(overlay, 'status', 'BRANCH COMMITTED')
 
     overlay.dataset.jmpPhase = 'idle'
@@ -288,6 +398,7 @@ import '../styles/jmp-transition.css'
     void overlay.offsetWidth
     overlay.dataset.jmpPhase = 'depart'
     document.documentElement.dataset.jmp = 'depart'
+    runAddressScramble(state, overlay, sequence, address)
 
     document.dispatchEvent(
       new CustomEvent('sleep4r:jmpstart', {
@@ -318,6 +429,7 @@ import '../styles/jmp-transition.css'
       controller,
       navigationTimer: 0,
       resetTimer: 0,
+      scrambleTimer: 0,
       sequence: 0,
       navigating: false,
     }
@@ -391,6 +503,7 @@ import '../styles/jmp-transition.css'
       window.clearTimeout(state.navigationTimer)
       state.navigationTimer = 0
       state.navigating = false
+      clearScramble(state, overlay)
       overlay.dataset.jmpPhase = 'arrive'
       output(overlay, 'status', 'TARGET LOCKED')
       overlay.setAttribute('aria-hidden', 'true')
@@ -404,6 +517,7 @@ import '../styles/jmp-transition.css'
       controller.abort()
       window.clearTimeout(state.navigationTimer)
       window.clearTimeout(state.resetTimer)
+      clearScramble(state, overlayElement())
       state.navigationTimer = 0
       state.resetTimer = 0
       if (window.__sleep4rJmpTransition === state) delete window.__sleep4rJmpTransition
