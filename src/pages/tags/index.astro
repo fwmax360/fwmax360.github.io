@@ -11,17 +11,16 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
 ---
 
 <Base title="标签" description="按受控术语与分类浏览全部文章。">
-  <header class="page-head" data-reveal data-parallax="0.06">
-    <p class="page-eyebrow mono"><span aria-hidden="true"></span> controlled vocabulary</p>
+  <header class="page-head">
     <div class="page-title-row">
       <div>
-        <h1 class="page-title">tags</h1>
-        <p class="page-sub">把零散标签编入 Platform、Technique、Tool、Artifact 与 Topic 五类术语架构。</p>
+        <h1 class="page-title">标签</h1>
+        <p class="page-sub">按标签和分类找到相关笔记。</p>
       </div>
       <dl class="page-metrics mono">
-        <div><dt>TERMS</dt><dd data-count-up>{String(tags.length).padStart(2, '0')}</dd></div>
-        <div><dt>GROUPS</dt><dd data-count-up>{String(groups.length).padStart(2, '0')}</dd></div>
-        <div><dt>DOMAINS</dt><dd data-count-up>{String(categories.length).padStart(2, '0')}</dd></div>
+        <div><dt>标签</dt><dd>{String(tags.length).padStart(2, '0')}</dd></div>
+        <div><dt>分组</dt><dd>{String(groups.length).padStart(2, '0')}</dd></div>
+        <div><dt>分类</dt><dd>{String(categories.length).padStart(2, '0')}</dd></div>
       </dl>
     </div>
   </header>
@@ -29,10 +28,8 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
   <section class="signal-board" aria-labelledby="signals-title" data-reveal>
     <header class="section-head">
       <div>
-        <p class="mono">FREQUENCY / TOP SIGNALS</p>
-        <h2 id="signals-title">高频研究信号</h2>
+        <h2 id="signals-title">常用标签</h2>
       </div>
-      <span class="mono">coverage across {tags.length} terms</span>
     </header>
     <div class="signal-grid col-side">
       {highSignals.map((tag, index) => (
@@ -40,13 +37,13 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
           href={tagUrl(tag.name)}
           class="signal-card"
           style={`--signal:${(tag.count / max) * 100}%;--signal-delay:${index * -0.7}s`}
-          data-spotlight
-          data-tilt
-          data-tilt-strength="3"
+
+
+
         >
           <span class="signal-code mono">SIG / {String(index + 1).padStart(2, '0')}</span>
           <strong>#{tag.name}</strong>
-          <span class="signal-count mono"><b data-count-up>{String(tag.count).padStart(2, '0')}</b> articles</span>
+          <span class="signal-count mono"><b>{String(tag.count).padStart(2, '0')}</b> 篇</span>
           <i aria-hidden="true"><span></span></i>
         </a>
       ))}
@@ -56,16 +53,16 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
   <section class="domain-strip" id="categories" aria-labelledby="domains-title" data-reveal>
     <header class="section-head compact-head">
       <div>
-        <p class="mono">PRIMARY DOMAINS</p>
+        <p class="mono">PRIMARY 分类</p>
         <h2 id="domains-title">顶层分类</h2>
       </div>
     </header>
     <div class="domain-grid col-side">
       {categories.map((category, index) => (
-        <a href={categoryUrl(category.name)} class="domain-card" data-spotlight data-tilt data-tilt-strength="2">
+        <a href={categoryUrl(category.name)} class="domain-card">
           <span class="mono">0x{String(index).padStart(2, '0')}</span>
           <strong>{category.name}</strong>
-          <b class="mono" data-count-up>{String(category.count).padStart(2, '0')}</b>
+          <b class="mono">{String(category.count).padStart(2, '0')}</b>
         </a>
       ))}
     </div>
@@ -75,14 +72,14 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
     <header class="vocabulary-toolbar" data-reveal>
       <div>
         <p class="mono">TERM LIBRARY / 0x{tags.length.toString(16).toUpperCase()}</p>
-        <h2 id="vocabulary-title">受控术语库</h2>
+        <h2 id="vocabulary-title">全部标签</h2>
       </div>
       <div class="tag-search">
-        <label class="mono" for="tag-query">filter terms</label>
+        <label class="mono" for="tag-query">筛选标签</label>
         <div>
           <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5"></circle><path d="m12 12 4 4"></path></svg>
           <input id="tag-query" type="search" placeholder="标签或分组…" autocomplete="off" spellcheck="false" data-tag-query />
-          <button type="button" class="mono" data-tag-clear disabled>clear</button>
+          <button type="button" class="mono" data-tag-clear disabled>清除</button>
         </div>
       </div>
       <p class="tag-status mono" aria-live="polite"><i aria-hidden="true"></i><b data-tag-count>{tags.length}</b> / {tags.length} terms visible</p>
@@ -125,9 +122,9 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
                 data-tag-item
                 data-tag-search={`${tag.name} ${group.label} ${group.code}`}
                 style={`--weight:${tag.count / max}`}
-                data-spotlight
-                data-tilt
-                data-tilt-strength="2"
+
+
+
               >
                 <span class="term-index mono">{group.code}.{String(index + 1).padStart(2, '0')}</span>
                 <strong>#{tag.name}</strong>
@@ -140,7 +137,7 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
       ))}
     </div>
 
-    <p class="vocabulary-empty mono" data-tag-empty hidden>NO_TERMS_MATCH_QUERY</p>
+    <p class="vocabulary-empty mono" data-tag-empty hidden>NO_标签_MATCH_QUERY</p>
   </section>
 </Base>
 
@@ -246,7 +243,7 @@ const max = Math.max(1, ...tags.map((tag) => tag.count))
 
 <style>
   .page-head { position:relative;isolation:isolate;overflow:hidden;margin-bottom:3.5rem;padding:clamp(1.35rem,3vw,2rem);border:1px solid var(--color-line);background:linear-gradient(110deg,rgb(61 220 132 / .06),transparent 38%),var(--color-panel);box-shadow:var(--shadow-panel),inset 0 1px rgb(255 255 255 / .02); }
-  .page-head::after { content:'';position:absolute;z-index:-1;inset:-25% auto -25% -25%;width:20%;background:linear-gradient(90deg,transparent,rgb(82 225 152 / .055),transparent);transform:skewX(-18deg);animation:tags-head-scan 8.5s ease-in-out infinite;pointer-events:none; }
+  .page-head::after { content:none; }
   .page-eyebrow { display:flex;align-items:center;gap:.5rem;margin-bottom:1.1rem;color:var(--color-faint);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase; }
   .page-eyebrow span { width:.4rem;height:.4rem;background:var(--color-accent);box-shadow:0 0 12px rgb(61 220 132 / .42); }
   .page-title-row { display:flex;align-items:end;justify-content:space-between;gap:2rem; }

@@ -63,15 +63,7 @@
   }
 
   .article .prose blockquote::before {
-    content: "// quote";
-    position: absolute;
-    z-index: -1;
-    top: 0.65rem;
-    right: 0.8rem;
-    color: color-mix(in srgb, var(--editorial-tone) 25%, transparent);
-    font: 500 0.56rem/1 var(--font-mono);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    content: none;
   }
 
   .article .prose blockquote::after {
@@ -97,7 +89,7 @@
   }
 
   .article .prose blockquote[data-callout]::before {
-    content: attr(data-callout);
+    content: none;
   }
 
   .article .prose blockquote[data-callout="note"] {

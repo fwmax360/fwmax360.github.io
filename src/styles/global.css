@@ -114,11 +114,13 @@
     --nav-h: 3.5rem;
     /* 导航总占位 = 内容高 + 刘海；阅读进度条 / 锚点滚动都吃这个 */
     --nav-offset: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
-    /* 半透明表面：终端 / 代码块 / 面板透出夜景；blur 保字可读 */
-    --color-bg-soft: color-mix(in srgb, #0d1015 38%, transparent);
-    --color-surface: color-mix(in srgb, #12161d 44%, transparent);
-    --color-surface-2: color-mix(in srgb, #171c25 52%, transparent);
-    --glass-blur: blur(16px) saturate(1.25);
+    /* 表面用实色。玻璃只留在导航，正文不再透出背景。 */
+    --color-bg-soft: #0d1015;
+    --color-surface: #12161d;
+    --color-surface-2: #171c25;
+    --color-panel: #10141a;
+    --color-panel-strong: #0c1016;
+    --glass-blur: none;
   }
 
   html {
@@ -143,8 +145,8 @@
     background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.75;
+    font-size: 1.0625rem;
+    line-height: 1.53;
     -webkit-font-smoothing: antialiased;
     font-optical-sizing: auto;
     font-synthesis: style;
@@ -194,58 +196,8 @@
   font-family: var(--font-editorial);
 }
 
-/* ==========================================================================
-   背景：极淡初音夜景 + 网格 + 顶部辉光（不抢正文）
-   ========================================================================== */
 @layer components {
-  .bg-art {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image: url('/images/miku-night.jpg');
-    background-size: cover;
-    background-position: 72% 18%;
-    background-repeat: no-repeat;
-    /* screen：抬月亮/灯火；内容在 .page-fg 之上 */
-    opacity: 0.31;
-    mix-blend-mode: screen;
-    filter: saturate(0.78) contrast(1.06);
-    -webkit-mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
-    mask-image: radial-gradient(ellipse 85% 65% at 75% 12%, #000 0%, #000 40%, transparent 78%);
-  }
-
-  .bg-grid {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
-    background-size: 56px 56px;
-    opacity: 0.72;
-    -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
-    mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, #000 20%, transparent 75%);
-  }
-
-  .bg-glow {
-    position: fixed;
-    inset-inline: 0;
-    top: 0;
-    height: 32rem;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(
-        ellipse 55% 90% at 50% -8%,
-        color-mix(in srgb, var(--color-accent) 8%, transparent),
-        transparent 68%
-      ),
-      linear-gradient(180deg, rgb(4 7 9 / 5%), transparent 72%);
-  }
-
-  /* 段落标记：`// section` 这类等宽小标题 */
+  /* 段落标记 */
   .kicker {
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -266,8 +218,8 @@
    ========================================================================== */
 @layer components {
   .prose {
-    font-size: 1rem;
-    line-height: 1.9;
+    font-size: 1.0625rem;
+    line-height: 1.7;
     color: var(--color-text);
   }
 
@@ -297,32 +249,12 @@
     margin-top: 2.75em;
     margin-bottom: 0.9em;
     font-size: 1.5rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-
-  /* h2 前缀一个等宽的 `##`，呼应 markdown 原文 */
-  .prose h2::before {
-    content: '##';
-    font-family: var(--font-mono);
-    color: var(--color-accent-soft);
-    margin-right: 0.6rem;
-    font-weight: 400;
   }
 
   .prose h3 {
     margin-top: 2.1em;
     margin-bottom: 0.7em;
     font-size: 1.2rem;
-  }
-
-  .prose h3::before {
-    content: '###';
-    font-family: var(--font-mono);
-    color: var(--color-accent-soft);
-    margin-right: 0.5rem;
-    font-weight: 400;
-    font-size: 0.9em;
   }
 
   .prose h4 {
@@ -513,8 +445,6 @@
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
     background: var(--color-panel);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
     overflow: hidden;
     box-shadow:
       var(--shadow-panel),

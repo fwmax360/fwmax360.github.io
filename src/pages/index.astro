@@ -1,599 +1,101 @@
 ---
 import Base from '../layouts/Base.astro'
-import HomeEditorial from '../components/HomeEditorial.astro'
-import HomeFeatured from '../components/HomeFeatured.astro'
-import PostRow from '../components/PostRow.astro'
-import BinaryXray from '../components/BinaryXray.astro'
+import HomeMotion from '../components/HomeMotion.astro'
+import HomeDetails from '../components/HomeDetails.astro'
 import { SITE } from '../consts'
-import {
-  categoryUrl,
-  formatDate,
-  getCategories,
-  getPosts,
-  getPostsByDateDesc,
-  getTags,
-  readingStats,
-  tagUrl,
-} from '../lib/posts'
+import { categoryUrl, formatDate, getCategories, getPostsByDateDesc, postUrl, readingStats } from '../lib/posts'
 import { getSeriesSummaries, seriesUrl } from '../lib/series'
+import '../styles/home.css'
 
-const posts = await getPosts()
 const timeline = await getPostsByDateDesc()
 const featured = timeline[0]
-/** Featured 之后继续展示最近内容，总量受站点配置控制。 */
-const recent = timeline.slice(1, SITE.postsPerPage)
-const tags = await getTags()
+const featuredTitleParts = featured?.data.title.match(/^(.{4,40}?[：:])\s*(.+)$/)
+const recent = timeline.slice(1)
+const initialRecentCount = SITE.postsPerPage - 1
 const categories = await getCategories()
 const series = await getSeriesSummaries()
-const startSeries = series.find((item) => item.name === '逆向基础') ?? series[0]
-const deepPost = posts
-  .filter((post) => post.id !== featured?.id)
-  .sort((a, b) => readingStats(b.body ?? '').words - readingStats(a.body ?? '').words)[0]
-
 ---
 
-<Base title={SITE.title} description={SITE.description}>
-  <h1 class="sr-only">{SITE.title} — {SITE.subtitle}</h1>
-
-  {featured && (
-    <BinaryXray
-      counts={{
-        entries: posts.length,
-        tracks: categories.length,
-        series: series.length,
-        signals: tags.length,
-      }}
-      latest={{
-        title: featured.data.title,
-        href: `/posts/${featured.id}/`,
-        label: featured.data.series ?? featured.data.category,
-        date: featured.data.pubDate,
-      }}
-      series={series.map((item) => ({
-        name: item.name,
-        count: item.count,
-        href: seriesUrl(item.name),
-      }))}
-      class="home-specimen col-side"
-    />
-  )}
-
-  {featured ? (
-    <HomeFeatured post={featured} />
-  ) : (
-    <p class="empty mono">还没有文章。在 <code>src/content/posts/</code> 里新建 .md 文件即可。</p>
-  )}
-
-  <HomeEditorial
-    start={startSeries}
-    deep={deepPost}
-    postsCount={posts.length}
-    pathsCount={series.length}
-    tagsCount={tags.length}
-  />
-
-  <div class="dashboard">
-    <section class="feed" aria-labelledby="latest-heading" data-reveal="section" data-parallax="0.03">
-      <header class="section-head">
-        <div class="section-copy">
-          <span class="section-code mono">QUEUE / 0x01</span>
-          <h2 id="latest-heading">Latest field notes</h2>
-          <p>按发布时间排列的分析记录、工具链与底层机制。</p>
-        </div>
-        <div class="section-status mono">
-          <span>{String(recent.length).padStart(2, '0')} loaded</span>
-          <a href="/archive">full archive ↗</a>
-        </div>
-      </header>
-
-      <div class="feed-list">
-        {recent.map((post, index) => <PostRow post={post} index={index + 1} variant="compact" />)}
+<Base title={SITE.title} description={SITE.description} width="wide" bodyClass="home-editorial">
+  <div class="home" data-home-motion>
+    <HomeMotion />
+    <HomeDetails />
+    <div class="home-hero">
+    <header class="masthead" data-hero-enter>
+      <div>
+        <p class="eyebrow">逆向 · 安全 · 底层</p>
+        <h1 class="wordmark">{SITE.title}<span class="wordmark-dot" aria-hidden="true">.</span></h1>
       </div>
+      <div class="intro">
+        <p class="hero-statement">先拆开看看，<br />再慢慢写明白。</p>
+        <p class="hero-description">{SITE.description}</p>
+        <nav class="intro-links" aria-label="作者与文章"><a href="/archive">浏览文章 <span aria-hidden="true">↗</span></a><a href="/about">关于我 <span aria-hidden="true">↗</span></a></nav>
+      </div>
+    </header>
 
-      {recent.length > 0 && (
-        <a href="/archive" class="feed-more mono">
-          <span>browse all {posts.length} entries</span>
-          <span aria-hidden="true">[ enter ]</span>
-        </a>
-      )}
-    </section>
-
-    <aside class="discovery col-side" aria-label="内容发现" data-reveal="section" data-spotlight data-parallax="0.05">
-      <header class="discovery-head mono">
-        <span>INDEX / DISCOVER</span>
-        <i aria-hidden="true"></i>
-      </header>
-
-      <section class="rail-panel categories" aria-labelledby="categories-heading">
-        <header class="panel-head mono">
-          <h2 id="categories-heading">// channels</h2>
-          <span>{String(categories.length).padStart(2, '0')}</span>
-        </header>
-        {categories.length > 0 ? (
-          <ul class="category-list">
-            {categories.map((category, index) => (
-              <li>
-                <a
-                  href={categoryUrl(category.name)}
-                  class="category-item"
-                  style={`--share:${posts.length ? (category.count / posts.length) * 100 : 0}%`}
-                >
-                  <span class="category-id mono">{String(index + 1).padStart(2, '0')}</span>
-                  <span class="category-name">{category.name}</span>
-                  <span class="category-count mono">{category.count}</span>
-                  <i aria-hidden="true"></i>
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="side-empty mono">暂无分类</p>
-        )}
-      </section>
-
-      <section class="rail-panel" aria-labelledby="series-heading">
-        <header class="panel-head mono">
-          <h2 id="series-heading">// series routes</h2>
-          <span>{String(series.length).padStart(2, '0')}</span>
-        </header>
-        {series.length > 0 ? (
-          <ol class="series-list">
-            {series.slice(0, 5).map((item, index) => (
-              <li>
-                <a href={seriesUrl(item.name)} class="series-item" aria-label={`进入系列 ${item.name}`}>
-                  <span class="series-id mono">0{index + 1}</span>
-                  <span class="series-copy">
-                    <strong>{item.name}</strong>
-                    <small>{item.posts.at(-1)?.data.title}</small>
-                  </span>
-                  <span class="series-count mono">×{item.count}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p class="side-empty mono">系列文章正在整理</p>
-        )}
-      </section>
-
-      <section class="rail-panel" aria-labelledby="tags-heading">
-        <header class="panel-head mono">
-          <h2 id="tags-heading">// signal tags</h2>
-          <a href="/tags">all ↗</a>
-        </header>
-        {tags.length > 0 ? (
-          <div class="tag-cloud mono">
-            {tags.slice(0, 14).map((tag) => (
-              <a href={tagUrl(tag.name)}>
-                #{tag.name}<span>{tag.count}</span>
-              </a>
-            ))}
+    {featured ? (
+      <>
+      <section class="feature-section" aria-labelledby="featured-heading" data-hero-enter>
+        <div class="section-head"><h2 id="featured-heading">最新笔记</h2></div>
+        <article class="featured">
+          <div class="feature-copy" data-reading-preview>
+            <div class="meta"><a href={categoryUrl(featured.data.category)}>{featured.data.category}</a><span aria-hidden="true">·</span><time datetime={featured.data.pubDate.toISOString()}>{formatDate(featured.data.pubDate)}</time></div>
+            <h3><a href={postUrl(featured)}>{featuredTitleParts ? <><span class="feature-title-context">{featuredTitleParts[1]}</span><span class="feature-title-main">{featuredTitleParts[2]}</span></> : featured.data.title}</a></h3>
+            <p class="feature-desc">{featured.data.description}</p>
+            <a class="read-link" href={postUrl(featured)}>阅读全文 <span aria-hidden="true">↗</span></a>
           </div>
-        ) : (
-          <p class="side-empty mono">暂无标签</p>
-        )}
+        </article>
       </section>
+          <div class="feature-art">
+            <div class="art-stage" data-art-stage tabindex="0" role="group" aria-label="分层插画：可左右拖动，或用方向键调整角度">
+            <svg viewBox="0 0 520 460" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="sheet" x1="120" y1="100" x2="440" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#eef1f0"/><stop offset=".5" stop-color="#9ca7a3"/><stop offset="1" stop-color="#515b57"/></linearGradient>
+                <linearGradient id="edge" x1="100" y1="100" x2="410" y2="330" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".65"/><stop offset="1" stop-color="#fff" stop-opacity=".06"/></linearGradient>
+                <radialGradient id="halo"><stop stop-color="#a3c9b5" stop-opacity=".13"/><stop offset="1" stop-color="#a3c9b5" stop-opacity="0"/></radialGradient>
+              </defs>
+              <ellipse cx="275" cy="245" rx="245" ry="205" fill="url(#halo)"/>
+              <g class="art-float">
+              <g stroke="url(#edge)" stroke-width="1.2" stroke-linejoin="round">
+                <g class="art-layer art-layer-bottom"><path d="m86 289 173-99 179 102-174 101Z" fill="#222a27"/><path d="m86 289 178 102v12L86 301Z" fill="#151b18"/><path d="m264 391 174-99v12l-174 99Z" fill="#313c36"/></g>
+                <g class="art-layer art-layer-middle"><path d="m86 229 173-99 179 102-174 101Z" fill="#46514b" fill-opacity=".65"/><path d="m86 229 178 102v9L86 238Z" fill="#29312d"/><path d="m264 331 174-99v9l-174 99Z" fill="#58655e"/></g>
+                <g class="art-layer art-layer-top"><path d="m86 165 173-99 179 102-174 101Z" fill="url(#sheet)"/><path d="m86 165 178 102v9L86 174Z" fill="#77837d"/><path d="m264 267 174-99v9l-174 99Z" fill="#4b5750"/></g>
+              </g>
+              <g class="art-layer art-layer-core"><g transform="matrix(.87 .5 -.87 .5 260 99)">
+                <rect x="26" y="26" width="142" height="142" rx="14" fill="#23372c"/>
+                <rect x="38" y="38" width="118" height="118" rx="7" stroke="#a4b8aa" stroke-opacity=".5"/>
+                <path d="M59 64h76M59 80h45M59 112h76M91 128h44" stroke="#b3c4b9" stroke-width="4" stroke-linecap="round"/>
+                <rect x="58" y="123" width="17" height="10" rx="2" fill="#b5dac0"/>
+                {[0,1,2,3,4,5].map(i => <g stroke="#46534b" stroke-width="3"><path d={`M${45+i*21} 10v12M${45+i*21} 172v12M10 ${45+i*21}h12M172 ${45+i*21}h12`}/></g>)}
+              </g>
+              </g>
+              <path d="m121 286 138-79 141 80-136 80Z" stroke="#a1c1ad" stroke-opacity=".4" stroke-dasharray="3 7"/>
+              <circle cx="264" cy="367" r="4" fill="#a4cbb2"/>
+              </g>
+            </svg>
+            </div>
+            <div class="art-caption"><span>Android · Binary · Systems</span><div class="art-controls"><button type="button" class="motion-toggle" data-home-motion-toggle aria-label="停用插画交互动效" aria-pressed="false" hidden><span class="motion-icon" aria-hidden="true"></span><span data-motion-label class="motion-label">停用交互动效</span></button><button type="button" data-art-reset aria-label="恢复插画角度" title="恢复插画角度">↺</button></div></div>
+          </div>
+      </>
+    ) : <p class="empty">第一篇笔记，正在路上。</p>}
 
-      {featured && (
-        <p class="rail-sync mono">
-          last indexed <time datetime={featured.data.pubDate.toISOString()}>{formatDate(featured.data.pubDate)}</time>
-        </p>
-      )}
-    </aside>
+    </div>
+
+    <div class="reading-grid">
+      {recent.length > 0 && <section class="list" aria-labelledby="recent-heading">
+        <header class="section-head" data-reveal><h2 id="recent-heading">最近的笔记</h2><a href="/archive">全部文章 <span aria-hidden="true">↗</span></a></header>
+        <ol id="recent-posts">{recent.map((post, index) => <li data-extra-post={index >= initialRecentCount ? true : undefined} hidden={index >= initialRecentCount}><article data-reveal data-reading-preview>
+          <div class="meta"><a href={categoryUrl(post.data.category)}>{post.data.category}</a><span aria-hidden="true">·</span><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time></div>
+          <h3><a href={postUrl(post)}>{post.data.title}</a></h3>
+          <p class="row-desc">{post.data.description}</p>
+          <a class="row-read" href={postUrl(post)} aria-label={`阅读：${post.data.title}`}>{readingStats(post.body ?? '').minutes} 分钟阅读 <span aria-hidden="true">↗</span></a>
+        </article></li>)}</ol>
+        {recent.length > initialRecentCount && <div class="more-notes"><button type="button" class="more-posts" data-more-posts aria-controls="recent-posts" aria-describedby="more-notes-hint"><span data-more-label>展开更多笔记</span><span class="more-arrow" data-more-icon aria-hidden="true">↓</span></button><p id="more-notes-hint">点击或向下轻拉，继续阅读。</p><p class="details-status" data-notes-status role="status" aria-live="polite"></p></div>}
+      </section>}
+      <aside class="browse" aria-label="探索笔记" data-reveal>
+        {series.length > 0 && <section><p class="eyebrow">按主题深入</p><h2>系列笔记</h2><ul>{series.map(item => <li><a href={seriesUrl(item.name)}><span class="browse-label">{item.name}</span><span class="browse-tail"><small>{item.count} 篇</small><span class="browse-arrow" aria-hidden="true">↗</span></span></a></li>)}</ul><a class="browse-more" href="/series">查看所有系列 <span aria-hidden="true">↗</span></a></section>}
+        {categories.length > 0 && <section class="categories"><h2>研究方向</h2><ul>{categories.map(category => <li><a href={categoryUrl(category.name)}><span class="browse-label">{category.name}</span><span class="browse-tail"><small>{category.count}</small><span class="browse-arrow" aria-hidden="true">↗</span></span></a></li>)}</ul></section>}
+      </aside>
+    </div>
   </div>
 </Base>
-
-<style>
-  .dashboard {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 18rem;
-    gap: 2.5rem;
-    align-items: start;
-    margin-top: 3.5rem;
-  }
-
-  .section-head {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-line-bright);
-  }
-
-  .section-copy {
-    min-width: 0;
-  }
-
-  .section-code {
-    color: var(--color-accent);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-  }
-
-  .section-copy h2 {
-    margin-top: 0.2rem;
-    color: var(--color-text-strong);
-    font-size: clamp(1.25rem, 2.2vw, 1.65rem);
-    font-weight: 650;
-    letter-spacing: -0.025em;
-  }
-
-  .section-copy p {
-    margin-top: 0.2rem;
-    color: var(--color-faint);
-    font-size: 0.78rem;
-  }
-
-  .section-status {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    flex: 0 0 auto;
-    gap: 0.2rem;
-    font-size: 0.67rem;
-  }
-
-  .section-status span {
-    color: var(--color-faint);
-  }
-
-  .section-status a,
-  .panel-head a {
-    color: var(--color-dim);
-    text-decoration: none;
-    transition: color 0.16s;
-  }
-
-  .section-status a:hover,
-  .panel-head a:hover {
-    color: var(--color-accent);
-  }
-
-  .feed-list {
-    border-bottom: 1px solid var(--color-line);
-  }
-
-  .feed-more {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 3.25rem;
-    margin-top: 1rem;
-    padding: 0.65rem 0.85rem;
-    border: 1px solid var(--color-line);
-    color: var(--color-dim);
-    font-size: 0.72rem;
-    text-decoration: none;
-    transition:
-      color 0.18s,
-      border-color 0.18s,
-      background 0.18s;
-  }
-
-  .feed-more:hover {
-    border-color: var(--color-accent-soft);
-    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
-    color: var(--color-accent);
-  }
-
-  .discovery {
-    position: sticky;
-    top: calc(var(--nav-offset, var(--nav-h)) + 1.5rem);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .discovery-head {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    color: var(--color-faint);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-  }
-
-  .discovery-head i {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--color-line-bright), transparent);
-  }
-
-  :global(html[data-motion='ready']) .discovery-head i {
-    background-size: 200% 100%;
-    background-image: linear-gradient(90deg, var(--color-line-bright), var(--color-accent-soft), transparent);
-    animation: discovery-signal 4.5s linear infinite;
-  }
-
-  @keyframes discovery-signal { to { background-position: -200% 0; } }
-
-  .rail-panel {
-    border: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-bg-soft) 84%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-  }
-
-  .panel-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 2.45rem;
-    padding: 0.55rem 0.75rem;
-    border-bottom: 1px solid var(--color-line);
-    color: var(--color-faint);
-    font-size: 0.65rem;
-  }
-
-  .panel-head h2 {
-    color: var(--color-dim);
-    font: inherit;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .category-list,
-  .series-list {
-    list-style: none;
-  }
-
-  .category-item {
-    --share: 0%;
-    position: relative;
-    display: grid;
-    grid-template-columns: 1.7rem 1fr auto;
-    align-items: center;
-    gap: 0.55rem;
-    min-height: 2.85rem;
-    padding: 0.55rem 0.75rem;
-    color: var(--color-dim);
-    text-decoration: none;
-    border-bottom: 1px solid var(--color-line);
-    transition:
-      color 0.16s,
-      background 0.16s;
-  }
-
-  .category-list li:last-child .category-item {
-    border-bottom: 0;
-  }
-
-  .category-item:hover {
-    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
-    color: var(--color-text-strong);
-  }
-
-  .category-id,
-  .category-count {
-    color: var(--color-faint);
-    font-size: 0.65rem;
-  }
-
-  .category-name {
-    font-size: 0.84rem;
-  }
-
-  .category-item i {
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    width: var(--share);
-    height: 1px;
-    background: color-mix(in srgb, var(--color-accent) 70%, transparent);
-    transition: width 0.25s var(--ease-out-expo);
-  }
-
-  .series-item {
-    display: grid;
-    grid-template-columns: 1.75rem minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.65rem 0.75rem;
-    color: var(--color-dim);
-    text-decoration: none;
-    border-bottom: 1px solid var(--color-line);
-    transition:
-      color 0.16s,
-      background 0.16s;
-  }
-
-  .series-list li:last-child .series-item {
-    border-bottom: 0;
-  }
-
-  .series-item:hover {
-    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
-  }
-
-  .series-id,
-  .series-count {
-    color: var(--color-faint);
-    font-size: 0.62rem;
-  }
-
-  .series-copy {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.12rem;
-  }
-
-  .series-copy strong {
-    overflow: hidden;
-    color: var(--color-text);
-    font-size: 0.78rem;
-    font-weight: 520;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .series-copy small {
-    overflow: hidden;
-    color: var(--color-faint);
-    font-size: 0.64rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .series-item:hover strong {
-    color: var(--color-accent);
-  }
-
-  .tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.42rem;
-    padding: 0.75rem;
-  }
-
-  .tag-cloud a {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.3rem;
-    min-height: 1.8rem;
-    padding: 0.23rem 0.42rem;
-    border: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
-    color: var(--color-dim);
-    font-size: 0.68rem;
-    text-decoration: none;
-    transition:
-      color 0.16s,
-      border-color 0.16s,
-      background 0.16s;
-  }
-
-  .tag-cloud a:hover {
-    border-color: var(--color-accent-soft);
-    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
-    color: var(--color-accent);
-  }
-
-  .tag-cloud span {
-    color: var(--color-faint);
-    font-size: 0.56rem;
-  }
-
-  .rail-sync {
-    padding-inline: 0.2rem;
-    color: var(--color-faint);
-    font-size: 0.6rem;
-    text-align: right;
-  }
-
-  .rail-sync time {
-    color: var(--color-dim);
-  }
-
-  .empty,
-  .side-empty {
-    color: var(--color-faint);
-    font-size: 0.75rem;
-  }
-
-  .empty {
-    margin-top: 1.5rem;
-    padding: 3rem 1rem;
-    border: 1px solid var(--color-line);
-    text-align: center;
-  }
-
-  .empty code {
-    color: var(--color-accent);
-  }
-
-  .side-empty {
-    padding: 1rem 0.75rem;
-  }
-
-  @media (max-width: 960px) {
-    .dashboard {
-      grid-template-columns: 1fr;
-      gap: 2.25rem;
-    }
-
-    .discovery {
-      position: static;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      align-items: start;
-    }
-
-    .discovery-head,
-    .rail-sync {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media (min-width: 961px) and (max-height: 900px) {
-    .discovery {
-      position: static;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .dashboard {
-      margin-top: 2.5rem;
-    }
-
-    .section-head {
-      align-items: flex-start;
-    }
-
-    .section-copy p {
-      max-width: 16rem;
-    }
-
-    .section-status span {
-      display: none;
-    }
-
-    .feed-more {
-      min-height: 3.5rem;
-    }
-
-    .discovery {
-      grid-template-columns: 1fr;
-    }
-
-    .discovery-head,
-    .rail-sync {
-      grid-column: auto;
-    }
-
-    .category-item,
-    .series-item {
-      min-height: 3rem;
-    }
-
-    .tag-cloud a {
-      min-height: 2.35rem;
-      align-items: center;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .section-head {
-      gap: 0.75rem;
-    }
-
-    .section-status {
-      font-size: 0.62rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .discovery-head i {
-      animation: none !important;
-      transform: none !important;
-    }
-  }
-
-  :global(html[data-motion='off']) .discovery-head i {
-    animation: none !important;
-    transform: none !important;
-  }
-</style>

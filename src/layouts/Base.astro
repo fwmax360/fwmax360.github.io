@@ -5,13 +5,13 @@ import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 import Search from '../components/Search.astro'
 import Interactions from '../components/Interactions.astro'
-import Live2D from '../components/Live2D.astro'
-import ScrollMiku from '../components/ScrollMiku.astro'
 import ImageViewer from '../components/ImageViewer.astro'
 import Motion from '../components/Motion.astro'
+import ReadingTransition from '../components/ReadingTransition.astro'
 import AmbientMotion from '../components/AmbientMotion.astro'
-import JmpTransition from '../components/JmpTransition.astro'
 import { SITE } from '../consts'
+import '../styles/editorial-theme.css'
+import '../styles/site-editorial.css'
 
 interface Props {
   title: string
@@ -25,6 +25,7 @@ interface Props {
   /** 宽版用于首页/归档，窄版用于文章正文 */
   width?: 'wide' | 'content'
   hasMath?: boolean
+  bodyClass?: string
 }
 
 const {
@@ -38,6 +39,7 @@ const {
   imageAlt,
   width = 'wide',
   hasMath = false,
+  bodyClass,
 } = Astro.props
 ---
 
@@ -59,22 +61,18 @@ const {
     <ClientRouter />
   </head>
 
-  <body>
-    <div class="bg-art" aria-hidden="true"></div>
-    <div class="bg-grid" aria-hidden="true"></div>
-    <div class="bg-glow" aria-hidden="true"></div>
+  <body class={bodyClass ?? 'site-editorial'}>
     <AmbientMotion />
-    <JmpTransition />
 
     <a href="#main" class="skip">跳到正文</a>
 
     <div class="page-fg" data-motion-root>
       <Nav />
-      {type === 'article' && <ScrollMiku />}
 
       <main
         id="main"
         class:list={['shell', width]}
+        transition:name={type === 'article' ? 'reading-content' : 'page-content'}
         transition:animate={fade({ duration: '180ms' })}
       >
         <slot />
@@ -83,8 +81,8 @@ const {
       <Footer />
       <Search />
       <Interactions />
+      <ReadingTransition />
     </div>
-    <Live2D />
     {type === 'article' && <ImageViewer />}
 
     <style>

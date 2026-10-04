@@ -3,7 +3,7 @@ import type { GetStaticPaths } from 'astro'
 import Base from '../../layouts/Base.astro'
 import { categoryUrl, formatDate, postUrl, tagUrl } from '../../lib/posts'
 import { getSeriesSummaries, type SeriesSummary } from '../../lib/series'
-import { getSeriesVisual, seriesVisualStyle } from '../../lib/seriesVisual'
+import { getSeriesVisual } from '../../lib/seriesVisual'
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const summaries = await getSeriesSummaries()
@@ -29,12 +29,12 @@ const description =
     class="series-theme"
     data-tone={visual.tone}
     data-signature={visual.signature}
-    style={seriesVisualStyle(visual)}
+
   >
   <nav class="crumbs mono" aria-label="面包屑导航">
-    <a href="/">home</a>
+    <a href="/">首页</a>
     <span aria-hidden="true">/</span>
-    <a href="/series/">series</a>
+    <a href="/series/">系列</a>
     <span aria-hidden="true">/</span>
     <span aria-current="page">{summary.name}</span>
   </nav>
@@ -45,22 +45,22 @@ const description =
       <span class="hero-mark">{visual.mark}</span>
     </div>
     <div class="hero-copy">
-      <p class="eyebrow mono"><span class="status-dot" aria-hidden="true" /> reading path</p>
+      <p class="eyebrow mono"><span class="status-dot" aria-hidden="true" /> 按顺序阅读</p>
       <h1 class="series-title">{summary.name}</h1>
       <p class="series-desc">{description}</p>
     </div>
 
     <dl class="hero-stats mono" aria-label="系列信息">
       <div>
-        <dt>chapters</dt>
+        <dt>文章</dt>
         <dd>{String(summary.count).padStart(2, '0')}</dd>
       </div>
       <div>
-        <dt>category</dt>
+        <dt>分类</dt>
         <dd class="stat-text">{summary.categories.join(' / ')}</dd>
       </div>
       <div>
-        <dt>updated</dt>
+        <dt>最近更新</dt>
         <dd class="stat-date">{formatDate(summary.lastUpdatedAt)}</dd>
       </div>
     </dl>
@@ -69,10 +69,10 @@ const description =
   <section class="route-map col-side" aria-labelledby="route-title">
     <div class="route-head">
       <div>
-        <p class="route-kicker mono">PUBLISHED SEQUENCE</p>
-        <h2 id="route-title">阅读进度</h2>
+        <p class="route-kicker mono">系列顺序</p>
+        <h2 id="route-title">阅读路径</h2>
       </div>
-      <p class="route-count mono">{summary.count} / {summary.count} chapters online</p>
+      <p class="route-count mono">{summary.count} / {summary.count} 篇已发布</p>
     </div>
 
     <div class="progress-track" aria-hidden="true">
@@ -112,7 +112,7 @@ const description =
                 {index < summary.posts.length - 1 && <span class="rail-line" />}
               </div>
 
-              <article class="chapter-card">
+              <article class="chapter-card" data-reading-preview>
                 <header class="chapter-head mono">
                   <span class="chapter-label">CHAPTER {String(chapter).padStart(2, '0')}</span>
                   <span class="chapter-date">{formatDate(post.data.pubDate)}</span>

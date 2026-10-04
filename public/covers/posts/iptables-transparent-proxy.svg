@@ -37,7 +37,7 @@
 
   <circle cx="72" cy="63" r="4" fill="#65d9ed"/>
   <text x="88" y="68" class="mono" font-size="13" font-weight="700" letter-spacing="1.1" fill="#f1f5f9">FWMAX360 / ARTICLE_COVER</text>
-  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">09 / 21 · 19CE02</text>
+  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">10 / 22 · 19CE02</text>
   <line x1="72" y1="91" x2="1128" y2="91" stroke="#25303d"/>
 
   <rect x="72" y="119" width="107" height="28" rx="3" fill="#65d9ed" opacity="0.12" stroke="#65d9ed"/>

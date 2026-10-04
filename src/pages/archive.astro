@@ -27,17 +27,16 @@ const latest = posts[0]
 ---
 
 <Base title="归档" description="全部文章，按年度与月度卷宗浏览。">
-  <header class="page-head" data-reveal data-parallax="0.06">
-    <p class="page-eyebrow mono"><span aria-hidden="true"></span> editorial dossier index</p>
+  <header class="page-head">
     <div class="page-title-row">
       <div>
-        <h1 class="page-title">archive</h1>
-        <p class="page-sub">按年度与月份编排研究卷宗，用分类、系列和阅读密度定位记录。</p>
+        <h1 class="page-title">文章</h1>
+        <p class="page-sub">按时间浏览全部笔记，也可以按分类和系列筛选。</p>
       </div>
       <dl class="page-metrics mono">
-        <div><dt>POSTS</dt><dd data-count-up>{String(posts.length).padStart(2, '0')}</dd></div>
-        <div><dt>YEARS</dt><dd data-count-up>{String(dossiers.length).padStart(2, '0')}</dd></div>
-        <div><dt>LATEST</dt><dd>{latest ? formatDate(latest.data.pubDate) : '—'}</dd></div>
+        <div><dt>文章</dt><dd>{String(posts.length).padStart(2, '0')}</dd></div>
+        <div><dt>年份</dt><dd>{String(dossiers.length).padStart(2, '0')}</dd></div>
+        <div><dt>最近更新</dt><dd>{latest ? formatDate(latest.data.pubDate) : '—'}</dd></div>
       </dl>
     </div>
   </header>
@@ -45,30 +44,30 @@ const latest = posts[0]
   <section class="archive-system" data-archive data-archive-density="editorial">
     <header class="archive-controls col-side" data-reveal>
       <div class="filter-field">
-        <label class="mono" for="archive-category">category</label>
+        <label for="archive-category">分类</label>
         <select id="archive-category" data-archive-category>
           <option value="">全部分类</option>
           {categories.map((category) => <option value={category}>{category}</option>)}
         </select>
       </div>
       <div class="filter-field">
-        <label class="mono" for="archive-series">series</label>
+        <label for="archive-series">系列</label>
         <select id="archive-series" data-archive-series>
           <option value="">全部系列</option>
           {series.map((name) => <option value={name}>{name}</option>)}
         </select>
       </div>
       <fieldset class="density-switch">
-        <legend class="mono">density</legend>
-        <button type="button" class="mono active" data-density="editorial" aria-pressed="true">editorial</button>
-        <button type="button" class="mono" data-density="compact" aria-pressed="false">compact</button>
+        <legend>密度</legend>
+        <button type="button" class="active" data-density="editorial" aria-pressed="true">宽松</button>
+        <button type="button" data-density="compact" aria-pressed="false">紧凑</button>
       </fieldset>
       <p class="archive-status mono" aria-live="polite">
-        <span aria-hidden="true"></span><b data-archive-count>{posts.length}</b> / {posts.length} dossiers
+        <span aria-hidden="true"></span><b data-archive-count>{posts.length}</b> / {posts.length} 篇
       </p>
 
       {latest && (
-        <figure class="cover-preview" data-archive-preview data-spotlight data-tilt data-tilt-strength="2">
+        <figure class="cover-preview" data-archive-preview>
           <img src={coverSvgUrl(latest)} width="1200" height="630" alt={`《${latest.data.title}》封面预览`} data-preview-image />
           <figcaption>
             <span class="mono" data-preview-meta>{latest.data.category} / {formatDate(latest.data.pubDate)}</span>
@@ -80,7 +79,7 @@ const latest = posts[0]
 
     <div class="archive-layout">
       <nav class="archive-rail mono" aria-label="年度与月份目录" data-reveal>
-        <p>// dossier rail</p>
+        <p>时间目录</p>
         <ol>
           {dossiers.map((dossier) => (
             <li data-year-link={dossier.year}>
@@ -112,10 +111,10 @@ const latest = posts[0]
           >
             <header class="year-head">
               <div>
-                <p class="mono">ANNUAL DOSSIER</p>
+                <p class="mono">年度笔记</p>
                 <h2>{dossier.year}</h2>
               </div>
-              <span class="year-count mono">{String(dossier.posts.length).padStart(2, '0')} entries</span>
+              <span class="year-count mono">{String(dossier.posts.length).padStart(2, '0')} 篇</span>
             </header>
 
             {dossier.lead && (
@@ -128,9 +127,9 @@ const latest = posts[0]
                 data-cover={coverSvgUrl(dossier.lead)}
                 data-title={dossier.lead.data.title}
                 data-meta={`${dossier.lead.data.category} / ${formatDate(dossier.lead.data.pubDate)}`}
-                data-spotlight
-                data-tilt
-                data-tilt-strength="2.2"
+
+
+
               >
                 <a
                   href={postUrl(dossier.lead)}
@@ -142,8 +141,8 @@ const latest = posts[0]
                 >
                   <img src={coverSvgUrl(dossier.lead)} width="1200" height="630" alt={`《${dossier.lead.data.title}》文章封面`} loading="lazy" />
                 </a>
-                <div class="lead-copy">
-                  <p class="lead-kicker mono">LEAD DOSSIER / {formatDate(dossier.lead.data.pubDate)}</p>
+                <div class="lead-copy" data-reading-preview>
+                  <p class="lead-kicker mono">最新笔记 / {formatDate(dossier.lead.data.pubDate)}</p>
                   <h3>
                     <a
                       href={postUrl(dossier.lead)}
@@ -180,7 +179,7 @@ const latest = posts[0]
                     {month.posts.filter((post) => post.id !== dossier.lead?.id).map((post, index) => (
                       <li>
                         <article
-                          class="archive-entry"
+                          class="archive-entry" data-reading-preview
                           data-archive-item
                           data-post-id={post.id}
                           data-category={post.data.category}
@@ -188,7 +187,7 @@ const latest = posts[0]
                           data-cover={coverSvgUrl(post)}
                           data-title={post.data.title}
                           data-meta={`${post.data.category} / ${formatDate(post.data.pubDate)}`}
-                          data-spotlight
+
                         >
                           <a
                             class="entry-hit"
@@ -211,13 +210,13 @@ const latest = posts[0]
                               {post.data.tags.slice(0, 3).map((tag) => <a href={tagUrl(tag)}>#{tag}</a>)}
                             </div>
                           </div>
-                          <span class="entry-open mono" aria-hidden="true">open ↗</span>
+                          <span class="entry-open mono" aria-hidden="true">↗</span>
                         </article>
                       </li>
                     ))}
                   </ol>
                   {month.posts.length === 1 && month.posts[0]?.id === dossier.lead?.id && (
-                    <p class="lead-month-note mono">lead dossier indexed above</p>
+                    <p class="lead-month-note mono">本月最新文章见上方。</p>
                   )}
                 </section>
               ))}
@@ -225,7 +224,7 @@ const latest = posts[0]
           </section>
         ))}
 
-        <p class="archive-empty mono" data-archive-empty hidden>NO_DOSSIERS_MATCH_FILTER</p>
+        <p class="archive-empty mono" data-archive-empty hidden>没有符合筛选条件的文章。</p>
         {posts.length === 0 && <p class="archive-empty mono">还没有文章。</p>}
       </div>
     </div>
@@ -413,7 +412,7 @@ const latest = posts[0]
     background: linear-gradient(110deg, rgb(61 220 132 / 6%), transparent 38%), var(--color-panel);
     box-shadow: var(--shadow-panel), inset 0 1px rgb(255 255 255 / 0.02);
   }
-  .page-head::after { content:'';position:absolute;z-index:-1;top:-20%;bottom:-20%;left:-28%;width:22%;background:linear-gradient(90deg,transparent,rgb(82 225 152 / .055),transparent);transform:skewX(-18deg);animation:archive-head-scan 8s ease-in-out infinite;pointer-events:none; }
+  .page-head::after { content:none; }
   .page-eyebrow { display:flex;align-items:center;gap:.5rem;margin-bottom:1.1rem;color:var(--color-faint);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase; }
   .page-eyebrow span { width:.4rem;height:.4rem;background:var(--color-accent);box-shadow:0 0 12px rgb(61 220 132 / .42); }
   .page-title-row { display:flex;align-items:end;justify-content:space-between;gap:2rem; }
@@ -437,7 +436,7 @@ const latest = posts[0]
   .archive-status span { width:.38rem;height:.38rem;background:var(--color-accent);box-shadow:0 0 8px var(--color-accent);animation:archive-pulse 1.8s ease-in-out infinite; }
   .archive-status b { color:var(--color-text);font-weight:500; }
   .cover-preview { position:relative;display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:.65rem;overflow:hidden;min-width:0;margin:0; }
-  .cover-preview::after { content:'';position:absolute;top:-30%;bottom:-30%;left:-42%;width:35%;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .07),transparent);transform:skewX(-18deg);animation:archive-preview-scan 5.4s ease-in-out infinite;pointer-events:none; }
+  .cover-preview::after { content:none; }
   .cover-preview img { width:6.5rem;aspect-ratio:1200/630;object-fit:cover;border:1px solid var(--color-line-bright); }
   .cover-preview figcaption { min-width:0;align-self:center; }
   .cover-preview span { display:block;color:var(--color-faint);font-size:.5rem; }

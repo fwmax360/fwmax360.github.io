@@ -13,12 +13,12 @@ export const SITE = {
 } as const
 
 export const NAV = [
-  { label: 'home', href: '/' },
-  { label: 'posts', href: '/archive' },
-  { label: 'series', href: '/series' },
-  { label: 'map', href: '/map' },
-  { label: 'tags', href: '/tags' },
-  { label: 'about', href: '/about' },
+  { label: '首页', href: '/' },
+  { label: '文章', href: '/archive' },
+  { label: '系列', href: '/series' },
+  { label: '图谱', href: '/map' },
+  { label: '标签', href: '/tags' },
+  { label: '关于', href: '/about' },
 ] as const
 
 export const SOCIAL = [

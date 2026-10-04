@@ -10,24 +10,23 @@ const description = `交互浏览 ${map.stats.posts} 篇技术文章与分类、
 <Base title="交互知识图谱" description={description} width="wide">
   <header class="map-hero">
     <div class="hero-copy">
-      <p class="eyebrow mono"><span aria-hidden="true">~/</span> knowledge topology</p>
-      <h1 id="knowledge-map-title"><span class="prompt mono" aria-hidden="true">$</span> 交互知识图谱</h1>
+      <h1 id="knowledge-map-title">交互知识图谱</h1>
       <p>{description} 从中心节点出发，沿分类与系列路径定位文章，也可以通过标签信号发现跨主题连接。</p>
     </div>
 
     <dl class="hero-stats mono" aria-label="知识图谱统计">
       <div>
-        <dt>nodes</dt>
+        <dt>文章</dt>
         <dd>{String(map.stats.posts).padStart(2, '0')}</dd>
         <span>articles</span>
       </div>
       <div>
-        <dt>paths</dt>
+        <dt>分类与系列</dt>
         <dd>{String(map.stats.categories + map.stats.series).padStart(2, '0')}</dd>
         <span>taxonomies</span>
       </div>
       <div>
-        <dt>edges</dt>
+        <dt>关联</dt>
         <dd>{String(map.stats.relations).padStart(2, '0')}</dd>
         <span>relations</span>
       </div>

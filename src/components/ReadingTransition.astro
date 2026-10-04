@@ -1,0 +1,93 @@
+---
+import '../styles/reading-transition.css'
+---
+<div class="reading-load-line" aria-hidden="true"></div>
+<p class="reading-load-status" data-reading-load-status role="status" aria-live="polite"></p>
+<script>
+  // Enhance Astro's native router; never intercept the link or delay navigation.
+  let openingLink: HTMLElement | null = null
+  let focusSource: HTMLElement | null = null
+  let focusDestination: HTMLElement | null = null
+  let originalFocusName = ''
+  const clearFocus = () => {
+    if (focusSource) {
+      if (originalFocusName) focusSource.style.setProperty('view-transition-name', originalFocusName)
+      else focusSource.style.removeProperty('view-transition-name')
+    }
+    focusDestination?.style.removeProperty('view-transition-name')
+    focusSource = focusDestination = null
+    delete document.documentElement.dataset.readingFocus
+  }
+  let arriving = false
+  let generation = 0
+  let loadingTimer = 0
+  const clearLoading = () => {
+    window.clearTimeout(loadingTimer)
+    delete document.documentElement.dataset.readingLoading
+    openingLink?.removeAttribute('aria-busy')
+    const status = document.querySelector<HTMLElement>('[data-reading-load-status]')
+    if (status) status.textContent = ''
+  }
+  const resetLink = () => {
+    clearFocus()
+    openingLink?.removeAttribute('data-reading-opening')
+    openingLink = null
+  }
+  document.addEventListener('astro:before-preparation', event => {
+    const currentGeneration = ++generation
+    clearLoading()
+    resetLink()
+    delete document.documentElement.dataset.readingTransition
+    arriving = event.to.origin === location.origin && event.to.pathname.startsWith('/posts/') && event.navigationType !== 'traverse' && document.documentElement.dataset.motion === 'ready' && !matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!arriving) return
+    document.documentElement.dataset.readingTransition = 'true'
+    openingLink = event.sourceElement?.closest<HTMLElement>('a') ?? null
+    openingLink?.setAttribute('data-reading-opening', 'true')
+    const preview = openingLink?.closest<HTMLElement>('[data-reading-preview]')
+    if (preview) {
+      const bounds = preview.getBoundingClientRect()
+      // Match a visible preview only; offscreen or external entry keeps the sheet fallback.
+      if (bounds.top >= 64 && bounds.bottom <= innerHeight + 16 && bounds.width > 0) {
+        focusSource = preview
+        originalFocusName = preview.style.getPropertyValue('view-transition-name')
+        preview.style.setProperty('view-transition-name', 'reading-focus')
+        document.documentElement.dataset.readingFocus = 'true'
+      }
+    }
+    loadingTimer = window.setTimeout(() => {
+      if (generation !== currentGeneration || event.signal.aborted) return
+      document.documentElement.dataset.readingLoading = 'true'
+      openingLink?.setAttribute('aria-busy', 'true')
+      const status = document.querySelector<HTMLElement>('[data-reading-load-status]')
+      if (status) status.textContent = '正在打开文章。'
+    }, 180)
+    event.signal.addEventListener('abort', () => {
+      if (currentGeneration !== generation) return
+      clearLoading()
+      resetLink()
+      arriving = false
+      delete document.documentElement.dataset.readingTransition
+    }, { once: true })
+  })
+  document.addEventListener('astro:after-preparation', clearLoading)
+  document.addEventListener('astro:before-swap', event => {
+    if (!arriving) return
+    const currentGeneration = generation
+    const html = event.newDocument.documentElement
+    html.dataset.readingTransition = 'true'
+    if (focusSource) {
+      const destination = event.newDocument.querySelector<HTMLElement>('.article .head')
+      if (destination) {
+        focusDestination = destination
+        destination.style.setProperty('view-transition-name', 'reading-focus')
+        html.dataset.readingFocus = 'true'
+      } else clearFocus()
+    }
+    event.viewTransition.finished.catch(() => {}).finally(() => {
+      if (currentGeneration !== generation) return
+      clearLoading()
+      resetLink()
+      delete document.documentElement.dataset.readingTransition
+    })
+  })
+</script>

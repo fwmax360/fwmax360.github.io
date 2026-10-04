@@ -20,7 +20,7 @@
       <path d="M8 3v6M8 12.5v.1" />
     </svg>
   </span>
-  <span data-copy-label aria-live="polite">copy link</span>
+  <span data-copy-label aria-live="polite">复制链接</span>
 </button>
 
 <style>
@@ -136,7 +136,7 @@
       if (btn.dataset.bound) return
       btn.dataset.bound = '1'
       const label = btn.querySelector<HTMLElement>('[data-copy-label]')
-      const original = label?.textContent ?? 'copy link'
+      const original = label?.textContent ?? '复制链接'
       let resetTimer = 0
 
       const setState = (state: 'idle' | 'success' | 'error') => {
@@ -145,7 +145,7 @@
           'aria-label',
           state === 'success' ? '文章链接已复制' : state === 'error' ? '文章链接复制失败' : '复制本文链接',
         )
-        if (label) label.textContent = state === 'success' ? 'copied' : state === 'error' ? 'failed' : original
+        if (label) label.textContent = state === 'success' ? '已复制' : state === 'error' ? '复制失败' : original
       }
 
       btn.addEventListener('click', async () => {

@@ -46,7 +46,7 @@ const treeCategories = data.categories.map((category) => {
   }
 })
 
-const nodeStyle = (node: KnowledgeNode) => `--node-accent:${node.accent}`
+const nodeStyle = (node: KnowledgeNode) => `--node-accent:var(--map-${node.kind === 'tag' ? 'amber' : node.kind === 'series' ? 'violet' : node.kind === 'category' ? 'cyan' : 'green'})`
 const postSearch = (node: KnowledgeNode) =>
   [node.label, node.detail, node.category, node.series, ...(node.tags ?? [])].filter(Boolean).join(' ')
 ---
@@ -59,7 +59,7 @@ const postSearch = (node: KnowledgeNode) =>
 >
   <header class="map-toolbar">
     <div class="query-field">
-      <label class="mono" for="knowledge-query">filter / keyword</label>
+      <label class="mono" for="knowledge-query">筛选文章</label>
       <div class="query-control">
         <svg viewBox="0 0 20 20" aria-hidden="true">
           <circle cx="8.5" cy="8.5" r="5.25"></circle>
@@ -77,7 +77,7 @@ const postSearch = (node: KnowledgeNode) =>
     </div>
 
     <div class="category-field">
-      <label class="mono" for="knowledge-category">scope / category</label>
+      <label class="mono" for="knowledge-category">分类</label>
       <select id="knowledge-category" data-map-category>
         <option value="">全部分类</option>
         {data.categories.map((category) => (
@@ -97,7 +97,7 @@ const postSearch = (node: KnowledgeNode) =>
   </header>
 
   <div class="signal-strip" aria-label="高频标签">
-    <span class="signal-label mono">HIGH-FREQ SIGNALS</span>
+    <span class="signal-label mono">常用标签</span>
     <div class="signal-tags mono">
       {data.highTags.map((tag) => (
         <a href={tag.href} data-map-node-ref={`tag:${tag.name}`}>
@@ -113,7 +113,7 @@ const postSearch = (node: KnowledgeNode) =>
     <span><i class="series-key" aria-hidden="true"></i>series</span>
     <span><i class="tag-key" aria-hidden="true"></i>tag signal</span>
     <span><i class="post-key" aria-hidden="true"></i>article</span>
-    <span class="legend-hint">hover / focus to trace</span>
+    <span class="legend-hint">悬停或聚焦查看关联</span>
   </div>
 
   <div class="map-workbench">
@@ -154,7 +154,7 @@ const postSearch = (node: KnowledgeNode) =>
                 data-edge-from={edge.from}
                 data-edge-to={edge.to}
                 data-post-ids={edge.postIds.join(',')}
-                style={`--edge-accent:${edge.accent}`}
+                style={`--edge-accent:var(--map-${edge.relation === 'tag' ? 'amber' : edge.relation === 'series' ? 'violet' : 'green'})`}
                 vector-effect="non-scaling-stroke"
               ></path>
             ))}
@@ -1036,7 +1036,7 @@ const postSearch = (node: KnowledgeNode) =>
     height: 1.6rem;
     border-top: 1px solid var(--map-green);
     transform-origin: 0 0;
-    animation: scan-spin 4.5s linear infinite;
+    animation: none;
   }
 
   @keyframes scan-spin {

@@ -1,0 +1,48 @@
+<div class="reading-progress" data-article-progress hidden>
+  <div class="progress-caption"><span>阅读进度</span><span data-progress-percent>0%</span></div>
+  <div class="progress-track" role="progressbar" aria-label="本文阅读位置" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-track><span data-progress-fill></span></div>
+</div>
+<style>
+  .reading-progress { padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-line); }
+  .reading-progress[hidden] { display: none; }
+  .progress-caption { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .75rem; color: var(--color-faint); font-size: .75rem; font-variant-numeric: tabular-nums; }
+  .progress-track { height: 3px; background: var(--color-line); overflow: hidden; border-radius: 3px; }
+  .progress-track span { display: block; height: 100%; background: var(--color-accent); transform: scaleX(0); transform-origin: left; }
+</style>
+<script>
+  let cleanup: (() => void) | undefined
+  function setupArticleProgress() {
+    cleanup?.()
+    const root = document.querySelector<HTMLElement>('[data-article-progress]')
+    const prose = document.querySelector<HTMLElement>('[data-article] .prose')
+    const percent = root?.querySelector<HTMLElement>('[data-progress-percent]')
+    const track = root?.querySelector<HTMLElement>('[data-progress-track]')
+    const fill = root?.querySelector<HTMLElement>('[data-progress-fill]')
+    if (!root || !prose || !percent || !track || !fill) return
+    const controller = new AbortController()
+    const { signal } = controller
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const rect = prose.getBoundingClientRect()
+      const startLine = Math.min(innerHeight * .25, 160)
+      const available = rect.height - innerHeight + startLine
+      const progress = available <= 0 ? (rect.bottom <= innerHeight ? 100 : 0) : Math.max(0, Math.min(100, (startLine - rect.top) / available * 100))
+      const rounded = Math.round(progress)
+      percent.textContent = `${rounded}%`
+      track.setAttribute('aria-valuenow', String(rounded))
+      fill.style.transform = `scaleX(${progress / 100})`
+    }
+    const requestUpdate = () => { if (!frame) frame = requestAnimationFrame(update) }
+    const resizeObserver = new ResizeObserver(requestUpdate)
+    resizeObserver.observe(prose)
+    window.addEventListener('scroll', requestUpdate, { passive: true, signal })
+    window.addEventListener('resize', requestUpdate, { passive: true, signal })
+    root.hidden = false
+    update()
+    cleanup = () => { controller.abort(); resizeObserver.disconnect(); if (frame) cancelAnimationFrame(frame) }
+  }
+  setupArticleProgress()
+  document.addEventListener('astro:page-load', setupArticleProgress)
+  document.addEventListener('astro:before-swap', () => cleanup?.())
+</script>

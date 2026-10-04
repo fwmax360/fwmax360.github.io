@@ -3,16 +3,15 @@ import type { GetStaticPaths } from 'astro'
 import { render } from 'astro:content'
 import Base from '../../layouts/Base.astro'
 import Toc from '../../components/Toc.astro'
+import ArticleReadingProgress from '../../components/ArticleReadingProgress.astro'
+import '../../styles/article.css'
 import CodeActions from '../../components/CodeActions.astro'
 import Comments from '../../components/Comments.astro'
 import CopyLink from '../../components/CopyLink.astro'
-import FieldBrief from '../../components/FieldBrief.astro'
-import MissionDebrief from '../../components/MissionDebrief.astro'
+import ArticleEnd from '../../components/ArticleEnd.astro'
 import '../../styles/editorial-font.css'
-import ReadingProgress from '../../components/ReadingProgress.astro'
-import { coverPngUrl, coverSvgUrl } from '../../lib/covers'
+import { coverPngUrl } from '../../lib/covers'
 import { seriesUrl } from '../../lib/series'
-import { getSeriesVisual } from '../../lib/seriesVisual'
 import '../../styles/figures.css'
 import '../../styles/editorial.css'
 import {
@@ -100,51 +99,43 @@ const related = await getRelated(post)
 const seriesPosts = series ? await getSeries(series) : []
 const seriesIndex = seriesPosts.findIndex((p) => p.id === post.id)
 const seriesPosition = seriesIndex >= 0 ? seriesIndex + 1 : 1
-const seriesProgress = seriesPosts.length ? (seriesPosition / seriesPosts.length) * 100 : 0
 const chapterNumber = order ?? seriesPosition
-const seriesVisual = series ? getSeriesVisual(series) : null
 const seriesPrevious = seriesIndex > 0 ? seriesPosts[seriesIndex - 1] : null
 const seriesNext = seriesIndex >= 0 && seriesIndex < seriesPosts.length - 1 ? seriesPosts[seriesIndex + 1] : null
 const previousPost = series ? seriesPrevious : older
 const previousTarget = previousPost
   ? {
       href: postUrl(previousPost),
-      label: series ? 'previous chapter' : 'older in timeline',
+      label: '上一篇',
       title: previousPost.data.title,
       meta: series
-        ? `CH ${String(previousPost.data.order ?? seriesIndex).padStart(2, '0')}`
+        ? `第 ${previousPost.data.order ?? seriesIndex} 篇`
         : formatDate(previousPost.data.pubDate),
-      cover: coverSvgUrl(previousPost),
     }
   : null
 const nextTarget = series
   ? seriesNext
     ? {
         href: postUrl(seriesNext),
-        label: 'next chapter',
+        label: '下一篇',
         title: seriesNext.data.title,
-        meta: `CH ${String(seriesNext.data.order ?? seriesIndex + 2).padStart(2, '0')}`,
-        cover: coverSvgUrl(seriesNext),
+        meta: `第 ${seriesNext.data.order ?? seriesIndex + 2} 篇`,
       }
     : {
         href: seriesUrl(series),
-        label: 'series overview',
+        label: '返回系列',
         title: `查看「${series}」全部章节`,
-        meta: `${seriesPosts.length} chapters`,
+        meta: `${seriesPosts.length} 篇`,
       }
   : newer
     ? {
         href: postUrl(newer),
-        label: 'newer in timeline',
+        label: '下一篇',
         title: newer.data.title,
         meta: formatDate(newer.data.pubDate),
-        cover: coverSvgUrl(newer),
       }
     : null
 const externalSources = extractExternalSources(body, Astro.site?.host)
-const headStyle = seriesVisual
-  ? `--head-accent:${seriesVisual.palette.accent};--head-glow:${seriesVisual.palette.glow}`
-  : undefined
 const coverAlt = series
   ? `《${title}》文章封面，${category} 分类，${series}第 ${chapterNumber} 章`
   : `《${title}》文章封面，${category} 分类`
@@ -159,78 +150,26 @@ const coverAlt = series
   hasMath={hasMath}
   image={coverPngUrl(post)}
   imageAlt={coverAlt}
+  bodyClass="article-editorial"
 >
-  <ReadingProgress />
   <div class="layout">
     <article class="article" data-article data-pagefind-body>
-      <header class="head" style={headStyle} data-reveal data-tilt="1.25">
-        <div
-          class="head-cover"
-          aria-hidden="true"
-          data-pagefind-ignore
-          data-no-viewer
-          data-parallax="0.045"
-          transition:name={`post-cover-${post.id}`}
-        >
-          <img
-            src={coverSvgUrl(post)}
-            width="1200"
-            height="630"
-            alt=""
-            loading="eager"
-            decoding="async"
-            fetchpriority="low"
-            data-no-viewer
-          />
-        </div>
-
-        <div class="head-top" data-pagefind-ignore>
-          <nav class="crumbs mono" aria-label="面包屑">
-            <ol>
-              <li><a href="/archive">posts</a></li>
-              <li><a href={categoryUrl(category)} aria-current="location">{category}</a></li>
-            </ol>
-          </nav>
-
-          <span class="article-state mono">
-            <span class="state-dot" aria-hidden="true"></span>
-            {updatedDate ? 'maintained' : 'published'}
-          </span>
-        </div>
-
-        <div class="head-copy">
-          <p class="eyebrow mono" aria-hidden="true">technical note / {category}</p>
-          <h1 class="title font-display" data-pagefind-meta="title">{title}</h1>
-          <p class="lede">{description}</p>
-        </div>
-
-        <div class="status-bar" data-pagefind-ignore>
-          <dl class="meta mono" aria-label="文章信息">
-            <div class="meta-item">
-              <dt>published</dt>
-              <dd><time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time></dd>
-            </div>
-            {
-              updatedDate && (
-                <div class="meta-item meta-revision">
-                  <dt>revision</dt>
-                  <dd><time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time></dd>
-                </div>
-              )
-            }
-            <div class="meta-item">
-              <dt>length</dt>
-              <dd>{stats.words} 字</dd>
-            </div>
-            <div class="meta-item">
-              <dt>read</dt>
-              <dd>约 {stats.minutes} 分钟</dd>
-            </div>
-          </dl>
-          <div class="meta-action">
-            <CopyLink />
-          </div>
-        </div>
+      <header class="head">
+        <nav class="crumbs" aria-label="面包屑">
+          <ol>
+            <li><a href="/archive">文章</a></li>
+            <li><a href={categoryUrl(category)}>{category}</a></li>
+          </ol>
+        </nav>
+        <h1 class="title" data-pagefind-meta="title">{title}</h1>
+        <p class="lede">{description}</p>
+        <p class="meta">
+          <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+          {updatedDate && <time datetime={updatedDate.toISOString()}>更新于 {formatDate(updatedDate)}</time>}
+          <span>{stats.words} 字</span>
+          <span>约 {stats.minutes} 分钟</span>
+          <CopyLink />
+        </p>
       </header>
 
       <Toc headings={headings} variant="mobile" />
@@ -241,33 +180,20 @@ const coverAlt = series
             class="series"
             aria-label={`系列文章：${series}`}
             data-pagefind-ignore
-            data-reveal
-            data-spotlight
-            data-tilt="1.5"
-            style={`--series-progress:${seriesProgress}%`}
           >
-            <div class="series-head">
+            <details class="series-fold">
+            <summary class="series-head">
               <div class="series-identity">
-                <span class="series-label mono">series</span>
+                <span class="series-label">系列</span>
                 <p class="series-name">{series}</p>
               </div>
               <span
                 class="series-position mono"
                 aria-label={`章节 ${chapterNumber}，阅读路径第 ${seriesPosition} 篇，共 ${seriesPosts.length} 篇`}
               >
-                CH {String(chapterNumber).padStart(2, '0')} · {String(seriesPosition).padStart(2, '0')}/{String(seriesPosts.length).padStart(2, '0')}
+                第 {chapterNumber} 篇 · {seriesPosition}/{seriesPosts.length}
               </span>
-            </div>
-            <div
-              class="series-track"
-              role="progressbar"
-              aria-label="系列阅读进度"
-              aria-valuemin="1"
-              aria-valuemax={seriesPosts.length}
-              aria-valuenow={seriesPosition}
-            >
-              <span aria-hidden="true"></span>
-            </div>
+            </summary>
             <ol class="series-list">
               {seriesPosts.map((p, i) => (
                 <li class:list={['series-item', { current: p.id === post.id }]}>
@@ -285,47 +211,23 @@ const coverAlt = series
                 </li>
               ))}
             </ol>
+            </details>
           </nav>
         )
       }
-
-      <FieldBrief
-        description={description}
-        category={category}
-        tags={tags}
-        publishedAt={pubDate}
-        updatedAt={updatedDate}
-        series={series}
-        order={series ? chapterNumber : undefined}
-        words={stats.words}
-        minutes={stats.minutes}
-        headings={headings}
-        accent={seriesVisual?.palette.accent}
-      />
 
       <div class="prose">
         <Content />
       </div>
 
       <footer class="foot" data-pagefind-ignore>
-        <MissionDebrief
-          mode={series ? 'series' : 'timeline'}
+        <ArticleEnd
           previous={previousTarget}
           next={nextTarget}
           related={related}
           sources={externalSources}
           tags={tags}
           category={category}
-          words={stats.words}
-          minutes={stats.minutes}
-          headingsCount={headings.length}
-          publishedAt={pubDate}
-          updatedAt={updatedDate}
-          series={series}
-          chapter={series ? chapterNumber : undefined}
-          seriesPosition={series ? seriesPosition : undefined}
-          seriesTotal={series ? seriesPosts.length : undefined}
-          accent={seriesVisual?.palette.accent}
         />
 
         <Comments />
@@ -333,8 +235,9 @@ const coverAlt = series
     </article>
 
     <aside class="rail">
+      <ArticleReadingProgress />
       <Toc headings={headings} variant="rail" />
-      <a href="#main" class="to-top mono">↑ back to top</a>
+      <a href="#main" class="to-top">回到顶部</a>
     </aside>
   </div>
 
@@ -415,497 +318,3 @@ const coverAlt = series
   enhanceEditorialCallouts()
   document.addEventListener('astro:page-load', enhanceEditorialCallouts)
 </script>
-
-<style>
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, var(--container-content)) 15.5rem;
-    gap: clamp(3rem, 5vw, 4.5rem);
-    justify-content: center;
-  }
-
-  .head {
-    --head-accent: var(--color-accent);
-    --head-glow: color-mix(in srgb, var(--head-accent) 14%, transparent);
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    margin-bottom: 2.75rem;
-    padding: 1.15rem 1.35rem 0;
-    border: 1px solid var(--color-line);
-    border-top-color: var(--color-line-bright);
-    background:
-      linear-gradient(110deg, color-mix(in srgb, var(--head-accent) 5%, transparent), transparent 45%),
-      var(--color-bg-soft);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    box-shadow:
-      inset 2px 0 0 color-mix(in srgb, var(--head-accent) 58%, transparent),
-      0 20px 50px -42px rgb(0 0 0 / 0.9);
-  }
-
-  .head > :not(.head-cover) {
-    position: relative;
-    z-index: 2;
-  }
-
-  .head-cover {
-    position: absolute;
-    z-index: 0;
-    top: 0;
-    right: 0;
-    bottom: 3.3rem;
-    width: min(66%, 35rem);
-    overflow: hidden;
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.18) 27%, #000 70%);
-    mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.18) 27%, #000 70%);
-  }
-
-  .head-cover::before,
-  .head-cover::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  .head-cover::before {
-    background: radial-gradient(circle at 78% 42%, var(--head-glow), transparent 58%);
-  }
-
-  .head-cover::after {
-    background:
-      linear-gradient(90deg, var(--color-bg-soft), transparent 62%),
-      linear-gradient(0deg, var(--color-bg-soft), transparent 28%);
-    opacity: 0.58;
-  }
-
-  .head-cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: right center;
-    opacity: 0.24;
-    filter: saturate(0.82) contrast(1.05) brightness(0.88);
-  }
-
-  .head::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 1.35rem;
-    width: 5.5rem;
-    height: 1px;
-    background: linear-gradient(90deg, var(--head-accent), transparent);
-  }
-
-  .head-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-
-  .crumbs {
-    font-size: 0.75rem;
-    color: var(--color-faint);
-  }
-
-  .crumbs ol {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .crumbs li {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-
-  .crumbs li + li::before {
-    content: '/';
-    color: var(--color-line-bright);
-  }
-
-  .crumbs a {
-    color: var(--color-faint);
-    text-decoration: none;
-    transition: color 0.16s;
-  }
-
-  .crumbs a:hover {
-    color: var(--color-accent);
-  }
-
-  .article-state {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    flex: 0 0 auto;
-    color: var(--color-faint);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .state-dot {
-    width: 0.38rem;
-    height: 0.38rem;
-    border-radius: 50%;
-    background: var(--head-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--head-accent) 12%, transparent);
-  }
-
-  .head-copy {
-    padding: clamp(1.7rem, 4vw, 2.5rem) 0 clamp(1.5rem, 3vw, 2rem);
-  }
-
-  .eyebrow {
-    margin-bottom: 0.7rem;
-    color: color-mix(in srgb, var(--head-accent) 72%, var(--color-dim));
-    font-size: 0.66rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .title {
-    max-width: 42rem;
-    font-size: clamp(1.9rem, 4vw, 2.65rem);
-    line-height: 1.18;
-    font-weight: 620;
-    letter-spacing: -0.01em;
-    color: var(--color-text-strong);
-    text-wrap: balance;
-  }
-
-  .lede {
-    max-width: 39rem;
-    margin-top: 1rem;
-    font-size: 0.98rem;
-    line-height: 1.78;
-    color: var(--color-dim);
-    text-wrap: pretty;
-  }
-
-  .status-bar {
-    min-height: 3.25rem;
-    margin-inline: -1.35rem;
-    padding: 0.65rem 1.35rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    border-top: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-  }
-
-  .meta {
-    display: flex;
-    align-items: stretch;
-    flex-wrap: wrap;
-    gap: 0;
-    margin: 0;
-  }
-
-  .meta-item {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: baseline;
-    gap: 0.45rem;
-    margin: 0;
-    padding-right: 0.8rem;
-    font-size: 0.69rem;
-    white-space: nowrap;
-  }
-
-  .meta-item + .meta-item {
-    padding-left: 0.8rem;
-    border-left: 1px solid var(--color-line);
-  }
-
-  .meta dt {
-    color: var(--color-faint);
-    font-size: 0.59rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .meta dd {
-    margin: 0;
-    color: var(--color-dim);
-  }
-
-  .meta-revision dd {
-    color: color-mix(in srgb, var(--color-warn) 75%, var(--color-text));
-  }
-
-  .meta-action {
-    margin-left: auto;
-  }
-
-  .series {
-    position: relative;
-    margin-bottom: 2.75rem;
-    padding: 1rem 1.15rem 1.05rem;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius);
-    background: var(--color-bg-soft);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-  }
-
-  .series-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .series-identity {
-    min-width: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.65rem;
-  }
-
-  .series-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    color: var(--color-warn);
-    text-transform: uppercase;
-  }
-
-  .series-name {
-    overflow: hidden;
-    color: var(--color-text-strong);
-    font-size: 0.88rem;
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .series-position {
-    flex: 0 0 auto;
-    color: var(--color-faint);
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-  }
-
-  .series-track {
-    height: 2px;
-    margin: 0.85rem 0 0.75rem;
-    overflow: hidden;
-    background: var(--color-line);
-  }
-
-  .series-track span {
-    display: block;
-    width: var(--series-progress);
-    height: 100%;
-    background: linear-gradient(90deg, var(--color-warn), var(--color-accent));
-    box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 25%, transparent);
-  }
-
-  .series-list {
-    display: grid;
-    gap: 0.1rem;
-  }
-
-  .series-item {
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    min-width: 0;
-    padding: 0.25rem 0.45rem;
-    border-left: 1px solid var(--color-line);
-    font-size: 0.82rem;
-    color: var(--color-dim);
-  }
-
-  .series-item::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: -3px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-line-bright);
-    transform: translateY(-50%);
-  }
-
-  .series-n {
-    flex: 0 0 auto;
-    font-size: 0.72rem;
-    color: var(--color-faint);
-  }
-
-  .series-item a,
-  .series-current {
-    min-width: 0;
-    color: var(--color-dim);
-    text-decoration: none;
-  }
-
-  .series-item a:hover {
-    color: var(--color-accent);
-  }
-
-  .series-item.current {
-    border-left-color: var(--color-accent);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 72%);
-  }
-
-  .series-item.current::before {
-    background: var(--color-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 12%, transparent);
-  }
-
-  .series-item.current .series-n,
-  .series-item.current .series-current {
-    color: var(--color-accent);
-  }
-
-  .foot {
-    margin-top: clamp(4rem, 8vw, 6rem);
-  }
-
-  .rail {
-    position: sticky;
-    top: calc(var(--nav-offset, var(--nav-h)) + 2rem);
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 0.9rem 0.9rem 0.8rem;
-    border: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-bg-soft) 72%, transparent);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-  }
-
-  .to-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--color-line);
-    font-size: 0.75rem;
-    color: var(--color-faint);
-    text-decoration: none;
-    transition: color 0.18s;
-  }
-
-  .to-top:hover {
-    color: var(--color-accent);
-  }
-
-  @media (max-width: 1100px) {
-    .layout {
-      grid-template-columns: minmax(0, 1fr);
-      max-width: var(--container-content);
-      margin-inline: auto;
-    }
-    .rail {
-      display: none;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .head {
-      margin-inline: -0.25rem;
-      margin-bottom: 2rem;
-      padding: 0.9rem 1rem 0;
-    }
-
-    .head::before {
-      left: 1rem;
-    }
-
-    .head-cover {
-      bottom: 6.2rem;
-      width: 88%;
-      -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.12) 48%, #000 88%);
-      mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.12) 48%, #000 88%);
-    }
-
-    .head-cover img {
-      opacity: 0.14;
-    }
-
-    .head-top {
-      align-items: flex-start;
-      padding-bottom: 0.8rem;
-    }
-
-    .article-state {
-      margin-top: 0.12rem;
-      font-size: 0.58rem;
-    }
-
-    .head-copy {
-      padding-block: 1.5rem 1.35rem;
-    }
-
-    .eyebrow {
-      font-size: 0.59rem;
-    }
-
-    .title {
-      font-size: clamp(1.75rem, 8.5vw, 2.15rem);
-      line-height: 1.22;
-    }
-
-    .lede {
-      margin-top: 0.8rem;
-      font-size: 0.92rem;
-      line-height: 1.72;
-    }
-
-    .status-bar {
-      margin-inline: -1rem;
-      padding: 0.7rem 1rem;
-      align-items: flex-end;
-    }
-
-    .meta {
-      display: grid;
-      grid-template-columns: auto auto;
-      row-gap: 0.45rem;
-    }
-
-    .meta-item,
-    .meta-item + .meta-item {
-      display: block;
-      padding: 0 0.75rem 0 0;
-      border-left: 0;
-    }
-
-    .meta dt {
-      margin-bottom: 0.08rem;
-    }
-
-    .meta-action {
-      align-self: center;
-    }
-
-    .series {
-      padding-inline: 0.9rem;
-    }
-
-    .series-item {
-      padding-block: 0.35rem;
-    }
-
-  }
-</style>

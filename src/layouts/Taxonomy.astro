@@ -27,20 +27,19 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
 ---
 
 <Base title={`${prefix}${name}`} description={desc}>
-  <header class="taxonomy-head" data-reveal data-parallax="0.06">
-    <a href={kind === 'tag' ? '/tags' : '/tags#categories'} class="back mono">
-      ← {kind === 'tag' ? 'controlled vocabulary' : 'primary domains'}
+  <header class="taxonomy-head">
+    <a href={kind === 'tag' ? '/tags' : '/tags#categories'} class="back">
+      ← {kind === 'tag' ? '标签' : '分类'}
     </a>
     <div class="head-row">
       <div>
-        <p class="head-code mono"><span aria-hidden="true"></span> TAXONOMY DOSSIER / {kind.toUpperCase()}</p>
         <h1><span>{prefix}</span>{name}</h1>
         <p>{posts.length > 0 ? `围绕 ${name} 汇编的代表文章、起步入口与相邻研究信号。` : desc}</p>
       </div>
       <dl class="head-stats mono">
-        <div><dt>articles</dt><dd data-count-up>{String(posts.length).padStart(2, '0')}</dd></div>
-        <div><dt>signals</dt><dd data-count-up>{String(coTags.length).padStart(2, '0')}</dd></div>
-        <div><dt>series</dt><dd data-count-up>{String(connectedSeries.length).padStart(2, '0')}</dd></div>
+        <div><dt>文章</dt><dd>{String(posts.length).padStart(2, '0')}</dd></div>
+        <div><dt>相关标签</dt><dd>{String(coTags.length).padStart(2, '0')}</dd></div>
+        <div><dt>系列</dt><dd>{String(connectedSeries.length).padStart(2, '0')}</dd></div>
       </dl>
     </div>
   </header>
@@ -48,7 +47,7 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
   {representative ? (
     <>
       <section class="lead-grid col-side" aria-labelledby="lead-title" data-reveal>
-        <article class="lead-story" data-spotlight data-tilt data-tilt-strength="2.2">
+        <article class="lead-story">
           <a
             class="lead-cover"
             href={postUrl(representative)}
@@ -59,8 +58,8 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
           >
             <img src={coverSvgUrl(representative)} width="1200" height="630" alt={`《${representative.data.title}》文章封面`} />
           </a>
-          <div class="lead-copy">
-            <p class="mono">REPRESENTATIVE / {formatDate(representative.data.pubDate)}</p>
+          <div class="lead-copy" data-reading-preview>
+            <p class="mono">精选文章 / {formatDate(representative.data.pubDate)}</p>
             <h2 id="lead-title">
               <a
                 href={postUrl(representative)}
@@ -80,8 +79,8 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
 
         <aside class="taxonomy-aside">
           {starter && (
-            <section class="start-card" aria-labelledby="start-title" data-spotlight data-tilt data-tilt-strength="2.5">
-              <p class="mono">START HERE / 0x01</p>
+            <section class="start-card" aria-labelledby="start-title">
+              <p class="mono">从这里开始</p>
               <h2 id="start-title">起步文章</h2>
               <a
                 href={postUrl(starter)}
@@ -97,11 +96,11 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
             </section>
           )}
 
-          <section class="connections" aria-labelledby="connections-title" data-spotlight data-tilt data-tilt-strength="2.5">
+          <section class="connections" aria-labelledby="connections-title">
             <header>
               <div>
-                <p class="mono">CO-OCCURRENCE</p>
-                <h2 id="connections-title">相邻信号</h2>
+                <p class="mono">相关标签</p>
+                <h2 id="connections-title">相关标签</h2>
               </div>
               <span class="mono">{String(coTags.length).padStart(2, '0')}</span>
             </header>
@@ -110,7 +109,7 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
                 {coTags.map((tag) => <a href={tagUrl(tag.name)}>#{tag.name}<sup>{tag.count}</sup></a>)}
               </div>
             ) : (
-              <p class="connection-empty mono">NO_ADJACENT_SIGNALS</p>
+              <p class="connection-empty mono">暂无相关标签</p>
             )}
           </section>
         </aside>
@@ -118,7 +117,7 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
 
       {connectedSeries.length > 0 && (
         <nav class="series-strip mono" aria-label="关联系列" data-reveal>
-          <span>CONNECTED SERIES</span>
+          <span>关联系列</span>
           {connectedSeries.map((series) => <a href={seriesUrl(series)}>{series} ↗</a>)}
         </nav>
       )}
@@ -127,15 +126,15 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
         <section class="ledger" aria-labelledby="ledger-title">
           <header class="ledger-head" data-reveal>
             <div>
-              <p class="mono">DOSSIER LEDGER</p>
+              <p class="mono">更多笔记</p>
               <h2 id="ledger-title">继续浏览</h2>
             </div>
-            <span class="mono">{String(ledger.length).padStart(2, '0')} remaining</span>
+            <span class="mono">{String(ledger.length).padStart(2, '0')} 篇</span>
           </header>
           <ol class="ledger-grid col-side">
             {ledger.map((post, index) => (
               <li data-reveal>
-                <article class="ledger-card" data-spotlight data-tilt data-tilt-strength="2">
+                <article class="ledger-card" data-reading-preview>
                   <a
                     class="ledger-hit"
                     href={postUrl(post)}
@@ -153,7 +152,7 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
                   <footer class="mono">
                     <a href={categoryUrl(post.data.category)}>{post.data.category}</a>
                     {post.data.series && <a href={seriesUrl(post.data.series)}>series / {post.data.series}</a>}
-                    <span aria-hidden="true">open ↗</span>
+                    <span aria-hidden="true">↗</span>
                   </footer>
                 </article>
               </li>
@@ -169,7 +168,7 @@ const ledger = posts.filter((post) => post.id !== representative?.id)
 
 <style>
   .taxonomy-head { position:relative;isolation:isolate;overflow:hidden;margin-bottom:2rem;padding:clamp(1.25rem,3vw,2rem);border:1px solid var(--color-line);background:linear-gradient(110deg,rgb(61 220 132 / .06),transparent 40%),var(--color-panel);box-shadow:var(--shadow-panel),inset 0 1px rgb(255 255 255 / .02); }
-  .taxonomy-head::after { content:'';position:absolute;z-index:-1;inset:-25% auto -25% -25%;width:20%;background:linear-gradient(90deg,transparent,rgb(82 225 152 / .055),transparent);transform:skewX(-18deg);animation:taxonomy-head-scan 8s ease-in-out infinite;pointer-events:none; }
+  .taxonomy-head::after { content:none; }
   .back { display:inline-block;margin-bottom:1.2rem;color:var(--color-faint);font-size:.65rem;text-decoration:none; }
   .back:hover,.back:focus-visible { color:var(--color-accent); }
   .head-row { display:flex;align-items:end;justify-content:space-between;gap:2rem; }

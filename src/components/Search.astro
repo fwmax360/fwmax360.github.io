@@ -307,14 +307,14 @@
   // 索引只在 build 产物里存在，dev 下没有。这里用 new Function 构造 import，
   // 完全绕开 Vite 的静态分析——它会把 import() 包进 preload 辅助函数，
   // 而内联脚本这条路径上 __VITE_PRELOAD__ 占位符不会被替换，运行时直接报错。
-  const dynamicImport = new Function('path', 'return import(path)') as (p: string) => Promise<Pagefind>
+  const pagefindPath = '/pagefind/pagefind.js'
 
   async function loadPagefind() {
     if (pagefind) return
     if (loading) return loading
     loading = (async () => {
       try {
-        pagefind = await dynamicImport('/pagefind/pagefind.js')
+        pagefind = await import(/* @vite-ignore */ pagefindPath) as Pagefind
         await pagefind.init?.()
       } catch {
         pagefind = null
@@ -335,7 +335,7 @@
     ac = new AbortController()
     const { signal } = ac
 
-    const dialog = document.querySelector<HTMLDialogElement>('[data-search]')
+    const dialog = document.querySelector<HTMLDialogElement>('dialog[data-search]')
     const input = document.querySelector<HTMLInputElement>('[data-search-input]')
     const list = document.querySelector<HTMLElement>('[data-search-results]')
     const status = document.querySelector<HTMLElement>('[data-search-status]')

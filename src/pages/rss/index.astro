@@ -10,7 +10,7 @@ const absolutePostUrl = (post: (typeof posts)[number]) => new URL(postUrl(post),
 
 <Base title="RSS" description={`订阅 ${SITE.title} 的文章更新`} width="content">
   <header class="page-head">
-    <h1 class="page-title mono">rss</h1>
+    <h1 class="page-title mono">订阅更新</h1>
     <p class="page-sub">给人看的订阅页。机器请用下面的 feed 地址。</p>
   </header>
 
@@ -32,7 +32,7 @@ const absolutePostUrl = (post: (typeof posts)[number]) => new URL(postUrl(post),
   </section>
 
   <section class="block">
-    <h2 class="kicker">// latest</h2>
+    <h2 class="kicker">最近文章</h2>
     <ul class="list">
       {
         posts.map((post) => (

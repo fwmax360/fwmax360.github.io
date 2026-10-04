@@ -1,0 +1,125 @@
+<script>
+  let cleanup: (() => void) | undefined
+  function setupDetails() {
+    cleanup?.()
+    const root = document.querySelector<HTMLElement>('[data-home-motion]')
+    if (!root) return
+    const controller = new AbortController()
+    const { signal } = controller
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+    const canMove = () => !reduced.matches && document.documentElement.dataset.motion === 'ready'
+    const stage = root.querySelector<HTMLElement>('[data-art-stage]')
+    let artFrame = 0
+    let yaw = 0, pitch = 0
+    let artStart: { x: number; y: number; yaw: number; pitch: number; id: number } | null = null
+    const paintArt = () => {
+      artFrame = 0
+      stage?.style.setProperty('--art-yaw', `${yaw}deg`)
+      stage?.style.setProperty('--art-pitch', `${pitch}deg`)
+    }
+    const requestArt = () => { if (!artFrame) artFrame = requestAnimationFrame(paintArt) }
+    const resetArt = () => { yaw = pitch = 0; requestArt() }
+    stage?.addEventListener('pointerdown', event => {
+      if (!canMove() || root.dataset.homeMotion !== 'on' || event.button !== 0 || !event.isPrimary) return
+      artStart = { x: event.clientX, y: event.clientY, yaw, pitch, id: event.pointerId }
+      stage.setPointerCapture(event.pointerId)
+      stage.dataset.dragging = 'true'
+    }, { signal })
+    stage?.addEventListener('pointermove', event => {
+      if (!artStart || artStart.id !== event.pointerId || !canMove()) return
+      yaw = Math.max(-12, Math.min(12, artStart.yaw + (event.clientX - artStart.x) * .08))
+      pitch = Math.max(-8, Math.min(8, artStart.pitch - (event.clientY - artStart.y) * .05))
+      requestArt()
+    }, { signal })
+    const releaseArt = (event: PointerEvent) => {
+      if (!artStart || artStart.id !== event.pointerId) return
+      artStart = null
+      delete stage!.dataset.dragging
+      if (stage!.hasPointerCapture(event.pointerId)) stage!.releasePointerCapture(event.pointerId)
+      resetArt()
+    }
+    stage?.addEventListener('pointerup', releaseArt, { signal })
+    stage?.addEventListener('pointercancel', releaseArt, { signal })
+    stage?.addEventListener('lostpointercapture', () => { artStart = null; if (stage) delete stage.dataset.dragging; resetArt() }, { signal })
+    stage?.addEventListener('keydown', event => {
+      if (!canMove() || root.dataset.homeMotion !== 'on') return
+      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape','Home'].includes(event.key)) return
+      event.preventDefault()
+      if (event.key === 'Escape' || event.key === 'Home') resetArt()
+      else {
+        yaw = Math.max(-12, Math.min(12, yaw + (event.key === 'ArrowLeft' ? -3 : event.key === 'ArrowRight' ? 3 : 0)))
+        pitch = Math.max(-8, Math.min(8, pitch + (event.key === 'ArrowUp' ? -2 : event.key === 'ArrowDown' ? 2 : 0)))
+        requestArt()
+      }
+    }, { signal })
+    root.querySelector('[data-art-reset]')?.addEventListener('click', resetArt, { signal })
+    reduced.addEventListener('change', () => { if (reduced.matches) resetArt() }, { signal })
+
+    const more = root.querySelector<HTMLButtonElement>('[data-more-posts]')
+    const label = more?.querySelector<HTMLElement>('[data-more-label]')
+    const icon = more?.querySelector<HTMLElement>('[data-more-icon]')
+    const hint = root.querySelector<HTMLElement>('#more-notes-hint')
+    const status = root.querySelector<HTMLElement>('[data-notes-status]')
+    let pullStart: { y: number; id: number } | null = null
+    let distance = 0
+    let dragged = false
+    const remaining = () => [...root.querySelectorAll<HTMLElement>('[data-extra-post][hidden]')]
+    const syncMore = () => {
+      if (!more) return
+      const complete = remaining().length === 0
+      more.disabled = complete
+      more.dataset.pullReady = 'false'
+      if (label) label.textContent = complete ? '已显示全部笔记' : '展开更多笔记'
+      if (icon) icon.textContent = complete ? '✓' : '↓'
+      if (hint) hint.hidden = complete
+    }
+    syncMore()
+    const expand = () => {
+      const batch = remaining().slice(0, 4)
+      batch.forEach(row => {
+        row.hidden = false
+        row.querySelector<HTMLElement>('[data-reveal]')?.setAttribute('data-reveal-state', 'visible')
+        if (canMove()) row.dataset.postEnter = 'true'
+      })
+      if (status && batch.length) status.textContent = `已展开 ${batch.length} 篇笔记${remaining().length ? `，还有 ${remaining().length} 篇` : '，已显示全部'}。`
+      syncMore()
+    }
+    more?.addEventListener('click', event => {
+      if (dragged && event.detail > 0) { dragged = false; return }
+      dragged = false
+      expand()
+    }, { signal })
+    more?.addEventListener('pointerdown', event => {
+      if (more.disabled || !event.isPrimary || event.button !== 0) return
+      dragged = false
+      pullStart = { y: event.clientY, id: event.pointerId }
+      distance = 0
+      more.setPointerCapture(event.pointerId)
+    }, { signal })
+    more?.addEventListener('pointermove', event => {
+      if (!pullStart || pullStart.id !== event.pointerId) return
+      distance = Math.max(0, event.clientY - pullStart.y)
+      if (distance > 8) dragged = true
+      if (canMove()) more.style.setProperty('--pull-offset', `${Math.min(distance * .35, 28)}px`)
+      more.dataset.pullReady = String(distance >= 64)
+      if (label) label.textContent = distance >= 64 ? '松开展开笔记' : '展开更多笔记'
+    }, { signal })
+    const releasePull = (event: PointerEvent) => {
+      if (!pullStart || pullStart.id !== event.pointerId) return
+      const commit = event.type === 'pointerup' && distance >= 64
+      if (event.type === 'pointercancel') dragged = false
+      pullStart = null
+      more!.style.setProperty('--pull-offset', '0px')
+      syncMore()
+      if (commit) expand()
+      if (more!.hasPointerCapture(event.pointerId)) more!.releasePointerCapture(event.pointerId)
+    }
+    more?.addEventListener('pointerup', releasePull, { signal })
+    more?.addEventListener('pointercancel', releasePull, { signal })
+    more?.addEventListener('lostpointercapture', () => { pullStart = null; more!.style.setProperty('--pull-offset', '0px'); syncMore() }, { signal })
+    cleanup = () => { controller.abort(); if (artFrame) cancelAnimationFrame(artFrame) }
+  }
+  setupDetails()
+  document.addEventListener('astro:page-load', setupDetails)
+  document.addEventListener('astro:before-swap', () => cleanup?.())
+</script>

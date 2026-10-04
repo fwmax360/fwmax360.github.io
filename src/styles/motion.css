@@ -37,8 +37,7 @@
   block-size: 100%;
   transform: scaleX(var(--motion-progress));
   transform-origin: left center;
-  background: linear-gradient(90deg, #30d989, #67e8f9 70%, #c4fff0);
-  box-shadow: 0 0 10px rgb(82 225 152 / 0.65), 0 0 24px rgb(103 232 249 / 0.2);
+  background: var(--color-accent);
   will-change: transform;
 }
 
@@ -306,7 +305,24 @@ html[data-motion='off'] .scroll-miku,
 html[data-motion='off'] #live2d-host,
 html[data-motion='off'] #live2d-widget,
 html[data-motion='off'] .motion-progress,
-html[data-motion='off'] .motion-ambient,
+html[data-motion='off'] .motion-ambient {
+  display: none !important;
+}
+
+/* 倾斜、视差、跟随光斑和扫描线不再参与阅读。 */
+html[data-motion='ready'] [data-tilt],
+html[data-motion='ready'] [data-tilt][data-tilt-active='true'],
+html[data-motion='ready'] [data-parallax] {
+  transform: none !important;
+}
+
+.motion-spotlight-layer,
+.motion-page-scan,
+.motion-cursor-orb,
+.motion-dust {
+  display: none !important;
+}
+
 html[data-motion='off'] .motion-page-scan {
   display: none !important;
 }
