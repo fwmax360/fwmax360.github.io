@@ -81,17 +81,17 @@
 
 
 
-      <rect x="72" y="480" width="73" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="82" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#52e198"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">Linux</text>
 
-      <rect x="155" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="169" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="179" y="500.5" class="chip" fill="#93a1b2">FD</text>
+      <rect x="164" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="178" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="188" y="500.5" class="chip" fill="#93a1b2">FD</text>
 
-      <rect x="227" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="241" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="251" y="500.5" class="chip" fill="#93a1b2">系统</text>
+      <rect x="236" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="250" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="260" y="500.5" class="chip" fill="#93a1b2">系统</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

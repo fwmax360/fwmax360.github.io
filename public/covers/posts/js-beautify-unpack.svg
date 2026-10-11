@@ -77,21 +77,21 @@
 
 
 
-      <rect x="72" y="480" width="105" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="117" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#52e198"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">javascript</text>
 
-      <rect x="187" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="201" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="211" y="500.5" class="chip" fill="#93a1b2">解包</text>
+      <rect x="199" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="213" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="223" y="500.5" class="chip" fill="#93a1b2">解包</text>
 
-      <rect x="259" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="273" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="283" y="500.5" class="chip" fill="#93a1b2">美化</text>
+      <rect x="277" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="291" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="301" y="500.5" class="chip" fill="#93a1b2">美化</text>
 
-      <rect x="331" y="480" width="74" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="345" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="355" y="500.5" class="chip" fill="#93a1b2">小程序</text>
+      <rect x="355" y="480" width="82" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="369" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="379" y="500.5" class="chip" fill="#93a1b2">小程序</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

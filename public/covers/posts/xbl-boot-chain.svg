@@ -77,21 +77,21 @@
 
 
 
-      <rect x="72" y="480" width="94" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="105" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#ae91ff"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">Security</text>
 
-      <rect x="176" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="190" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="200" y="500.5" class="chip" fill="#93a1b2">XBL</text>
+      <rect x="187" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="201" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="211" y="500.5" class="chip" fill="#93a1b2">XBL</text>
 
-      <rect x="251" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="265" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="275" y="500.5" class="chip" fill="#93a1b2">ABL</text>
+      <rect x="269" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="283" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="293" y="500.5" class="chip" fill="#93a1b2">ABL</text>
 
-      <rect x="326" y="480" width="114" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="340" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="350" y="500.5" class="chip" fill="#93a1b2">Secure Boot</text>
+      <rect x="351" y="480" width="128" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="365" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="375" y="500.5" class="chip" fill="#93a1b2">Secure Boot</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

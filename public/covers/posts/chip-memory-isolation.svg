@@ -81,21 +81,21 @@
 
 
 
-      <rect x="72" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#ae91ff"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">芯片</text>
 
-      <rect x="144" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="158" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="168" y="500.5" class="chip" fill="#93a1b2">内存</text>
+      <rect x="150" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="164" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="174" y="500.5" class="chip" fill="#93a1b2">内存</text>
 
-      <rect x="216" y="480" width="71" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="230" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="240" y="500.5" class="chip" fill="#93a1b2">MMU</text>
+      <rect x="228" y="480" width="79" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="242" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="252" y="500.5" class="chip" fill="#93a1b2">MMU</text>
 
-      <rect x="297" y="480" width="80" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="311" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="321" y="500.5" class="chip" fill="#93a1b2">SMMU</text>
+      <rect x="317" y="480" width="89" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="331" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="341" y="500.5" class="chip" fill="#93a1b2">SMMU</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

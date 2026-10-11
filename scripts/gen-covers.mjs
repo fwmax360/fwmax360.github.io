@@ -350,7 +350,8 @@ function chipSvg(tags, accent) {
   let x = 72
   const elements = []
   for (const tag of tags.slice(0, 4)) {
-    const width = Math.ceil(Math.max(62, 36 + textWeight(tag) * 12.5))
+    // Small bold labels need extra glyph/padding budget across Linux fallback fonts.
+    const width = Math.ceil(Math.max(62, 40 + textWeight(tag) * 14))
     if (x + width > 790) break
     elements.push(`
       <rect x="${x}" y="480" width="${width}" height="31" rx="4" fill="${COLORS.surfaceRaised}" stroke="${COLORS.line}"/>

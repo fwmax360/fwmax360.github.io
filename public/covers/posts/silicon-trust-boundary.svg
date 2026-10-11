@@ -77,17 +77,17 @@
 
 
 
-      <rect x="72" y="480" width="86" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="96" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#52e198"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">示例文章</text>
 
-      <rect x="168" y="480" width="103" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="182" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="192" y="500.5" class="chip" fill="#93a1b2">TrustZone</text>
+      <rect x="178" y="480" width="115" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="192" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="202" y="500.5" class="chip" fill="#93a1b2">TrustZone</text>
 
-      <rect x="281" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="295" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="305" y="500.5" class="chip" fill="#93a1b2">TEE</text>
+      <rect x="303" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="317" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="327" y="500.5" class="chip" fill="#93a1b2">TEE</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

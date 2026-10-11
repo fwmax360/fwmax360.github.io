@@ -20,4 +20,4 @@ for(const [engine,type] of Object.entries({chromium,webkit,firefox})){
  }}finally{await b.close();}
 }
 await writeFile(new URL('verification.json',out),JSON.stringify({cases:rows.length,rows,scope:'Actual SVG glyph geometry in local engines with available system fonts, not every operating system font'},null,2));
-const failed=rows.filter(r=>r.failures.length);if(failed.length)console.log(JSON.stringify(failed,null,2));assert.equal(failed.length,0,'Title enters diagram/margins or exceeds vertical budget');console.log(`${rows.length} actual SVG title layout cases passed`);
+const failed=rows.filter(r=>r.failures.length);if(failed.length)console.log(JSON.stringify(failed,null,2));assert.equal(failed.length,0,'Cover title or tag exceeds its reserved bounds');console.log(`${rows.length} actual SVG title layout cases passed`);

@@ -77,21 +77,21 @@
 
 
 
-      <rect x="72" y="480" width="94" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="105" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#65d9ed"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">Launcher</text>
 
-      <rect x="176" y="480" width="73" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="190" cy="495.5" r="2.5" fill="#65d9ed"/>
-      <text x="200" y="500.5" class="chip" fill="#93a1b2">Frida</text>
+      <rect x="187" y="480" width="82" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="201" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="211" y="500.5" class="chip" fill="#93a1b2">Frida</text>
 
-      <rect x="259" y="480" width="86" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="273" cy="495.5" r="2.5" fill="#65d9ed"/>
-      <text x="283" y="500.5" class="chip" fill="#93a1b2">动态调试</text>
+      <rect x="279" y="480" width="96" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="293" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="303" y="500.5" class="chip" fill="#93a1b2">动态调试</text>
 
-      <rect x="355" y="480" width="163" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="369" cy="495.5" r="2.5" fill="#65d9ed"/>
-      <text x="379" y="500.5" class="chip" fill="#93a1b2">Android Framework</text>
+      <rect x="385" y="480" width="182" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="399" cy="495.5" r="2.5" fill="#65d9ed"/>
+      <text x="409" y="500.5" class="chip" fill="#93a1b2">Android Framework</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

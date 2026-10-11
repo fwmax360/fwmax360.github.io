@@ -77,21 +77,21 @@
 
 
 
-      <rect x="72" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#ae91ff"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">ABL</text>
 
-      <rect x="147" y="480" width="87" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="161" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="171" y="500.5" class="chip" fill="#93a1b2">Android</text>
+      <rect x="154" y="480" width="97" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="168" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="178" y="500.5" class="chip" fill="#93a1b2">Android</text>
 
-      <rect x="244" y="480" width="74" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="258" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="268" y="500.5" class="chip" fill="#93a1b2">启动链</text>
+      <rect x="261" y="480" width="82" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="275" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="285" y="500.5" class="chip" fill="#93a1b2">启动链</text>
 
-      <rect x="328" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="342" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="352" y="500.5" class="chip" fill="#93a1b2">GKI</text>
+      <rect x="353" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="367" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="377" y="500.5" class="chip" fill="#93a1b2">GKI</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>

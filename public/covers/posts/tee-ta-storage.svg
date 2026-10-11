@@ -77,21 +77,21 @@
 
 
 
-      <rect x="72" y="480" width="65" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <rect x="72" y="480" width="72" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#ae91ff"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">TEE</text>
 
-      <rect x="147" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="161" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="171" y="500.5" class="chip" fill="#93a1b2">TA</text>
+      <rect x="154" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="168" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="178" y="500.5" class="chip" fill="#93a1b2">TA</text>
 
-      <rect x="219" y="480" width="77" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="233" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="243" y="500.5" class="chip" fill="#93a1b2">RPMB</text>
+      <rect x="226" y="480" width="86" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="240" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="250" y="500.5" class="chip" fill="#93a1b2">RPMB</text>
 
-      <rect x="306" y="480" width="86" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="320" cy="495.5" r="2.5" fill="#ae91ff"/>
-      <text x="330" y="500.5" class="chip" fill="#93a1b2">可信存储</text>
+      <rect x="322" y="480" width="96" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="336" cy="495.5" r="2.5" fill="#ae91ff"/>
+      <text x="346" y="500.5" class="chip" fill="#93a1b2">可信存储</text>
 
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
   <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>
