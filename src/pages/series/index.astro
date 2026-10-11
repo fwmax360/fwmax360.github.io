@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro'
+import { coverSvgUrl } from '../../lib/covers'
 import { formatDate, postUrl } from '../../lib/posts'
 import { getSeriesSummaries, seriesUrl } from '../../lib/series'
 import '../../styles/series-open.css'
@@ -13,7 +14,7 @@ const articleCount = series.reduce((total, item) => total + item.count, 0)
   <section class="paths-list" aria-label="技术系列阅读路径">
     {series.map((item,index) => <article class="path-entry">
       <span class="path-number" aria-hidden="true">{String(index+1).padStart(2,'0')}</span>
-      <div class="path-copy"><p class="path-category">{item.categories.join(' / ')}</p><h2><a href={seriesUrl(item.name)}>{item.name}<span aria-hidden="true">↗</span></a></h2><p class="path-date">更新于 {formatDate(item.lastUpdatedAt)}</p><a class="path-start" href={seriesUrl(item.name)}>浏览完整路径 · {item.count} 篇 <span aria-hidden="true">→</span></a></div>
+      <div class="path-copy">{item.posts[0] && <a class="path-art" href={seriesUrl(item.name)} tabindex="-1" aria-hidden="true"><img src={coverSvgUrl(item.posts[0])} width="1200" height="630" alt="" loading="lazy" decoding="async" /></a>}<p class="path-category">{item.categories.join(' / ')}</p><h2><a href={seriesUrl(item.name)}>{item.name}<span aria-hidden="true">↗</span></a></h2><p class="path-date">更新于 {formatDate(item.lastUpdatedAt)}</p><a class="path-start" href={seriesUrl(item.name)}>浏览完整路径 · {item.count} 篇 <span aria-hidden="true">→</span></a></div>
       <ol class="path-chapters" aria-label={`${item.name}的前几篇笔记`}>{item.posts.slice(0,3).map((post,i)=><li><span aria-hidden="true">{String(post.data.order ?? i+1).padStart(2,'0')}</span><a href={postUrl(post)}>{post.data.title}</a></li>)}</ol>
     </article>)}
     {series.length === 0 && <p class="paths-empty">还没有系列。先从<a href="/archive/">全部笔记</a>里随意看看。</p>}

@@ -30,6 +30,7 @@ const series = await getSeriesSummaries()
       <section class="feature-section" aria-labelledby="featured-heading" data-hero-enter data-reading-preview>
         <div class="section-head"><h2 id="featured-heading">最新笔记</h2></div>
         <article class="featured">
+          <a class="feature-cover" href={postUrl(featured)} aria-label={`阅读《${featured.data.title}》`}><img src={coverSvgUrl(featured)} width="1200" height="630" alt="" decoding="async" loading="lazy" /></a>
           <div class="feature-copy">
             <div class="meta"><a href={categoryUrl(featured.data.category)}>{featured.data.category}</a><span aria-hidden="true">·</span><time datetime={featured.data.pubDate.toISOString()}>{formatDate(featured.data.pubDate)}</time></div>
             <h3><a href={postUrl(featured)}>{featuredTitleParts ? <><span class="feature-title-context">{featuredTitleParts[1]}</span><span class="feature-title-main">{featuredTitleParts[2]}</span></> : featured.data.title}</a></h3>
@@ -45,13 +46,14 @@ const series = await getSeriesSummaries()
 
     <section class="research-paths" aria-labelledby="paths-heading">
       <header class="section-head"><div><h2 id="paths-heading">研究方向</h2></div><a href="/map/">打开图谱 <span aria-hidden="true">↗</span></a></header>
-      <div class="path-grid" style={`--path-columns: ${Math.min(4, categories.length)}`}>{categories.map((category) => <a class="research-path" href={categoryUrl(category.name)}><h3>{category.name}</h3><span class="path-count">{category.count} 篇笔记</span><span class="path-arrow" aria-hidden="true">↗</span></a>)}</div>
+      <div class="path-grid" style={`--path-columns: ${Math.min(4, categories.length)}`}>{categories.map((category,index) => <a class="research-path" data-spotlight style="--spotlight-color:#bccad8" href={categoryUrl(category.name)}><span class="path-index" aria-hidden="true">0{index+1}</span><h3>{category.name}</h3><span class="path-count">{category.count} 篇笔记</span><span class="path-arrow" aria-hidden="true">↗</span></a>)}</div>
     </section>
 
     <div class="reading-grid" id="notes">
       {recent.length > 0 && <section class="list" aria-labelledby="recent-heading">
         <header class="section-head"><div><h2 id="recent-heading">笔记</h2></div><a href="/archive">全部文章 <span aria-hidden="true">↗</span></a></header>
         <ol id="recent-posts">{recent.map((post, index) => <li data-extra-post={index >= initialRecentCount ? true : undefined} hidden={index >= initialRecentCount}><article data-reading-preview data-note-hover data-note-cover={coverSvgUrl(post)} data-note-color={noteAccent(post.data)} style={`--note-color:${noteAccent(post.data)}`}>
+          <a class="note-thumb" href={postUrl(post)} tabindex="-1" aria-hidden="true"><img src={coverSvgUrl(post)} width="1200" height="630" alt="" loading="lazy" decoding="async" /></a>
           <div class="meta"><a href={categoryUrl(post.data.category)}>{post.data.category}</a><span aria-hidden="true">·</span><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time></div>
           <h3><a href={postUrl(post)}>{post.data.title}<span class="note-arrow" aria-hidden="true">↗</span></a></h3>
           <p class="row-desc">{post.data.description}</p>

@@ -66,3 +66,14 @@
 .article-editorial .prose .code-block pre { border-radius: 0; }
 .article-editorial .code-copy { min-height: 36px; }
 @media (pointer: coarse) { .article-editorial .code-copy { min-height: 44px; } }
+
+/* Reading gets a quiet title light, a floating table of contents, and no ambient animation. */
+body.article-editorial .head { position: relative; isolation: isolate; }
+body.article-editorial .head::before { content: ''; position: absolute; inset: -24px 0 -8px; z-index: -1; pointer-events: none; border-radius: 24px; background: radial-gradient(ellipse at 18% 0%,rgb(154 177 197 / .095),transparent 75%); }
+body.article-editorial .rail { padding: 16px; border-radius: 18px; background: rgb(157 179 198 / .035); box-shadow: inset 0 1px rgb(255 255 255 / .075); }
+body.article-editorial .series { padding-inline: 16px; border-radius: 14px; background: rgb(157 179 198 / .05); box-shadow: inset 0 1px rgb(255 255 255 / .07); }
+body.article-editorial :is(.to-top,.foot) { border-top: 0; }
+body.article-editorial .prose .code-block { border-radius: 12px; box-shadow: inset 0 1px rgb(255 255 255 / .06),0 16px 40px -32px #000; }
+
+@media(max-width:700px) { body.article-editorial .series { padding-inline: 12px; } }
+@media print { body.article-editorial .head::before { display: none; } body.article-editorial .series { padding: 0; background: none; } }

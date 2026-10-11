@@ -1,0 +1,157 @@
+/* Studio extension of the approved Silicon art direction.
+   Primary: existing black/silver Silicon product canvas and actual local cover art.
+   Bounded references: Apple product-page media hierarchy; Linear UI state hierarchy;
+   Refero craft: interaction-only surfaces, preserved type scaling, native focus/fallbacks.
+   No new WebGL, continuous ambient loop, fake diagrams or motion over article copy. */
+body:not(.silicon-editorial):not(.chip-preview) .page-fg::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: 920px; z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 84% 3%,rgb(127 149 168 / .10),transparent 48%),
+    radial-gradient(ellipse at 4% 35%,rgb(116 131 143 / .055),transparent 45%);
+}
+/* Navigation keeps its measured height and content grid; the material is a layer,
+   not a layout-changing fixed capsule. Active location is visible without a rule. */
+body .page-fg > .nav { border-bottom: 0; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+body .nav-inner { position: relative; isolation: isolate; }
+body .nav-inner::before {
+  content: ''; position: absolute; inset: 6px 0; z-index: -1; border-radius: 999px;
+  background: linear-gradient(120deg,rgb(43 48 52 / .94),rgb(22 25 27 / .96));
+  box-shadow: inset 0 1px rgb(231 240 248 / .12),inset 0 -1px rgb(0 0 0 / .42),0 8px 24px -18px #000;
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+body .page-fg :is(.nav-link,.search-trigger) { border-radius: 999px; }
+body .page-fg .nav-link.active { color: #edf1f4; background: rgb(199 213 226 / .12); box-shadow: inset 0 1px rgb(255 255 255 / .10); }
+body .page-fg .nav-link.active::after { display: none; }
+body .page-fg .nav-link:hover { background: rgb(199 213 226 / .08); }
+body .page-fg > .footer { border-top: 0; background: linear-gradient(180deg,transparent,rgb(121 141 159 / .045)); }
+
+/* Homepage: open studio canvas, then an image-led dispatch and reading shelves.
+   The main heading/caption/metadata scale remains the established accessible ramp. */
+body.home-editorial .research-opening { border: 0; border-radius: 0; background: none; padding-inline: 24px; }
+body.home-editorial .research-opening::before {
+  content: ''; position: absolute; inset: 8% 0 2%; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 73% 43%,rgb(168 189 207 / .15),transparent 48%);
+}
+body.home-editorial .home-hero { grid-template-columns: .95fr 1.1fr; gap: 12px; }
+body.home-editorial .opening-foot { border-top: 0; padding-top: 4px; }
+body.home-editorial .opening-foot > span { display: inline-flex; align-items: center; gap: 8px; }
+body.home-editorial .opening-foot b { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: rgb(192 207 220 / .085); box-shadow: inset 0 1px rgb(255 255 255 / .08); margin: 0; }
+body.home-editorial .silicon-stage .silicon-feature-copy { border-top: 0; background: linear-gradient(120deg,rgb(150 173 191 / .085),rgb(32 38 43 / .35)); border-radius: 16px; box-shadow: inset 0 1px rgb(233 245 255 / .10); }
+body.home-editorial .stage-ring { border-style: solid; border-color: rgb(137 153 157 / .14); }
+body.home-editorial .stage-ring::after { border-style: solid; border-color: rgb(137 153 157 / .09); }
+body.home-editorial .home .feature-section { margin-top: 28px; padding: 24px; border-radius: 24px; color: var(--color-text); background: linear-gradient(125deg,#292e32,#171c20 68%); box-shadow: inset 0 1px rgb(232 244 255 / .12),0 28px 64px -50px #000; }
+body.home-editorial .home .feature-section > .section-head h2 { color: #c3ccd4; }
+body.home-editorial .home .featured { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); align-items: center; gap: 40px; }
+body.home-editorial .feature-cover { display: block; overflow: hidden; border-radius: 12px; background: #111417; box-shadow: 0 18px 40px -26px #000; }
+body.home-editorial .feature-cover img { display: block; width: 100%; height: auto; transition: transform 500ms var(--ease-out-expo); }
+body.home-editorial .home .feature-copy { display: block; min-width: 0; }
+body.home-editorial .home .featured :is(h3,.feature-title-main) { color: #eef2f5; }
+body.home-editorial .home .featured :is(.meta,.feature-desc,.feature-title-context) { color: #b8c3cc; }
+body.home-editorial .home .read-link { margin-top: 18px; border: 0; color: #f0f4f7; background: rgb(193 211 226 / .10); box-shadow: inset 0 1px rgb(255 255 255 / .13); }
+body.home-editorial .home .read-link:hover { background: rgb(193 211 226 / .18); }
+body.home-editorial .home .feature-section a:focus-visible { outline-color: #c6d9e9; }
+body.home-editorial .home .path-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+body.home-editorial .home .research-path { position: relative; display: grid; grid-template-columns: 48px minmax(0,1fr) auto; align-items: center; gap: 8px 20px; padding: 24px; border-radius: 18px; background: linear-gradient(130deg,#23292e,#171b1e); box-shadow: inset 0 1px rgb(255 255 255 / .09); }
+body.home-editorial .path-index { grid-row: 1/3; font-family: var(--font-mono); font-size: 1.375rem; color: #9facb8; }
+body.home-editorial .research-path h3 { grid-column: 2; }
+body.home-editorial .path-count { grid-column: 2; }
+body.home-editorial .path-arrow { grid-column: 3; grid-row: 1/3; }
+body.home-editorial .home .list li { padding-block: 24px; }
+body.home-editorial .home .list li article { grid-template-columns: 184px minmax(0,1fr) 150px; gap: 8px 32px; padding: 16px; margin-inline: -16px; border-radius: 16px; transition: background-color 220ms; }
+body.home-editorial .note-thumb { grid-column: 1; grid-row: 1/3; align-self: center; border-radius: 10px; overflow: hidden; background: #171c20; box-shadow: 0 12px 32px -24px #000; }
+body.home-editorial .note-thumb img { display: block; width: 100%; height: auto; transition: transform 450ms var(--ease-out-expo); }
+body.home-editorial .home .list h3 { grid-column: 2; }
+body.home-editorial .home .row-desc { grid-column: 2; }
+body.home-editorial .home .list .meta { grid-column: 3; }
+body.home-editorial .home .row-read { grid-column: 3; }
+body.home-editorial .home .list article:focus-within { background: rgb(154 177 197 / .055); }
+body.home-editorial .home .series-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+body.home-editorial .home .series-grid a { padding: 24px; border-radius: 16px; background: linear-gradient(140deg,rgb(158 181 199 / .10),rgb(158 181 199 / .025)); box-shadow: inset 0 1px rgb(255 255 255 / .06); min-width: 0; }
+body.home-editorial .home .series-grid h3 { min-width: 0; }
+
+/* Each index gets a distinct title composition, not identical rule-separated rows. */
+body.atlas-mode :is(.notebook-head,.paths-head,.connections-head,.terms-intro,.route-intro,.about-intro) { position: relative; isolation: isolate; }
+body.atlas-mode :is(.notebook-head,.paths-head,.connections-head,.terms-intro,.route-intro,.about-intro)::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none; inset: -24px -20px -20px;
+  border-radius: 28px; background: radial-gradient(ellipse at 76% 0%,rgb(130 155 178 / .10),transparent 68%);
+}
+body.atlas-mode :is(.notebook-intro,.paths-intro,.connections-intro,.terms-intro) h1 { color: #e8edf1; }
+body.atlas-mode .archive-tools { padding: 8px 20px; border-radius: 18px; background: linear-gradient(125deg,rgb(154 177 197 / .075),rgb(154 177 197 / .025)); box-shadow: inset 0 1px rgb(255 255 255 / .07); }
+body.atlas-mode .archive-controls { column-gap: 20px; }
+body.atlas-mode :is(.archive-controls select,.category-field select) { padding-left: 12px; border: 0; border-radius: 10px; background: #23292d; box-shadow: inset 0 1px rgb(255 255 255 / .09); }
+body.atlas-mode .density-switch button { border: 0; padding-inline: 12px; border-radius: 10px; }
+body.atlas-mode .density-switch button[aria-pressed='true'] { background: rgb(192 210 226 / .13); box-shadow: inset 0 1px rgb(255 255 255 / .10); }
+body.atlas-mode .archive-entry { border-radius: 16px; padding-inline: 16px; margin-inline: -16px; transition: background-color 200ms; }
+body.atlas-mode .archive-entry:focus-within { background: rgb(154 177 197 / .06); }
+body.atlas-mode .archive-inspector { padding: 20px; border-radius: 20px; background: linear-gradient(145deg,rgb(154 177 197 / .075),rgb(154 177 197 / .015)); box-shadow: inset 0 1px rgb(255 255 255 / .09); }
+body.atlas-mode .inspector-cover { border-radius: 10px; margin-top: 16px; }
+body.series-open .path-entry { position: relative; padding: 28px 24px; margin-bottom: 24px; border-radius: 22px; background: linear-gradient(120deg,rgb(157 179 198 / .075),rgb(157 179 198 / .015)); box-shadow: inset 0 1px rgb(255 255 255 / .075); }
+body.series-open .path-art { display: block; width: 100%; max-width: 330px; border-radius: 10px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 16px 32px -24px #000; }
+body.series-open .path-art img { display: block; width: 100%; height: auto; transition: transform 450ms var(--ease-out-expo); }
+body.series-open .path-number { font-family: var(--font-mono); font-style: normal; font-size: 2rem; color: #b1bec9; }
+body.series-open .path-chapters { align-self: center; }
+body.taxonomy-open .terms-context { padding: 24px; border-radius: 22px; background: linear-gradient(130deg,rgb(158 181 199 / .085),rgb(158 181 199 / .025)); box-shadow: inset 0 1px rgb(255 255 255 / .08); }
+body.taxonomy-open :is(.terms-context nav,.term-flow,.related-tags) { gap: 8px 12px; }
+body.taxonomy-open :is(.terms-context a,.term-flow a,.related-tags a) { border-radius: 10px; padding: 8px 12px; background: rgb(164 184 200 / .055); }
+body.taxonomy-open :is(.terms-context a,.term-flow a,.related-tags a):is(:hover,:focus-visible) { background: rgb(164 184 200 / .12); }
+body.taxonomy-open .tag-search input { background: #20262b; border: 0; border-radius: 10px; padding-inline: 12px; }
+body.taxonomy-open .tag-group { border-radius: 20px; padding: 24px; background: rgb(157 179 198 / .025); }
+body.taxonomy-open .topic-related { padding: 20px; border-radius: 18px; background: rgb(157 179 198 / .045); box-shadow: inset 0 1px rgb(255 255 255 / .075); }
+body.taxonomy-open .topic-cover { border-radius: 14px; overflow: hidden; }
+body.map-open .map-inspector { border-radius: 18px; background: linear-gradient(140deg,rgb(157 179 198 / .075),rgb(157 179 198 / .025)); }
+body.map-open .query-control { border: 0; border-radius: 10px; padding-inline: 12px; background: #23292d; }
+body.about-open .about-intro-note { padding: 24px; border-radius: 20px; background: linear-gradient(135deg,rgb(157 179 198 / .10),rgb(157 179 198 / .025)); box-shadow: inset 0 1px rgb(255 255 255 / .09); }
+body.about-open .about-methods li { padding: 24px; border-radius: 16px; background: rgb(157 179 198 / .045); }
+body.about-open .about-faqs details[open] { border-radius: 14px; padding: 16px 20px; background: rgb(157 179 198 / .06); }
+body.utility-open :is(.subscription,.missing-page) { padding: 24px; border-radius: 20px; background: linear-gradient(135deg,rgb(157 179 198 / .09),rgb(157 179 198 / .025)); box-shadow: inset 0 1px rgb(255 255 255 / .08); }
+
+@media (hover:hover) and (pointer:fine) {
+  body.home-editorial .home .list article:hover,body.atlas-mode .archive-entry:hover { background: rgb(154 177 197 / .055); }
+  html[data-motion='ready'] body.home-editorial :is(.feature-cover,.note-thumb):hover img,
+  html[data-motion='ready'] body.series-open .path-art:hover img { transform: scale(1.025); }
+}
+@media(max-width:1000px) {
+  body.home-editorial .home .list li article { grid-template-columns: 124px minmax(0,1fr) 120px; gap: 8px 20px; }
+  body.home-editorial .home .featured { gap: 24px; }
+  body.home-editorial .home .series-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:700px) {
+  body.atlas-mode :is(.notebook-head,.paths-head,.connections-head,.terms-intro,.route-intro,.about-intro)::before { inset-inline: 0; }
+  body .nav-inner::before { inset-inline: 8px; border-radius: 16px; }
+  body.home-editorial .research-opening { padding-inline: 4px; }
+  body.home-editorial .home-hero { grid-template-columns: minmax(0,1fr); }
+  body.home-editorial .opening-foot b { width: 30px; height: 30px; }
+  body.home-editorial .silicon-stage .silicon-feature-copy { padding: 10px 12px; }
+  body.home-editorial .home .feature-section { margin-top: 16px; padding: 18px 20px; border-radius: 18px; }
+  body.home-editorial .home .featured { display: block; }
+  body.home-editorial .feature-cover { display: none; }
+  body.home-editorial .home .read-link { margin-top: 12px; }
+  body.home-editorial .home .path-grid { gap: 12px; }
+  body.home-editorial .home .research-path { grid-template-columns: minmax(0,1fr) auto; padding: 16px; gap: 8px; }
+  body.home-editorial .path-index { display: none; }
+  body.home-editorial .research-path h3,body.home-editorial .path-count { grid-column: 1; }
+  body.home-editorial .path-arrow { grid-column: 2; }
+  body.home-editorial .home .list li article { display: block; padding: 16px; }
+  body.home-editorial .note-thumb { float: right; width: 100px; margin: 0 0 12px 16px; }
+  body.home-editorial .home .list h3 { clear: both; }
+  body.home-editorial .home .list article::after { content: ''; display: block; clear: both; }
+  body.home-editorial .home .series-grid { grid-template-columns: minmax(0,1fr); }
+  body.home-editorial .home .series-grid a { padding: 20px; }
+  body.series-open .path-entry { padding: 20px 16px; gap: 0 16px; }
+  body.series-open .path-art { display: none; }
+  body.series-open .path-number { font-size: 1.5rem; }
+  body.taxonomy-open :is(.terms-context,.tag-group) { padding: 20px 16px; }
+  body.taxonomy-open .topic-related { position: static; }
+  body.about-open .about-methods li { padding: 16px; }
+  body.utility-open :is(.subscription,.missing-page) { padding: 20px; }
+}
+@media(prefers-reduced-motion:reduce),print {
+  body :is(.feature-cover,.note-thumb,.path-art) img { transform: none!important; transition: none!important; }
+}
+@media(forced-colors:active) {
+  body .nav-inner::before { background: Canvas; border: 1px solid CanvasText; }
+  body .page-fg .nav-link.active { outline: 1px solid Highlight; color: Highlight; }
+}
+@media print {
+  body .nav-inner::before,body .page-fg::before { display: none; }
+}

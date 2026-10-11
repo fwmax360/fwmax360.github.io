@@ -21,6 +21,10 @@ for (const [engine, type] of Object.entries({ chromium, webkit, firefox })) {
   assert(next > 0)
   const third = covers.findIndex(cover => cover !== covers[0] && cover !== covers[next])
   assert(third > 0)
+  // Inline thumbnails now legitimately warm the image cache. Give only the
+  // delayed preview sources a fresh URL so this fixture still exercises real
+  // pending requests, stale completions and dismissal rather than cached loads.
+  for (const index of [next, third]) await items.nth(index).evaluate((item, cover) => { item.dataset.noteCover = cover + '?preview=loading-fixture' }, covers[index])
   const delayed = new Set([covers[next], covers[third]])
   await page.route('**/covers/posts/*.svg*', async route => {
    const path = new URL(route.request().url()).pathname
@@ -44,7 +48,7 @@ for (const [engine, type] of Object.entries({ chromium, webkit, firefox })) {
   const obsoleteVisible = await page.locator('[data-note-preview]').getAttribute('data-visible') !== null
   held.get(covers[third])(); held.delete(covers[third])
   await page.waitForSelector('[data-note-preview][data-visible]')
-  assert.equal(await page.locator('[data-note-preview-image]').getAttribute('src'), covers[third])
+  assert.equal(await page.locator('[data-note-preview-image]').getAttribute('src'), covers[third] + '?preview=loading-fixture')
   assert(await page.locator('[data-note-preview-image]').evaluate(img => img.complete && img.naturalWidth > 0 && img.currentSrc === img.src))
   await page.waitForTimeout(350)
   await page.screenshot({ path: new URL(`${engine}-${phase}.png`, out).pathname })
