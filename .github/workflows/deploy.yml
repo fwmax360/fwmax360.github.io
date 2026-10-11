@@ -63,37 +63,21 @@ jobs:
             if curl --silent --fail http://127.0.0.1:4322/ > /dev/null; then break; fi
             sleep 1
           done
-          npm run test:quality
-          npm run test:archive
-          npm run test:archive-preview-loading
-          npm run test:cover-editorial
-          npm run test:index-type-scale
-          npm run test:type-hierarchy
-          npm run test:series
-          npm run test:map
-          npm run test:map-reading-return
-          npm run test:map-input-stress
-          npm run test:reader
-          npm run test:note-hover
-          npm run test:note-preview-loading
-          npm run test:note-color-coherence
-          npm run test:note-polish
-          npm run test:note-preview-placement
-          npm run test:navigation-glow
-          npm run test:cover-layout
-          npm run test:taxonomy
-          npm run test:about
-          npm run test:utility-open
-          npm run test:native-nav
-          npm run test:home-reading-return
-          npm run test:home-static-entry
-          npm run test:fonts
-          npm run test:article-font-budget
-          npm run test:style-boundaries
-          npm run test:cross-browser
-          npm run test:chip-startup
-          npm run test:silicon-static-reading
-          npm run test:chip-reading-anchor
+          curl --silent --fail http://127.0.0.1:4322/ > /dev/null
+          npm run test:release
+
+      - name: Upload failed quality-check diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-check-diagnostics
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            artifacts/release-check/*.log
+            artifacts/release-check/verification.json
+            artifacts/home-human/failure.png
+            artifacts/home-human/failure.json
 
       - uses: actions/configure-pages@v5
 
