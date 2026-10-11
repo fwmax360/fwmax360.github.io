@@ -19,6 +19,7 @@ const linkAttrs = (href: string) => {
     <div>
       <p class="name">{SITE.title}</p>
       <p class="desc">{SITE.description}</p>
+      <button type="button" class="studio-light-toggle" data-studio-light-toggle aria-label="切换页面柔光动效" aria-pressed="true" hidden>柔光：开启</button>
     </div>
     <nav aria-label="页脚">
       {NAV.map((item) => <a href={item.href}>{item.label}</a>)}

@@ -1,0 +1,50 @@
+---
+/** One monochrome title light per index; never animates article copy or Silicon. */
+---
+<script>
+  let dispose: (() => void) | undefined
+  function setupStudioLight() {
+    dispose?.()
+    const host = document.querySelector<HTMLElement>('body.home-editorial .research-opening, body.atlas-mode:not(.article-editorial) :is(.notebook-head,.paths-head,.connections-head,.terms-intro,.route-intro,.about-intro)')
+    const toggle = document.querySelector<HTMLButtonElement>('[data-studio-light-toggle]')
+    if (!host || !toggle) return
+    const root = document.documentElement
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+    const abort = new AbortController()
+    let paused = false
+    let visible = false
+    try { paused = localStorage.getItem('sleep4r-studio-light') === 'off' } catch { /* Optional preference only. */ }
+    const update = () => {
+      const capable = root.dataset.motion === 'ready' && !reduced.matches
+      toggle.hidden = !capable
+      toggle.textContent = paused ? '柔光：已暂停' : '柔光：开启'
+      toggle.setAttribute('aria-pressed', String(!paused))
+      host.dataset.studioLight = capable && visible && !paused && !document.hidden ? 'running' : 'paused'
+    }
+    const observer = new IntersectionObserver(entries => {
+      visible = entries.some(entry => entry.isIntersecting)
+      update()
+    }, { threshold: 0 })
+    observer.observe(host)
+    const capabilities = new MutationObserver(update)
+    capabilities.observe(root, { attributes: true, attributeFilter: ['data-motion'] })
+    toggle.addEventListener('click', () => {
+      paused = !paused
+      try { localStorage.setItem('sleep4r-studio-light', paused ? 'off' : 'on') } catch { /* Still works in memory. */ }
+      update()
+    }, { signal: abort.signal })
+    document.addEventListener('visibilitychange', update, { signal: abort.signal })
+    reduced.addEventListener('change', update, { signal: abort.signal })
+    update()
+    dispose = () => {
+      abort.abort()
+      observer.disconnect()
+      capabilities.disconnect()
+      delete host.dataset.studioLight
+      toggle.hidden = true
+      dispose = undefined
+    }
+  }
+  document.addEventListener('astro:page-load', setupStudioLight)
+  document.addEventListener('astro:before-swap', () => dispose?.())
+</script>

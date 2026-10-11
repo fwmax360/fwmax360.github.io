@@ -2,7 +2,7 @@
    Primary: existing black/silver Silicon product canvas and actual local cover art.
    Bounded references: Apple product-page media hierarchy; Linear UI state hierarchy;
    Refero craft: interaction-only surfaces, preserved type scaling, native focus/fallbacks.
-   No new WebGL, continuous ambient loop, fake diagrams or motion over article copy. */
+   One slow monochrome title light only; no WebGL, fake diagrams or motion over article copy. */
 body:not(.silicon-editorial):not(.chip-preview) .page-fg::before {
   content: ''; position: absolute; inset: 0 0 auto; height: 920px; z-index: -1;
   pointer-events: none;
@@ -154,4 +154,30 @@ body.utility-open :is(.subscription,.missing-page) { padding: 24px; border-radiu
 }
 @media print {
   body .nav-inner::before,body .page-fg::before { display: none; }
+}
+
+/* User-requested quiet motion: existing title light, 22 seconds each way,
+   only transform/opacity; lifecycle pauses offscreen/hidden and honors motion gates. */
+body [data-studio-light]::before { inset-inline: 8px; }
+html[data-motion='ready'] body [data-studio-light]::before {
+  animation: studio-title-light 22s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+html[data-motion='ready'] body [data-studio-light='running']::before { animation-play-state: running; }
+@keyframes studio-title-light {
+  from { opacity: .55; transform: translate3d(-6px,0,0); }
+  to { opacity: .95; transform: translate3d(6px,0,0); }
+}
+body .footer .inner > div { position: relative; }
+body .studio-light-toggle {
+  position: absolute; top: -16px; left: 110px; margin: 0; min-height: 44px; padding: 4px 12px;
+  border: 0; border-radius: 10px; color: var(--color-dim);
+  background: rgb(158 181 199 / .05); font-size: .8125rem;
+  transition: background-color 180ms ease; cursor: pointer;
+}
+body .studio-light-toggle:hover { background: rgb(158 181 199 / .10); }
+body .page-fg .nav-link { transition: background-color 180ms ease, color 180ms ease; }
+@media(prefers-reduced-motion:reduce), (forced-colors:active), print {
+  body [data-studio-light]::before { animation: none!important; transform: none!important; opacity: 1; }
+  body .studio-light-toggle { display: none; }
 }
