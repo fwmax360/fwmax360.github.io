@@ -1,0 +1,29 @@
+/* A thin, monochrome edge light. The middle remains transparent and never captures input. */
+.navigation-glow{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:0;overflow:clip;contain:paint;view-transition-name:navigation-glow}
+.navigation-glow__halo,.navigation-glow__rim{position:absolute;inset:0;border-radius:18px;padding:1px;overflow:hidden;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.navigation-glow__halo{inset:-1px;padding:0;filter:blur(2px);opacity:.58;border-radius:20px;-webkit-mask:linear-gradient(90deg,#000,transparent 8px,transparent calc(100% - 8px),#000),linear-gradient(#000,transparent 8px,transparent calc(100% - 8px),#000);mask:linear-gradient(90deg,#000,transparent 8px,transparent calc(100% - 8px),#000),linear-gradient(#000,transparent 8px,transparent calc(100% - 8px),#000);-webkit-mask-composite:source-over;mask-composite:add}
+.navigation-glow__spectrum{position:absolute;inset:-75vmax;background:conic-gradient(from 20deg,#b0b0b0,#d6d6d6 20%,#f0f0f0 40%,#c4c4c4 58%,#e6e6e6 67%,#bcbcbc 82%,#b0b0b0);transform:rotate(-12deg)}
+html[data-navigation-glow] .navigation-glow__spectrum{animation:navigation-spectrum 1000ms cubic-bezier(.55,.03,.8,.45) both}
+html[data-navigation-glow='return'] .navigation-glow__spectrum{animation-direction:reverse}
+@keyframes navigation-spectrum{to{transform:rotate(36deg)}}
+/* The separate group keeps the frame in place while article/title surfaces move. */
+::view-transition-group(navigation-glow){animation:none;z-index:1000;pointer-events:none}
+::view-transition-old(navigation-glow){animation:none;opacity:0;mix-blend-mode:normal}
+::view-transition-new(navigation-glow){animation:navigation-glow-settle 860ms cubic-bezier(.55,.05,.3,1) both;mix-blend-mode:normal}
+@keyframes navigation-glow-settle{0%{opacity:.18}30%,55%{opacity:1}100%{opacity:0}}
+html[data-navigation-glow='return']::view-transition-new(navigation-glow){animation-duration:640ms}
+html[data-navigation-glow]::view-transition{pointer-events:none}
+/* Other routes share a quiet, directional content transition; reading keeps its title match. */
+html[data-navigation-glow]:not([data-reading-transition])::view-transition-old(page-content),
+html[data-navigation-glow]:not([data-reading-transition])::view-transition-old(reading-content){animation:navigation-content-out 180ms ease-out both;mix-blend-mode:normal}
+html[data-navigation-glow]:not([data-reading-transition])::view-transition-new(page-content),
+html[data-navigation-glow]:not([data-reading-transition])::view-transition-new(reading-content){animation:navigation-content-in 620ms cubic-bezier(.6,.04,.3,1) both;mix-blend-mode:normal}
+@keyframes navigation-content-out{to{opacity:0;transform:translateY(-6px) scale(.994)}}
+@keyframes navigation-content-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+html[data-navigation-glow='return']::view-transition-new(page-content){animation-name:navigation-content-return}
+@keyframes navigation-content-return{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+html[data-motion='off'] .navigation-glow{display:none}
+@media(prefers-reduced-motion:reduce){.navigation-glow{display:none}::view-transition-group(navigation-glow),::view-transition-new(navigation-glow){animation:none!important;opacity:0}}
+@media(max-width:640px){.navigation-glow__rim{padding:1px;border-radius:22px}.navigation-glow__halo{filter:blur(2px)}}
+
+html[data-motion='off']::view-transition-new(navigation-glow){animation:none!important;opacity:0}

@@ -1,0 +1,57 @@
+.about-open .shell.wide { padding-top:56px; }
+.about-open [hidden] { display:none !important; }
+.about-open :is(a,button,input,summary):focus-visible { outline:2px solid #65d9ed; outline-offset:5px; }
+.about-open a { text-decoration:none; }
+.about-intro { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); align-items:end; gap:80px; }
+.about-handle { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--color-dim); margin-bottom:24px; min-height:44px; }
+.about-handle button { display:inline-flex; align-items:center; gap:12px; min-height:44px; border:0; background:transparent; padding:0 4px; color:var(--color-text-strong); font:inherit; cursor:pointer; }
+.name-hint { color:#65d9ed; }
+.about-intro h1 { font-family:var(--font-note); font-size:clamp(36px,4.6vw,60px); font-weight:500; line-height:1.45; color:var(--color-text-strong); }
+.about-intro-note p { font-size:15px; line-height:1.9; color:var(--color-dim); }
+.about-intro-note p + p { font-size:12px; margin-top:20px; }
+.about-intro-note nav { display:flex; flex-wrap:wrap; gap:0 24px; margin-top:16px; }
+.about-intro-note a { display:inline-flex; align-items:center; min-height:44px; color:#65d9ed; font-size:13px; }
+.about-section { display:grid; grid-template-columns:280px minmax(0,1fr); gap:80px; margin-top:88px; }
+.about-section h2 { font:500 24px/1.6 var(--font-note); color:var(--color-text-strong); }
+.about-section p { font-size:14px; line-height:1.9; color:var(--color-dim); }
+.about-section .about-hint { font-size:12px; margin-top:12px; }
+.about-story > div > p { max-width:660px; }
+.about-topics { display:flex; flex-wrap:wrap; list-style:none; gap:12px 32px; padding:0; margin-top:24px; color:var(--color-faint); font-size:12px; }
+.about-methods { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 48px; }
+.about-methods h3 { color:#65d9ed; font-size:18px; font-weight:500; margin-bottom:8px; }
+.about-focus { margin-top:28px; }
+.about-focus span { display:block; font-size:12px; color:var(--color-faint); margin-top:8px; }
+.about-tools > section { display:grid; grid-template-columns:120px minmax(0,1fr); gap:24px; margin-bottom:28px; }
+.about-tools h3 { font-size:14px; color:var(--color-faint); font-weight:400; padding-top:12px; }
+.about-open summary { cursor:pointer; min-height:44px; color:var(--color-text); font-size:16px; line-height:1.7; padding-block:8px; }
+.about-open summary:hover { color:#65d9ed; }
+.about-open summary::marker { color:var(--color-faint); font-size:10px; }
+.tool-note p { padding:4px 0 16px 18px; }
+.about-faqs details { margin-bottom:16px; }
+.about-faqs details p { padding-top:8px; max-width:640px; }
+.about-play > details { margin-bottom:20px; }
+.about-play summary span { color:var(--color-faint); font-size:12px; margin-left:16px; }
+.debug-readout { display:flex; flex-wrap:wrap; gap:24px; padding-block:20px; color:var(--color-dim); font:12px var(--font-mono); }
+.debug-readout b { color:#65d9ed; font-weight:400; margin-left:16px; }
+.is-attached .debug-readout b { color:#f2bd5b; }
+.about-debug button { padding:8px 0; min-height:44px; border:0; background:transparent; color:#65d9ed; font:13px var(--font-mono); cursor:pointer; }
+.about-debug > p { margin-top:12px; }
+.about-contacts { list-style:none; padding:0; margin:0; }
+.about-contacts a { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 32px; padding-block:12px; min-height:44px; font-size:20px; color:var(--color-text-strong); }
+.about-contacts a span:last-child { font-size:13px; color:var(--color-dim); overflow-wrap:anywhere; }
+.about-contacts a:hover { color:#65d9ed; }
+@media(max-width:1000px) { .about-intro { gap:40px; } .about-section { grid-template-columns:220px minmax(0,1fr); gap:48px; } }
+@media(max-width:700px) {
+ .about-open .shell.wide { padding-top:32px; }
+ .about-intro { display:block; }
+ .about-handle { margin-bottom:16px; }
+ .about-intro h1 { font-size:34px; }
+ .about-intro-note { margin-top:28px; }
+ .about-intro-note p { font-size:14px; }
+ .about-section { display:block; margin-top:56px; }
+ .about-section h2 { font-size:22px; margin-bottom:20px; }
+ .about-methods { gap:28px 24px; }
+ .about-tools > section { grid-template-columns:72px minmax(0,1fr); gap:16px; }
+ .about-play summary span { display:block; margin-left:18px; }
+ .about-contacts a { font-size:18px; }
+}

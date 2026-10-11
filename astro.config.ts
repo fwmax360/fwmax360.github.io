@@ -9,16 +9,19 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 
+import { indexingPolicy } from './src/lib/indexing'
 import { SITE } from './src/consts'
 import { transformerCodeBlock } from './src/lib/shiki'
 import { rehypeTableWrap } from './src/lib/rehype-table-wrap'
 import { smali } from './src/lib/langs/smali'
 import { armasm } from './src/lib/langs/armasm'
 
+const indexing = indexingPolicy()
+
 export default defineConfig({
   site: SITE.url,
   trailingSlash: 'ignore',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), indexing.integration, sitemap({ filter: indexing.include })],
   vite: {
     plugins: [tailwindcss()],
   },

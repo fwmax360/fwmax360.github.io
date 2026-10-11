@@ -1,0 +1,1987 @@
+{
+  "objective": "梳理完善设计和具体实现，达到内容优先、视觉统一、可靠且可验证的商业级技术博客体验",
+  "principles": [
+    "允许重构信息架构、组件边界和视觉系统；技术栈按内容交付、交互需求与可验证性能选择，而非为新而新",
+    "首页成为研究展台与探索入口；正文、图谱、交互专题分别具有明确的体验模式",
+    "保留中文长文、代码、搜索、图谱和键盘可用性",
+    "先完整可读，再渐进启动昂贵的动态体验",
+    "不以实验室跑分替代真机和线上证据"
+  ],
+  "requirements": [
+    {
+      "id": "quality-foundation",
+      "status": "implemented-local-verification",
+      "scope": [
+        "搜索失败反馈和可恢复重试",
+        "Escape关闭搜索",
+        "知识图谱语义",
+        "系列文字对比度",
+        "专题分享元信息",
+        "预览路由站点地图隔离",
+        "内部链接、同页锚点和资源的构建后门禁",
+        "搜索输入键盘焦点、标识对比度与44px移动操作区域",
+        "提示/空结果/失败消息与listbox分离；仅真实选项展开弹出列表"
+      ],
+      "evidence": [
+        "scripts/test-product-quality.mjs",
+        "artifacts/product-quality/verification.json",
+        "artifacts/project-audit/browser-after-quality.json",
+        "artifacts/home-polish/search-axe.json",
+        "artifacts/silicon-static-reading/verification.json"
+      ],
+      "remaining": [
+        "CI实际运行尚未验证"
+      ],
+      "completed": [
+        "芯片静态入口三引擎39组无脚本/CSP/省流量/慢模块失败检查；自然文流、大字体、键盘跳过与原生阅读入口通过。"
+      ]
+    },
+    {
+      "id": "publishing-model",
+      "status": "implemented-local-verification",
+      "scope": [
+        "明确正式/示例/草稿状态",
+        "示例独立于正式RSS、列表、搜索和站点地图",
+        "示例专题仍可本地完整预览"
+      ],
+      "evidence": [
+        "src/lib/publication.ts",
+        "src/lib/indexing.ts",
+        "scripts/test-publication.mjs",
+        "artifacts/product-quality/verification.json",
+        "artifacts/product-quality/internal-links.json"
+      ],
+      "remaining": [
+        "CI实际运行尚未验证"
+      ],
+      "completed": [
+        "sample 保留直接路由并设置 noindex",
+        "正式索引仅包含22篇文章",
+        "示例分类和标签保留纯文本，不制造空分类链接"
+      ]
+    },
+    {
+      "id": "design-system",
+      "status": "in-progress",
+      "scope": [
+        "统一颜色、字阶、间距、焦点与响应式组件",
+        "逐步移除重复选择器与历史覆盖",
+        "清理经确认零引用的旧组件",
+        "首页品牌与专题焦点收敛"
+      ],
+      "completed": [
+        "配色、字体、尺寸归并为 design-tokens.css 单一定义",
+        "删除被替代的首页 SVG 样式和拖拽控制器",
+        "14组路由/视口核心令牌实测保持一致",
+        "首页布局按组件归并为单一有效声明，移除旧双列featured与失效motion-toggle样式",
+        "专题入口保留英文语境，CTA为12px/44px；容器查询与连续图像缩放覆盖八档宽度",
+        "专题移动控制/文字样式归并为组件作用域，移除重复面板位置覆盖；可缩放文字与容器查询适配大字窄屏。",
+        "移除未被99个构建页面使用的旧页面覆盖与Base加载分支；备份已核验，除旧CSS外443个产物逐字节一致。"
+      ],
+      "evidence": [
+        "src/styles/design-tokens.css",
+        "artifacts/project-audit/token-comparison.json",
+        "artifacts/home-polish/verification.json",
+        "artifacts/companion-style-cleanup/revision.json"
+      ],
+      "remaining": [
+        "其他页面的旧选择器覆盖归并",
+        "跨路由响应式组件与焦点间距继续统一",
+        "专题页手机构图、标注和镜头叙事精修"
+      ]
+    },
+    {
+      "id": "font-pipeline",
+      "status": "implemented-local-verification",
+      "scope": [
+        "保留多平台中文阅读品质",
+        "精简阻塞字体声明与不必要预加载",
+        "相同测量环境比较首屏、字形和CLS"
+      ],
+      "completed": [
+        "完整中文兜底字体声明从关键CSS拆出，非阻塞加载并保留noscript",
+        "等宽字体仅在文章路由预加载",
+        "基础CSS实测74940字节；7个页面14组核心令牌保持一致",
+        "3次移动实验室中位数：首页93、文章77；CLS均0",
+        "当前同构建/同服务压缩对照共18次Lighthouse：模拟LCP中位首页1952ms、文章2552ms；保留完整视觉、字体与内容，不以未压缩本地服务结果盲目降级。",
+        "文章宋体资源按显式意图加载；69组三引擎文章可见字体/全文保持，代表性首屏像素一致，中文无衬线与显式宋体兜底保留。"
+      ],
+      "evidence": [
+        "src/components/CjkFonts.astro",
+        "scripts/test-font-loading.mjs",
+        "artifacts/font-loading/verification.json",
+        "artifacts/font-loading/budget.json",
+        "artifacts/font-loading/lighthouse-summary.json",
+        "artifacts/lcp-current/summary.json",
+        "artifacts/article-font-budget/current.json"
+      ],
+      "remaining": [
+        "真实Windows/Linux字形与替换时序验证",
+        "真实设备与线上CWV验证；当前去除未用宋体下载后gzip夹具文章模拟LCP约2252ms；真实设备/当前新版本线上表现仍待验"
+      ]
+    },
+    {
+      "id": "silicon-performance",
+      "status": "in-progress",
+      "scope": [
+        "静态封面与文字优先",
+        "渐进启动和初始化分段",
+        "按设备能力自适应DPR及后处理",
+        "保留选择、镜头、注释、暂停、减少动态及故障回退"
+      ],
+      "completed": [
+        "入口2405字节，3D运行时独立动态加载",
+        "静态封面完成解码并绘制后再启动3D",
+        "按设备能力选择完整/平衡/轻量档并限制DPR与帧率上限",
+        "省流量与低配置默认静态预览，主动开启仍有完整模型与选择",
+        "多任务初始化、场景材质预编译、部分初始化失败资源释放与原地重试",
+        "静态/加载布局保留控制区占位，最新三次移动实验CLS为0",
+        "本地Chrome实际构建模块六轮挂载/交互/AbortSignal卸载；修正资源释放顺序、补齐后处理释放、结束退休上下文。固定场景像素一致。"
+      ],
+      "evidence": [
+        "src/scripts/chip-entry.ts",
+        "src/lib/chip-quality.ts",
+        "scripts/test-chip-quality.mjs",
+        "scripts/test-chip-startup.mjs",
+        "artifacts/chip-startup/verification.json",
+        "artifacts/chip-startup/performance.json",
+        "artifacts/project-audit/chip-boot-test.log",
+        "artifacts/chip-lifecycle/verification.json"
+      ],
+      "remaining": [
+        "首帧后处理/纹理提交及真实网络/设备启动成本；历史453ms Lighthouse TBT不代表当前构建，也不与后续独立长任务阻塞统计混用。",
+        "真实设备各档材质观感、帧时间与功耗验证",
+        "实际路由/真机长期内存趋势验证；直接挂载已证明显式资源删除、上下文退休与停止绘制，尚未证明堆内存完全无增长",
+        "图形API与能力报告的跨浏览器验证"
+      ],
+      "historicalPerformanceNote": "早期实验453ms TBT保留为历史测量；chip_boot_profile_revision另记五上下文CPU4×的长任务阻塞67ms中位，两者方法/时间窗不同，不能直接比较。"
+    },
+    {
+      "id": "visual-polish",
+      "status": "in-progress",
+      "scope": [
+        "芯片缩略图焦点与材质轮廓",
+        "芯片镜头节奏与正式文章叙事",
+        "全站中英文字阶与留白一致",
+        "页面转场单一编排与可中断性"
+      ],
+      "completed": [
+        "首页专题缩略图扩大、边缘融合与可读英文入口",
+        "首页单列中间宽度收敛，保持最新文章标题首屏可见",
+        "手机专题关键英文说明与标签放大，100/200%文字下控制区可达；三引擎24组布局/减少动态检查通过。",
+        "悬停预览保留色彩与鼠标跟随；按当前文章文区、导航高度和旋转尺寸避让，三引擎48组指针/键盘与矮窗口检查通过。"
+      ],
+      "evidence": [
+        "artifacts/silicon-mobile-reading/verification.json",
+        "artifacts/note-preview-placement/current.json"
+      ]
+    },
+    {
+      "id": "release-validation",
+      "status": "local-suite-verified-external-acceptance-pending",
+      "scope": [
+        "跨浏览器回归",
+        "真实iPhone及中端Android验证",
+        "无JS/减少动态/弱网/异常资源路径",
+        "持续链接、语义与性能门禁",
+        "上线后隐私友好的真实用户指标测量"
+      ],
+      "targets": {
+        "p75_LCP_ms": 2500,
+        "p75_INP_ms": 200,
+        "p75_CLS": 0.1
+      },
+      "evidence": [
+        "artifacts/release-history/pre-interface-followups-20261009-172834/verification.json",
+        "artifacts/deployment-readonly/verification.json"
+      ],
+      "remaining": [
+        "真实iPhone及中端Android验收",
+        "实际部署CI与线上行为",
+        "上线后的隐私友好p75性能指标",
+        "人工视觉与辅助技术验收"
+      ],
+      "completed": [
+        "只读检查实际GitHub Pages：HTML/CSS/JS已有gzip与600秒缓存；线上仍为旧指纹、新silicon路径404。公开旧CI成功记录不作为当前代码的远程验收。"
+      ]
+    },
+    {
+      "id": "research-atlas-redesign",
+      "status": "in-progress",
+      "scope": [
+        "空间化芯片展台与双语排版",
+        "最新文章明暗材质切换",
+        "研究路径、开放式单列研究日志、独立系列入口取代右侧栏",
+        "首页与长文分离加载伴随页面样式"
+      ],
+      "implemented": [
+        "新版首页完整纵切面",
+        "伴随页面CSS按路由加载",
+        "内容保持原始文章数据源",
+        "研究索引：时间台账与键盘/悬停预览",
+        "共享Nav探索导航与路由专属开放布局",
+        "URL筛选状态、空结果重置、无JS静态索引",
+        "归档不再加载旧伴随页面覆盖样式"
+      ],
+      "remaining": [
+        "系列、图谱与阅读页采用新的跨页导航语法",
+        "芯片专题相机与长文联动叙事",
+        "真机、Safari与线上性能验证"
+      ],
+      "evidence": [
+        "src/components/ResearchHero.astro",
+        "src/pages/index.astro",
+        "src/styles/home.css",
+        "artifacts/research-redesign/",
+        "src/scripts/archive-index.ts",
+        "src/styles/archive.css",
+        "scripts/test-archive-state.mjs",
+        "scripts/test-archive-index.mjs",
+        "artifacts/archive-redesign/",
+        "src/components/Nav.astro",
+        "src/styles/series-open.css",
+        "src/styles/map-open.css"
+      ],
+      "historicalImplementation": "AtlasHeader/atlas.css 为早期已退休方案；历史截图仅说明当时状态，当前源码证据使用 Nav 与各路由开放样式。"
+    }
+  ],
+  "currentPhase": "当前第一轮字阶与可读性整理已通过专项本地验收：72组字阶、198组跨页面文字缩放，以及正文/搜索/导航/归档回归；历史48项完整集成验收早于近期视觉改动。继续跨页面视觉统一、当前版本集成与真机/线上验收。",
+  "constraints": [
+    "不自动提交、推送或部署",
+    "真实设备和线上指标没有证据时不作完成声明",
+    "当前用户工作树已有大量未提交改动，保留现有改动"
+  ],
+  "latest_design_revision": {
+    "date": "2026-10-09",
+    "trigger": "用户指出归档页过于规矩、框架化，拒绝后台式统计与层层卡片",
+    "direction": "开放编辑式笔记：衬线标题与斜体、无卡片文章流、收起筛选、无框预览",
+    "scope": [
+      "src/pages/archive.astro",
+      "src/styles/archive.css",
+      "src/scripts/archive-index.ts"
+    ],
+    "status": "implemented-local-verification; visual acceptance pending",
+    "evidence": "artifacts/archive-open/",
+    "remaining": "首页、系列和图谱尚未按本次方向重新评审；视觉仍需用户反馈"
+  },
+  "series_open_revision": {
+    "status": "implemented-local-verification",
+    "scope": [
+      "系列入口",
+      "全部四个公开系列详情"
+    ],
+    "evidence": [
+      "artifacts/series-open/verification.json",
+      "artifacts/series-open/check.log",
+      "artifacts/series-open/quality.log"
+    ],
+    "remaining": [
+      "视觉验收",
+      "真机和Safari",
+      "远程CI尚未运行"
+    ]
+  },
+  "reader_open_revision": {
+    "status": "implemented-local-verification; final review pending",
+    "scope": [
+      "正文阅读层次",
+      "无框目录与系列路径",
+      "修正级联层优先序与恢复表格内边距",
+      "无JS长代码完整可读",
+      "复制操作的可见文字与无障碍名称一致",
+      "宽表格键盘滚动、空表头读屏标签",
+      "content:refresh命令用于转换器修改后刷新生成缓存"
+    ],
+    "evidence": "artifacts/reader-open/",
+    "remaining": [
+      "最终视觉验收",
+      "真机与Safari",
+      "性能复核",
+      "远程CI"
+    ]
+  },
+  "human_design_revision": {
+    "trigger": "用户再次指出AI味重，并明确要求截图中的文章块具有悬停动态",
+    "scope": [
+      "首页标题主导的单列笔记流",
+      "移除无意义编号、双列规则与重复口号",
+      "实际封面悬停预览，标题与箭头响应",
+      "键盘预览、触屏独立阅读、减弱动态",
+      "探索页取消重复斜体口号标题"
+    ],
+    "status": "implemented-local-verification; aesthetic acceptance pending",
+    "references": [
+      "https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md",
+      "https://github.com/pbakaus/impeccable"
+    ],
+    "evidence": "artifacts/home-human/",
+    "remaining": [
+      "用户主观视觉验收",
+      "真机与其他浏览器",
+      "全站未完成最终验收"
+    ]
+  },
+  "note_color_typography_revision": {
+    "status": "implemented; local browser verification passed; user visual acceptance pending",
+    "scope": [
+      "文章列表改用原生系统字体与400字重，保留中英文回退",
+      "23张SVG/PNG封面增强系列色与色光，降低网格强度",
+      "移除封面假地址、线程号、序号、CRC、哈希与空章节字段",
+      "统一sleep4r品牌，真实日期、系列与章节；图形注明Concept sketch",
+      "保留首页指针跟随、键盘预览与归档选择动画"
+    ],
+    "evidence": [
+      "artifacts/note-color-refinement/",
+      "artifacts/cover-editorial/"
+    ],
+    "verified": [
+      "Astro check: 0 errors/warnings/hints",
+      "23封面一致性及尺寸检查",
+      "Chrome/WebKit/Firefox各390和1440px，无横向溢出",
+      "首页悬浮、触屏、减弱动画、客户端返回与展开测试",
+      "归档筛选/URL/无JS与字体加载测试"
+    ],
+    "limits": [
+      "不是物理设备或安装版Safari验收",
+      "技术示意非文章中的实测数据",
+      "整站最终视觉验收和线上性能仍未完成"
+    ]
+  },
+  "taxonomy_open_revision": {
+    "scope": [
+      "标签目录及全部60个标签详情",
+      "两个分类详情",
+      "开放术语排列、移除装饰编号和信号卡",
+      "标题字体和系列配色延续、完整文章列表",
+      "筛选/清空/无结果/客户端重绑/无JS支持"
+    ],
+    "status": "implemented-local-verification; visual acceptance pending",
+    "evidence": "artifacts/taxonomy-open/",
+    "verification": {
+      "pages": "62 topic pages: exact article membership checked against published article footers",
+      "responsive": "index 8 widths; all detail pages 390px and 1440px",
+      "accessibility": "8 states across index, Frida and two categories: axe 0 violations",
+      "links": "6123 references; broken 0",
+      "typecheck": "0 errors, 0 warnings"
+    },
+    "remaining": [
+      "用户视觉验收",
+      "其他浏览器和真机",
+      "远程CI尚未运行"
+    ]
+  },
+  "about_open_revision": {
+    "scope": [
+      "关于页开放式排版，个人工具吐槽及四个FAQ保留",
+      "删除装饰编号、旧卡片与非必要大面板",
+      "原生工具和FAQ展开，无JS仍可读",
+      "终端/调试模拟按需展开，纯前端性质明确",
+      "恢复名字切换，客户端生命周期清理与输出历史上限"
+    ],
+    "status": "implemented-local-verification; visual acceptance pending",
+    "evidence": "artifacts/about-open/",
+    "verification": {
+      "typecheck": "0 errors, 0 warnings",
+      "browser": "8 widths, native disclosures, terminal escape/clear/history, navigation/Back, no-JS",
+      "accessibility": "390px/1440px expanded interactive content: axe 0 violations",
+      "links": "6121 references; broken 0"
+    },
+    "remaining": [
+      "用户视觉反馈",
+      "真机及其他浏览器",
+      "全站性能复核",
+      "远程CI"
+    ]
+  },
+  "performance_route_split_revision": {
+    "status": "implemented-local-verification; broader performance work pending",
+    "scope": [
+      "正文和代码块样式移出全站global，仅由文章路由加载",
+      "七个入口路由和阅读页CSS边界门禁",
+      "修正关于页字体测试预期并保留完整回退"
+    ],
+    "evidence": "artifacts/performance-current/",
+    "result": {
+      "homeCriticalCssBytesBefore": 72794,
+      "homeCriticalCssBytesAfter": 66305,
+      "homeLighthouseMobileBeforeAfter": [
+        91,
+        91
+      ],
+      "readerLighthouseMobileBeforeAfter": [
+        89,
+        89
+      ],
+      "simulationTbtCls": "both before/after: TBT 0 ms; CLS 0"
+    },
+    "limits": [
+      "本地无压缩静态服务、Lighthouse单次前后移动模拟",
+      "资源减少已证实，首屏时间改善未证实",
+      "非真实设备和线上Core Web Vitals"
+    ],
+    "remaining": [
+      "继续首屏关键路径分析",
+      "全站跨浏览器/真机复核",
+      "专题启动耗时",
+      "用户视觉反馈和远程CI"
+    ]
+  },
+  "cross_browser_revision": {
+    "status": "implemented-local-engine-verification; real device review pending",
+    "scope": [
+      "Playwright WebKit 27.2 / Firefox 157.0",
+      "8主要路由×4视口宽度×2引擎，共64布局状态",
+      "移动导航、搜索、归档状态恢复、图谱筛选和键盘预览",
+      "正文目录焦点、代码展开、关于页、悬停实际封面",
+      "无JS静态阅读、芯片海报、减少动态",
+      "修正原生summary通用涟漪溢出"
+    ],
+    "evidence": "artifacts/cross-browser/",
+    "limits": [
+      "不是安装版Safari或真实iPhone",
+      "本轮未覆盖3D渲染及跨浏览器剪贴板",
+      "CI配置已加入但远程CI未运行"
+    ],
+    "remaining": [
+      "真实设备视觉/性能验收",
+      "芯片3D跨引擎与启动性能",
+      "全站最终视觉反馈",
+      "远程CI"
+    ]
+  },
+  "chip_context_recovery_revision": {
+    "status": "implemented-local-GPU-integration-verification; real device and performance review pending",
+    "scope": [
+      "上下文丢失释放场景、渲染器、动画、监听与观察器",
+      "静态海报、禁用暂不可用控制器、可原地重试",
+      "初始化代际检查，避免旧异步任务覆写中断状态",
+      "重试恢复标签默认状态；资源归属在异步让出前登记",
+      "3种引擎×3画质档真实渲染、选择、标签、播放/暂停"
+    ],
+    "evidence": "artifacts/chip-cross-browser/",
+    "verified": {
+      "engines": [
+        "Chromium/Chrome",
+        "WebKit 27.2",
+        "Firefox 157.0"
+      ],
+      "qualityCases": 9,
+      "contextLossRecovery": "每引擎3次WEBGL_lose_context真实上下文丢失，成功释放和重试",
+      "rendererCounts": "每次轻量档恢复: geometries 23 / textures 7，未递增",
+      "startupRace": "首次绘制后boot完成前的合成中断事件，旧ready未覆盖回退，重试成功",
+      "check": "0 errors/warnings/hints",
+      "internalLinks": "6121 references; broken 0"
+    },
+    "limits": [
+      "GPU后端为本地无头浏览器，不代表iPhone/安装版Safari",
+      "渲染器计数不代表完整GPU内存或功耗",
+      "不据此宣称移动帧时间或启动性能达标",
+      "GPU测试未接入未经验证的远程Linux GPU环境"
+    ],
+    "remaining": [
+      "移动档边缘抗锯齿与视觉细节复核",
+      "初始化延迟剖析",
+      "真实设备画质、帧时间和功耗",
+      "用户最终视觉验收"
+    ]
+  },
+  "chip_antialias_revision": {
+    "status": "implemented-local-fixed-frame-verification; physical device review pending",
+    "scope": [
+      "轻量/平衡档在OutputPass后添加官方FXAAPass，完整档保持4x MSAA",
+      "后处理DPR随renderer限制更新，匹配整数绘制缓冲",
+      "固定镜头同一引擎off/on/off对比，图像与调用耗时记录",
+      "奇数393px视口与三档跨浏览器resize验证"
+    ],
+    "evidence": "artifacts/chip-aa/",
+    "verified": {
+      "comparisons": "3引擎×2低DPR档；off重复图像完全一致，on图像改变",
+      "cost": "增加1个全屏绘制调用与1个三角形；无DPR增加",
+      "resize": "桌面1440px→393px场景，缓冲786×1264→589×948，像素量减少43.8%",
+      "regression": "三引擎九画质场景、重复丢失恢复、启动、选择、播放、文章入口测试通过",
+      "check": "0 errors/warnings/hints",
+      "links": "6121 references; broken 0"
+    },
+    "limits": [
+      "本地无头图像与composer.render调用耗时，不代表真实GPU帧时间或手机功耗",
+      "FXAA会柔化部分细边缘，用户观感和真机视觉仍待确认",
+      "启动延迟未在本轮宣称改善"
+    ],
+    "remaining": [
+      "初始化阶段耗时剖析",
+      "真机抗锯齿与帧时间验收",
+      "用户最终视觉反馈"
+    ]
+  },
+  "cover_title_layout_revision": {
+    "status": "implemented-local-layout-verification; visual acceptance pending",
+    "problem": "旧三行兜底直接拼接余下行；ASCII等宽估算使宽大写字符越界",
+    "changes": [
+      "按字号重新分词换行，最多四行、最小32px，完整保留文字",
+      "宽大写字母与普通ASCII分别估算，不再以0.55统一计算",
+      "标点避头尾后重新校验行宽；超容量给出明确生成错误，不截断标题",
+      "共用字体宽度函数抽取为scripts/cover-title.mjs",
+      "标签按实际12px字体预留宽度与内边距，避免相邻标签压字"
+    ],
+    "evidence": "artifacts/cover-layout/",
+    "verified": [
+      "23张封面与4个夹具×3引擎，共81个SVG实际标题边界用例；同时检查标签文字不超出背景",
+      "6个纯函数混排/标点/长词用例及空标题、超容量错误测试",
+      "23张封面一致性及390/1440px跨浏览器回归通过"
+    ],
+    "limits": [
+      "当前本机系统字体；不覆盖所有Windows/Linux字体组合",
+      "81个几何用例不是美学或物理设备验收"
+    ]
+  },
+  "archive_preview_loading_revision": {
+    "status": "implemented-local-three-engine-verification; remote CI and real-network review pending",
+    "changes": [
+      "预留图片比例，资源未就绪时隐藏旧图，不与新标题混搭",
+      "新图load后再decode，处理Firefox对旧位图提前decode的行为",
+      "每次选中维护独立AbortController与代际序号，过期完成不覆盖当前状态",
+      "404显示文字提示、移除空图框，保留正确阅读链接；新选中恢复",
+      "无结果与客户端导航清理图片监听"
+    ],
+    "verified": [
+      "Chrome/WebKit/Firefox受控慢请求与乱序完成",
+      "404、后续恢复、客户端返回重绑",
+      "归档筛选/键盘/URL/无JS/减弱动画回归",
+      "字体与封面浏览器回归"
+    ],
+    "evidence": "artifacts/archive-preview-loading/",
+    "CI": "配置已新增纯标题、预览加载与封面基础回归；未执行远程工作流",
+    "limits": [
+      "受控本地网络，不是实际移动网络",
+      "没有用户最终视觉验收"
+    ]
+  },
+  "chip_boot_profile_revision": {
+    "status": "implemented-local-profile-and-regression-verification; real-device/online acceptance pending",
+    "changes": [
+      "同尺寸圆角几何体按精确参数复用，合并后仅释放无消费者的模板",
+      "几何复制分批让出主线程，优先scheduler.yield，无此API则定时器回退",
+      "临时复制几何体让出前纳入资源归属，取消时统一释放",
+      "入口与场景分阶段计时；profile默认current，保留历史before结果"
+    ],
+    "evidence": "artifacts/chip-boot-profile/",
+    "verified": {
+      "beforeMedians": {
+        "bootMs": 616,
+        "longTaskBlockingMs": 223
+      },
+      "currentMedians": {
+        "bootMs": 490,
+        "longTaskBlockingMs": 67
+      },
+      "changePercent": {
+        "bootMs": -20.5,
+        "longTaskBlockingMs": -70
+      },
+      "geometryStageWallMedianMs": {
+        "before": 115.19999999999999,
+        "current": 31.5
+      },
+      "sourceHashes": {
+        "src/scripts/chip-preview.ts": "e2f2d974cf61eb7dedbd32d2f091f291919465cbe020218366a89b46db2fedbc",
+        "src/scripts/chip-entry.ts": "66b6e8e4c65ce2fb2b0355e8d46dd7ee394579ce6009d50e5d372219ed10b4ba"
+      },
+      "scope": [
+        "Chrome headless, 390x1000 DPR3, CDP CPU4x, cache disabled; localhost uncompressed network",
+        "One browser with five fresh contexts; driver/shader caches may remain warm",
+        "Long-task blocking here is not Lighthouse TBT or field INP",
+        "Scene timestamps are cumulative wall time, not GPU timer queries"
+      ],
+      "fixedFrame": {
+        "baselineHash": "0c02d10ebbf4eaab86f67eb5c8dee967ba33b1fe90e5c843a2a99b7913776620",
+        "currentHash": "0c02d10ebbf4eaab86f67eb5c8dee967ba33b1fe90e5c843a2a99b7913776620",
+        "samePixels": true
+      },
+      "remaining": [
+        "真实设备与安装版Safari/GPU驱动",
+        "首帧后处理和纹理提交成本",
+        "真实网络与线上性能",
+        "用户最终视觉验收"
+      ]
+    },
+    "regression": [
+      "三引擎九画质场景、选择/播放/暂停、丢失重试与启动中断",
+      "启动/模型预览/博客文章入口",
+      "原生与强制timer回退两路启动，固定帧哈希相同",
+      "历史固定帧与当前相同"
+    ],
+    "limits": [
+      "5次新浏览器上下文；同一浏览器驱动/着色器缓存可能保留",
+      "本地390x1000 DPR3 Chrome无头CPU4×模拟，非物理手机",
+      "长任务阻塞统计不是Lighthouse TBT或现场INP",
+      "分段累计墙钟耗时非GPU查询"
+    ]
+  },
+  "chip_early_context_loss_revision": {
+    "status": "implemented-local-pre-first-frame-and-regression-verification; real-device acceptance pending",
+    "changes": [
+      "上下文丢失监听随renderer注册，不再等到shader编译完成",
+      "每次初始化让出与编译返回检查中断及isContextLost；丢失状态不提交首帧ready",
+      "资源release幂等，旧异步任务重复释放不删除重试后的新实例",
+      "启动异常DOM提示由chip-entry统一控制，避免过期catch覆写重试UI"
+    ],
+    "evidence": "artifacts/chip-early-loss/",
+    "verified": [
+      "三引擎×renderer/environment/geometry三阶段，9次实际WEBGL_lose_context",
+      "首帧标记未出现，静态图和重试入口可用，暂不可用控件禁用",
+      "立即重试只留一个canvas，层选择可用，无页面异常",
+      "恢复balanced资源计数每场景geometries23/textures19；仅部分渲染器计数",
+      "三引擎九画质档与重复恢复、启动中断、减弱动画，以及startup/preview/forced-timer固定帧回归通过"
+    ],
+    "sourceHash": "a15a77c909779fe8abec830aff4b501af2bd4d38a21794c921cf6ab8b60f08b7",
+    "limits": [
+      "本地无头引擎；非物理GPU、安装版Safari或完整内存/功耗证据",
+      "远程GPU CI环境未验证，本专项仍是本地命令",
+      "不据此更新此前启动性能数字"
+    ]
+  },
+  "utility_routes_revision": {
+    "status": "implemented-local-layout-search-and-accessibility-verification; deployed routing/device acceptance pending",
+    "scope": [
+      "RSS/404沿用开放式标题与系统字体，移除终端框、重复feed地址、模拟SIGSEGV",
+      "RSS文章用本地站内链接；显示规范订阅地址，复制精确URL",
+      "复制状态独立可读，失败保留手动选择方式，导航清理监听与异步完成",
+      "搜索入口在监听就绪后显示，无JS不留无效操作",
+      "显式记录搜索入口，关闭与Esc跨引擎恢复焦点"
+    ],
+    "evidence": "artifacts/utility-open/",
+    "verified": [
+      "两页×4宽度×3引擎，共24个布局场景无横向溢出",
+      "22个RSS页站内链接与真实RSS XML条目一致",
+      "复制成功/失败、Back后单次监听、noJS原生链接",
+      "404 noindex、搜索正文与Esc焦点恢复",
+      "WebKit/Firefox主站布局与关键交互全回归通过",
+      "产品搜索、列表角色、失败重试回归通过",
+      "RSS/404 Chrome390px axe WCAG2A/2AA/2.1AA自动检查零违规；非屏幕阅读器人工验收",
+      "6144内部引用检查，broken0"
+    ],
+    "limits": [
+      "Clipboard夹具验证UI及精确内容，非OS权限验收",
+      "直接404.html本地文件，不代表部署HTTP404路由",
+      "远程CI与物理设备、最终美学验收待确认"
+    ]
+  },
+  "native_mobile_navigation_revision": {
+    "status": "implemented-local-navigation-and-product-regression-verification; device/visual acceptance pending",
+    "changes": [
+      "手机默认提供原生details导航，键盘与触屏都可展开",
+      "菜单脚本成功绑定后才替换为增强菜单，不留无效菜单按钮",
+      "正常桌面导航与六个真实入口、当前页面标记保持",
+      "脚本被CSP完整拦截和JavaScript禁用两种失败方式均覆盖"
+    ],
+    "evidence": "artifacts/native-nav/",
+    "verified": [
+      "3引擎×320/390/720px×disabled/blocked，共18个原生导航场景",
+      "主页面进入归档，六个链接及当前页状态正确",
+      "三引擎增强菜单、Esc焦点返回、桌面导航回归",
+      "RSS/404三引擎全回归通过",
+      "产品搜索/重试/滚动与索引策略回归通过",
+      "Astro检查0 errors/warnings/hints"
+    ],
+    "limits": [
+      "本地引擎与视口模拟，非物理手机或屏幕阅读器人工验收",
+      "blocked夹具以script-src none阻止内联及外部脚本，非真实网络统计",
+      "CI仅更新配置，未执行远程部署"
+    ]
+  },
+  "home_static_entry_revision": {
+    "status": "implemented-local-entry-verification; homepage visual direction awaiting user feedback",
+    "changes": [
+      "默认使用浏览全部笔记的原生链接，展开按钮与拖动说明仅在脚本绑定后显示",
+      "正常增强保留每次最多4篇的展开与既有动画、键盘反馈",
+      "默认链接进入全量文章索引，页面数量从正式文章生成",
+      "主页布局材质不由脚本决定，未改动首屏大构图"
+    ],
+    "verified": [
+      "三引擎×390/1440×enhanced/disabled/blocked，共18场景",
+      "脚本禁用或CSP拦截时入口可用且无无效展开按钮",
+      "正常增强点击增加最多4篇，静态/增强两块主区域CSS材质、字体声明与布局属性一致",
+      "原有首页悬浮与展开、三引擎原生导航回归通过",
+      "Astro检查0 errors/warnings/hints"
+    ],
+    "evidence": "artifacts/home-static-entry/",
+    "limits": [
+      "比较已选区域CSS属性与入口行为，非整页像素或字体实际字形验收",
+      "禁用JS不等待页面内字体Promise，避免测试挂起；增强与blocked有15秒等待边界",
+      "手机、用户最终美学反馈与线上验收仍待确认"
+    ]
+  },
+  "release_gate_revision": {
+    "status": "passed-local-core-and-GPU-scope; full acceptance incomplete",
+    "runner": "scripts/check-release.mjs",
+    "commandsPassed": 31,
+    "supplementalNavigation": "artifacts/release-history/pre-interface-followups-20261009-172834/test-navigation-glow.log",
+    "evidence": "artifacts/release-history/pre-interface-followups-20261009-172834/verification.json",
+    "requirementAudit": "docs/release-readiness.json",
+    "checks": [
+      "4个预览页面SHA256等于dist对应文件",
+      "构建不早于src/public/astro.config输入",
+      "开始/结束的应用源码与配置快照未变化",
+      "独立命令顺序运行；每项日志、退出码与耗时落盘"
+    ],
+    "limits": [
+      "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+      "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+    ]
+  },
+  "legacy_component_cleanup_revision": {
+    "status": "implemented-build-byte-equivalence-verified",
+    "removed": [
+      "src/components/HomeFeatured.astro",
+      "src/components/HomeEditorial.astro",
+      "src/components/MissionDebrief.astro"
+    ],
+    "removedLines": 2026,
+    "referenceScan": 170,
+    "backup": "/Users/ytz/blog/artifacts/legacy-component-cleanup/legacy-components.zip",
+    "backupByteVerified": true,
+    "verification": {
+      "beforeFiles": 442,
+      "afterFiles": 442,
+      "added": [],
+      "removed": [],
+      "changed": [],
+      "sameAllFiles": true
+    },
+    "evidence": "artifacts/legacy-component-cleanup/",
+    "limits": [
+      "仅清理这三个零引用组件，未推断其他文件也可删除",
+      "当前构建输出完全一致；不宣称加载速度或bundle体积改善",
+      "上一轮31命令回归保留为历史证据，本次以重建与全产物字节一致性证明运行时未变"
+    ]
+  },
+  "archive_color_type_revision": {
+    "status": "implemented-local-targeted-tests-passed",
+    "changes": [
+      "23 SVG/PNG covers: stronger series-colored lighting and regular-weight Helvetica Neue/PingFang titles",
+      "Native note font stack adds Helvetica Neue; archive title line height 1.5 with balanced wrapping",
+      "Small series-colored metadata marker; existing pointer/focus/reduced-motion behavior preserved"
+    ],
+    "checks": [
+      "npm run covers",
+      "npm run check: 115 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:cover-editorial: 23 covers and 6 browser/viewport cases",
+      "npm run test:cover-layout: 81 measured SVG layout cases",
+      "npm run test:note-hover",
+      "npm run test:archive-preview-loading: three engines"
+    ],
+    "screenshot": "/Users/ytz/blog/artifacts/archive-color-type/after.png",
+    "limits": [
+      "Local browser checks, not human aesthetic acceptance or physical devices",
+      "Prior full-release audit is historical; this revision ran targeted tests only"
+    ]
+  },
+  "home_reading_return_revision": {
+    "status": "implemented-local-regressions-passed",
+    "problem": "Expanded homepage reset from 17 to 9 entries after reading a later post and returning; previous reading entry became hidden",
+    "fix": "Per-entry expansion state merged into Astro history; restore destination rows before scroll restoration",
+    "evidence": "artifacts/home-reading-return/verification.json",
+    "checks": [
+      "npm run check: 115 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:home-reading-return: 12 cases",
+      "npm run test:note-hover",
+      "npm run test:home-static-entry: 18 enhanced/disabled/blocked-script cases"
+    ],
+    "coverage": "Chromium/WebKit/Firefox × 390/1440 × normal/reduced motion; Back, Forward, reload, fresh nav entry, invalid/clamped state, all-expanded button, preserved Astro index/history length",
+    "limits": [
+      "Physical devices and human design acceptance remain pending",
+      "Previous full-release audit remains historical; current turn ran targeted regression scope only"
+    ]
+  },
+  "index_type_scale_revision": {
+    "status": "implemented-local-regressions-passed",
+    "issuesConfirmed": [
+      "Series mobile chapter titles were 12px",
+      "32px mobile series number rail wrapped 02 onto two lines",
+      "Series/map reading titles still used the older Geist/450 stack"
+    ],
+    "changes": [
+      "Series chapter titles and descriptions at 16px default, native note font and regular weight",
+      "Series text sizes use rem; rails scale with text; series and chapter numbers stay on one line",
+      "Mobile map reading titles regular native 16px and metadata 12px; inspector native regular title",
+      "Desktop SVG label sizes left unchanged to preserve fixed graph geometry"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run check: 117 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:index-type-scale: 108 cases",
+      "npm run test:series",
+      "npm run test:map",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/index-type-scale/series-before.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/series-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/map-after.png"
+    ],
+    "limits": [
+      "100%/200% CSS root-font scaling in local browser engines, not OS text settings or physical-device validation",
+      "Applies to series and map reading surfaces, not a claim that all routes scale identically",
+      "Human aesthetic acceptance and remote CI remain pending"
+    ]
+  },
+  "archive_reading_type_revision": {
+    "status": "implemented-local-regressions-passed",
+    "confirmedBefore": {
+      "mobileSummaryPx": 12,
+      "mobileTitleAt200PercentRootFontPx": 20,
+      "summaryLineClamp": 2
+    },
+    "changes": [
+      "Archive 15px native-font summaries, 12px metadata; regular-weight note titles retained",
+      "Archive font sizes use rem and scale with reading preference",
+      "Full short summaries instead of mid-sentence two-line clipping; compact mode still hides them",
+      "Date rail scales with text; years/status and controls wrap without horizontal overflow"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run check",
+      "npm run build",
+      "npm run test:index-type-scale: 126 cases, including 18 archive cases",
+      "npm run test:archive",
+      "npm run test:archive-preview-loading",
+      "npm run test:cover-editorial",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/archive-reading-type/before.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/archive-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/archive-large-text.png"
+    ],
+    "limits": [
+      "CSS root-font 100%/200% preference testing, not physical-device OS font settings",
+      "Changes scoped to archive reading surface; not all-site accessibility certification",
+      "Prior full-release audit historical; this revision uses targeted evidence"
+    ]
+  },
+  "home_topic_reading_revision": {
+    "status": "implemented-local-regressions-passed",
+    "changes": [
+      "Homepage featured/recent summaries use native note font at 15px, full short sentences instead of one/two-line truncation",
+      "Homepage reading/path/series type and topic page titles aligned with note typography; brand wordmark and chip composition preserved",
+      "Homepage and taxonomy font sizes converted to rem, so reading preference affects text",
+      "Long tags wrap within available width; mobile topic column stretches to container instead of leaking past 320px viewport"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run build",
+      "npm run check",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:note-hover",
+      "npm run test:home-reading-return: 12 cases",
+      "npm run test:home-static-entry: 18 cases",
+      "npm run test:taxonomy",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/index-type-scale/home-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/tags-after.png",
+      "/Users/ytz/blog/artifacts/home-topic-reading/category-overflow.png"
+    ],
+    "limits": [
+      "Typography matrix samples one tag detail and one category detail at 100%/200%; taxonomy membership/layout regression separately covers all published topic routes",
+      "Local browser engine and CSS root-font tests, not physical-device or OS text-setting certification",
+      "User aesthetic acceptance and release-wide current-build audit remain pending"
+    ]
+  },
+  "current_release_validation_revision": {
+    "status": "historical-local-suite-passed",
+    "commands": 33,
+    "supplementalCommand": "test:navigation-glow",
+    "servedBuildFiles": 442,
+    "snapshottedInputFiles": 244,
+    "sourceHash": "0b210aacc6bc56a0e485596ab09e70538c8d672531032cbc405621e30a2a7fa9",
+    "buildHash": "b27ca8902cf53295cb0b432ba40021592b0118ed92e30c094c72a9e67f88c9af",
+    "sourceAndBuildUnchanged": true,
+    "evidence": "artifacts/release-history/pre-lifecycle-20261009-161013/verification.json",
+    "historicalEvidence": "artifacts/release-history/pre-reading-type/verification.json",
+    "limits": [
+      "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+      "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+    ],
+    "remaining": [
+      "User aesthetic acceptance",
+      "Physical iPhone/Android and installed Safari validation",
+      "Remote CI/deployment routing",
+      "Online p75 performance metrics"
+    ],
+    "historicalNote": "33-command source/build fingerprints belong to the pre-lifecycle archive, not the later 40-command archive."
+  },
+  "retired_ui_cleanup_revision": {
+    "status": "implemented-build-byte-equivalence-verified",
+    "removed": [
+      "src/components/JmpTransition.astro",
+      "src/components/ScrollMiku.astro",
+      "src/components/FieldBrief.astro",
+      "src/components/AtlasHeader.astro",
+      "src/components/HomeMotion.astro",
+      "src/components/TerminalHero.astro",
+      "src/components/PostRow.astro",
+      "src/components/Live2D.astro",
+      "src/components/BinaryXray.astro",
+      "src/components/ReadingProgress.astro",
+      "src/styles/atlas.css",
+      "src/styles/jmp-transition.css"
+    ],
+    "removedLines": 5519,
+    "scannedFiles": 169,
+    "externalImports": [],
+    "backup": "/Users/ytz/blog/artifacts/legacy-ui-cleanup/retired-ui.zip",
+    "backupByteVerified": true,
+    "backupMatchesPriorFullAudit": true,
+    "restoreCommand": "python3 -m zipfile -e /Users/ytz/blog/artifacts/legacy-ui-cleanup/retired-ui.zip /Users/ytz/blog",
+    "checks": [
+      "npm run check: 107 files, zero errors/warnings/hints",
+      "npm run build"
+    ],
+    "buildComparison": {
+      "before": 442,
+      "after": 442,
+      "added": [],
+      "removed": [],
+      "changed": [],
+      "sameAllFiles": true
+    },
+    "evidence": "artifacts/legacy-ui-cleanup/",
+    "limits": [
+      "Source cleanup only; no claim of runtime speed, memory or bundle reduction",
+      "Previous 33-command suite remains prior-source evidence; delivered build bytes are exactly unchanged",
+      "Public images and asset generation scripts retained; only the 12 confirmed unused source files removed"
+    ]
+  },
+  "map_reading_return_revision": {
+    "status": "implemented-local-regressions-passed",
+    "confirmedBefore": "VPN + Android filter returned 2 / 22 posts; article Back reset it to 22 / 22 and cleared both controls",
+    "fix": [
+      "Per-history-entry keyword, category, selected node and native category disclosure state",
+      "Apply destination filters/tree height before Astro restores scroll",
+      "Restore selected inspector only when the node is still visible",
+      "Preserve unrelated URL, Astro index and history length; fresh map entry starts unfiltered",
+      "Abort listeners on route swap; state parsing validates version/options/nodes and bounds query at 512 characters"
+    ],
+    "evidence": "artifacts/map-reading-return/verification.json",
+    "checks": [
+      "npm run check",
+      "npm run build",
+      "npm run test:map-reading-state: 7 cases",
+      "npm run test:map-reading-return: 12 engine/viewport/motion cases",
+      "npm run test:map",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:cross-browser"
+    ],
+    "ci": "Added both map reading-state tests to workflow and release runner; remote execution not claimed",
+    "limits": [
+      "Local installed engines, not physical devices or deployed CI",
+      "Prior full 33-command audit predates this map runtime change; current revision uses targeted evidence"
+    ]
+  },
+  "map_input_stress_revision": {
+    "status": "implemented-local-stress-and-regressions-passed",
+    "beforeEvidence": "artifacts/map-input-stress/before.json",
+    "confirmedBefore": [
+      "WebKit native quota exception during 200-event burst; saved query lagged at query-98",
+      "Firefox burst retained query-197 while UI already showed VPN"
+    ],
+    "changes": [
+      "Live filters remain immediate; native History writes coalesce after 150ms",
+      "Bounded 32-entry in-memory cache restores fast Back/Forward without waiting for serialization",
+      "Tab-only, per-history-entry token journal handles immediate reload; fresh native visits do not reuse an index-zero journal",
+      "Native history quota is caught and retried on the same active entry; unavailable/full storage falls back to memory and batched History",
+      "Route swaps cancel old-entry timers to avoid writing state into the destination"
+    ],
+    "afterWritesPerBurst": {
+      "chromium": 1,
+      "webkit": 1,
+      "firefox": 1
+    },
+    "evidence": "artifacts/map-input-stress/verification.json",
+    "checks": [
+      "npm run build",
+      "npm run check",
+      "npm run test:map-input-stress: three engines",
+      "npm run test:map-reading-return: 12 cases",
+      "npm run test:map-reading-state: 7 cases",
+      "npm run test:map",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:cross-browser"
+    ],
+    "ci": "Stress test added to local release runner and CI definition; remote run not claimed",
+    "limits": [
+      "Synthetic rapid-input and fault fixtures in local engines; not physical devices or installed OS Safari",
+      "No claim of better real-world FPS/INP from the state-write count",
+      "Immediate reload journal requires available tab storage; blocked storage retains memory/history fallback rather than persistent journal guarantees",
+      "Previous full-suite audit predates these map runtime changes"
+    ]
+  },
+  "chip_hardware_profile_revision": {
+    "measuredAt": "2026-10-09T07:56:09.322Z",
+    "kind": "local hardware evidence; no scene visual change",
+    "evidence": "artifacts/chip-hardware-profile/current.json",
+    "command": "npm run profile:chip-hardware",
+    "backend": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)",
+    "fixtures": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1,
+        "tier": "full",
+        "cpuSubmitMs": {
+          "samples": 120,
+          "p50": 0.6000000014901161,
+          "p95": 1.0999999977648258,
+          "max": 1.6000000014901161
+        },
+        "gpuDrawIntervalMs": {
+          "samples": 120,
+          "p50": 3.589583,
+          "p95": 4.324541,
+          "max": 4.956625
+        },
+        "idleFrames": 0,
+        "warmResources": {
+          "geometries": 24,
+          "textures": 24
+        },
+        "errors": []
+      },
+      {
+        "width": 390,
+        "height": 1000,
+        "dpr": 1,
+        "tier": "balanced",
+        "cpuSubmitMs": {
+          "samples": 120,
+          "p50": 0.5,
+          "p95": 0.8999999985098839,
+          "max": 1.0999999977648258
+        },
+        "gpuDrawIntervalMs": {
+          "samples": 120,
+          "p50": 0.881041,
+          "p95": 1.028083,
+          "max": 1.925833
+        },
+        "idleFrames": 0,
+        "warmResources": {
+          "geometries": 24,
+          "textures": 19
+        },
+        "errors": []
+      }
+    ],
+    "decision": "Retain current scene quality: no warm render bottleneck demonstrated on this device. Cold first submission is separate and remains a startup consideration.",
+    "limits": [
+      "Actual local Chrome hardware backend; no capability, CPU, network, or GPU overrides.",
+      "Mobile width is a desktop GPU fixture, not a physical mobile device measurement.",
+      "Two warmup passes; three measured passes, same 40 progress positions per pass.",
+      "CPU is composer.render submission only; GPU timer covers first draw through end of synchronous render task, omitting pre-first-draw work.",
+      "Not presentation FPS; instrumentation adds overhead. Resource counters are partial evidence, not GPU memory bytes or route-disposal proof.",
+      "Different viewport fixtures are not an isolated optimization comparison."
+    ],
+    "releaseAudit": "Historical full audit remains historical; manual profiler is not a CI performance gate."
+  },
+  "note_preview_loading_revision": {
+    "verifiedAt": "2026-10-09T08:00:03.487Z",
+    "problem": "Firefox decoded the old bitmap while the replacement SVG request was held; pending and obsolete completions could reveal a stale preview.",
+    "before": [
+      {
+        "engine": "chromium",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "staleVisible": true,
+        "obsoleteVisible": true,
+        "errors": []
+      }
+    ],
+    "after": [
+      {
+        "engine": "chromium",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      }
+    ],
+    "change": "Observe load/error for the current source before decode; generation and AbortController cancel listeners on selection, Escape, scroll, media change and navigation.",
+    "visualScope": "No palette/font/layout change in this revision. Current screenshot reviewed: native regular note typography, colored hover and actual cover preserved.",
+    "evidence": "artifacts/note-preview-loading/current.json",
+    "checks": [
+      "npm run build",
+      "npm run check: 114 files, zero diagnostics",
+      "npm run test:note-preview-loading: three engines, delayed/obsolete loads and Escape-before-completion",
+      "npm run test:note-hover: existing pointer/focus/motion/touch/navigation/expansion",
+      "npm run test:home-reading-return: 12 cases"
+    ],
+    "limits": [
+      "Controlled local image delays, not real mobile networks",
+      "Remote CI definition updated, not executed",
+      "Historical full release audit predates this runtime change"
+    ]
+  },
+  "note_color_coherence_revision": {
+    "verifiedAt": "2026-10-09T08:02:50.437Z",
+    "intent": "Colors carry category/series identity instead of independent per-cover randomness",
+    "palette": {
+      "Android": "cyan",
+      "Binary": "green",
+      "密码学基础": "amber",
+      "腾讯游戏安全2026": "violet"
+    },
+    "source": "src/lib/seriesThemes.json shared category palette used by note-accent.ts and gen-covers.mjs",
+    "changedCoverCount": 11,
+    "changedSvgInvariant": "All 11 changed SVG files match their backup exactly after substituting only the old accent hex for the new one; title/diagram geometry and metadata preserved.",
+    "browserChecks": [
+      {
+        "engine": "chromium",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      }
+    ],
+    "checks": [
+      "npm run covers: 23 SVG/PNG cover pairs",
+      "npm run build (includes deterministic covers check)",
+      "npm run check: 114 files, zero diagnostics",
+      "npm run test:note-color-coherence: 22 archive / 21 homepage notes per engine",
+      "npm run test:cover-editorial: 23 assets, 6 viewport/engine cases",
+      "npm run test:cover-layout: 81 SVG title cases",
+      "npm run test:note-hover",
+      "npm run test:note-preview-loading"
+    ],
+    "evidence": "artifacts/note-color-coherence/verification.json",
+    "visualSourceBackup": "artifacts/note-color-coherence/before.zip",
+    "limits": [
+      "No physical-device or human aesthetic acceptance claim",
+      "CI definition/local release runner updated; remote execution not verified",
+      "Historical full release audit predates these asset/source changes"
+    ]
+  },
+  "chip_lifecycle_revision": {
+    "verifiedAt": "2026-10-09T08:09:45.103154+00:00",
+    "problem": "Renderer properties were disposed before owned materials; installed Three r186 also omits AO material/noise texture and bloom high-pass material in pass.dispose.",
+    "changes": [
+      "Owned resources now disposed before renderer properties",
+      "Explicit AO/noise and high-pass material disposal",
+      "Retired renderer context explicitly lost after cleanup; already-lost contexts not lost again"
+    ],
+    "before": {
+      "cycles": 6,
+      "programsCreated": 36,
+      "programsDeleted": 16,
+      "contextLost": false
+    },
+    "after": {
+      "cycles": 6,
+      "programsCreated": 36,
+      "programsDeleted": 36,
+      "allContextsLost": true,
+      "noPostDisposalDraws": true
+    },
+    "evidence": "artifacts/chip-lifecycle/verification.json",
+    "sourceBackup": "artifacts/chip-lifecycle/chip-preview-before.txt",
+    "checks": [
+      "build",
+      "check:116 files, zero diagnostics",
+      "chip-lifecycle:6 direct init/abort cycles",
+      "chip-early-loss:9 fixtures, three engines",
+      "chip-cross-browser:three tiers/controls/recovery, three engines",
+      "chip-boot-compat:pixel-identical fixed frame SHA256 0c02d10ebbf4eaab86f67eb5c8dee967ba33b1fe90e5c843a2a99b7913776620"
+    ],
+    "limits": [
+      "Local Chrome; direct repeated init/AbortSignal disposal against the actual built module in one document, not native route navigation or physical mobile testing.",
+      "GL counters track explicit create/delete calls; context loss retires remaining context-owned resources. Neither is a GPU byte measurement.",
+      "WeakMap instrumentation does not retain handles; CDP requested garbage collection changes natural lifetime behavior.",
+      "Heap and DOM trends are reported, not an exact leak-free guarantee; no arbitrary universal memory threshold. The original before fixture had persistent instrumentation loss listeners; its heap/listener counts are not a clean causal before/after comparison."
+    ],
+    "releaseAudit": "Included in optional local GPU release runner, not non-GPU deployment workflow; historical full audit predates this runtime change."
+  },
+  "currentReleaseAudit": {
+    "auditedAt": "2026-10-09T08:14:23.495Z",
+    "commands": 40,
+    "sourceHash": "6ae1e437843ed4b75879849d18e4d57afeb004a497a47206dd7a663d55fbee64",
+    "buildHash": "eaeae5626ea75c485dfb2d7d5a5939e85c3313fe72b32f8baecdb2abac4b3d77",
+    "evidence": "artifacts/release-history/pre-interface-followups-20261009-172834/verification.json",
+    "remaining": "真机、实际部署CI/线上p75指标、人工视觉验收与正式专题内容联动仍需独立证据"
+  },
+  "silicon_mobile_reading_revision": {
+    "verifiedAt": "2026-10-09T08:34:34.954862+00:00",
+    "intent": "Readable English mobile silicon narrative without changing geometry or adding visual decoration",
+    "changes": [
+      "Primary descriptions 11/12px → 14px, execution-context explanations 8px → 12px, chapter/structure labels 10px → 12px",
+      "Rem-based typography and 50rem minimum stage; tall stages can scroll up to reveal controls",
+      "Container query stacks narrow controls at enlarged root text instead of squeezing the native picker",
+      "Explicit 44px minimum/select height fixes WebKit 22px intrinsic popup field",
+      "Advanced panel temporarily hides auxiliary world captions; cleared inspection and closed panel restore visible captions",
+      "Mobile rules consolidated in a component-scoped block; duplicate open-panel override removed"
+    ],
+    "sourceScope": "Scene script and component markup/bootstrap verified unchanged against prior full audit/backup. CSS only.",
+    "evidence": "artifacts/silicon-mobile-reading/verification.json",
+    "fixtures": 24,
+    "checks": [
+      "build (deterministic covers included)",
+      "check:117 files, zero diagnostics",
+      "silicon-mobile-reading:24 viewport/root-font/reduced-motion fixtures in three engines",
+      "silicon integration:home/model/article anchors/mobile controls/reduced motion",
+      "chip-cross-browser:three tiers and rendering/controls/recovery in three engines",
+      "chip-lifecycle:6 direct init/abort cycles",
+      "chip-boot-compat:native/forced timer render matches each other; historical viewport PNG intentionally differs due larger HTML labels"
+    ],
+    "sourceBackup": "artifacts/silicon-mobile-reading/ChipExperience-before.txt",
+    "limits": [
+      "CSS root-font 100/200% scaling, not physical OS text scaling",
+      "Screenshots and automation are not human aesthetic approval",
+      "Prior 40-command full audit predates this CSS revision; current scope has targeted checks",
+      "New test is in optional GPU release runner; no remote CI execution claimed"
+    ]
+  },
+  "silicon_static_reading_revision": {
+    "verifiedAt": "2026-10-09T08:56:12.578750+00:00",
+    "intent": "Readable truthful static/dormant silicon entry, not an animated-only hero",
+    "changes": [
+      "No-script-only stylesheet places introduction, notice, poster and reading anchor in natural flow; interactive users do not download that sheet",
+      "Dormant SSR status says STATIC PREVIEW rather than falsely claiming REAL-TIME 3D",
+      "Enlarged dormant poster/message positioned below introduction",
+      "Skip link hidden by its own height, fully revealed on keyboard focus",
+      "Static save-data journey selector corrected against component-scoped mobile rule; no empty animation scroll",
+      "No-script font readiness uses bounded external status polling instead of an indefinitely pending browser Promise"
+    ],
+    "checks": [
+      "build",
+      "check:118 files, zero diagnostics",
+      "silicon-static-reading:39 fixtures, three engines, no-JS/CSP/save-data, 100/200% root font, actual held lazy module and network failure",
+      "silicon-mobile-reading:24 interactive/reduced-motion fixtures",
+      "chip-startup:opt-in economy rendering, held module, constructor failure recovery",
+      "silicon integration:model/article anchors and mobile controls"
+    ],
+    "evidence": "artifacts/silicon-static-reading/verification.json",
+    "sourceBackup": "artifacts/silicon-static-reading/ChipExperience-before.txt",
+    "limits": [
+      "CSS root-font scaling is not physical device or OS scaling",
+      "Slow failed module fixture proves static/read-link survival, not recovery of a cached failed dynamic import",
+      "Existing startup recovery fixture concerns WebGL initialization failure, not module network failure",
+      "Current full 40-command audit remains historical; remote CI not invoked",
+      "No human aesthetic acceptance or field p75 performance claim"
+    ],
+    "recoveryFollowup": "artifacts/chip-runtime-retry/current.json now verifies module load recovery separately from the original static-survival fixture."
+  },
+  "chip_runtime_retry_revision": {
+    "verifiedAt": "2026-10-09T09:05:52.294077+00:00",
+    "problem": "Actual aborted module request: Chrome cached rejected import, Retry issued no further request; WebKit/Firefox recovered in-document in the before fixture.",
+    "before": [
+      {
+        "engine": "chromium",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 1,
+        "documents": 1,
+        "recovered": false,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 1,
+        "documents": 1,
+        "recovered": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      }
+    ],
+    "after": [
+      {
+        "engine": "chromium",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      }
+    ],
+    "decision": "Failed module load offers explicit Reload page; loaded runtime plus initialization/context failure retains in-place Retry. Fresh document retries exact published URL, no chunk cache-busting. Save-data reload preserves opt-in.",
+    "changes": [
+      "Track runtime versus renderer failure separately",
+      "Clear failure classification on a new initialization attempt",
+      "Reload button explicitly names full-page operation, disables duplicate clicks while navigating",
+      "pageshow re-enables a retained runtime-failure button; native BFCache acceptance is not claimed"
+    ],
+    "checks": [
+      "build",
+      "check:119 files, zero diagnostics",
+      "chip-runtime-retry:9 fixtures across three engines, six actual aborted module recoveries plus three constructor/actual-context-loss recovery cases",
+      "silicon-static-reading:39 fixtures",
+      "chip-startup:existing slow-module/opt-in/constructor recovery",
+      "chip-early-loss:9 pre-frame interruptions and retries"
+    ],
+    "evidence": "artifacts/chip-runtime-retry/current.json",
+    "sourceBackup": "artifacts/chip-runtime-retry/chip-entry-before.txt",
+    "limits": [
+      "Headless local engines with capability fixtures, not physical phones",
+      "No permanent server outage, malformed dependency, or native BFCache recovery guarantee",
+      "Manual reload returns to the static opt-in gate; user explicitly starts the model again",
+      "Prior full 40-command audit is historical; new GPU test included in optional local runner, no remote CI run"
+    ]
+  },
+  "note_preview_placement_revision": {
+    "status": "implemented-targeted-local-verification",
+    "changes": [
+      "Keep active note text clear by placing preview above/below its full reading row",
+      "Reserve rotated-artwork bounds and actual navigation height",
+      "Follow pointer horizontally within reading-safe vertical space",
+      "Hide decoration only when the viewport has no reading-safe space",
+      "Keep decoded readiness separate from visibility; preserve cancelled-load guards",
+      "Keep one pending animation frame when immediate placement and queued pointer motion interleave"
+    ],
+    "before": {
+      "fixtures": 36,
+      "overlaps": 36,
+      "overflow": 12
+    },
+    "after": {
+      "fixtures": 48,
+      "overlaps": 0,
+      "overflow": 0,
+      "hidden": 24
+    },
+    "scope": "Before has 36 fixtures; after includes the same dimensions plus 12 extra 240px-height edge cases. Local three-engine pointer/focus checks, not physical device or human acceptance.",
+    "checks": [
+      "production build",
+      "Astro check: 122 files, 0 diagnostics",
+      "48 placement fixtures",
+      "existing note-hover including actual pointer movement, touch and reduced-motion",
+      "three-engine delayed/obsolete image requests and Escape cancellation",
+      "three-engine cover/title palette coherence"
+    ],
+    "evidence": "artifacts/note-preview-placement/current.json",
+    "backup": "artifacts/note-preview-placement/note-hover-before.txt",
+    "releaseGate": "Added local core and CI definition; remote run not executed."
+  },
+  "companion_style_cleanup_revision": {
+    "status": "implemented-targeted-local-verification",
+    "changes": [
+      "Removed unused companion stylesheet URL import and conditional loading branch from Base",
+      "Removed obsolete default site-editorial body mode; current routes retain their explicit body modes",
+      "Deleted retired src/styles/site-editorial.css with verified source backup",
+      "Extended style boundary gate to inspect every emitted HTML/CSS for retired body mode/companion overrides"
+    ],
+    "before": {
+      "html": 99,
+      "bodyClasses": {
+        "home-editorial": 1,
+        "atlas-mode utility-open": 2,
+        "atlas-mode series-open": 5,
+        "(none)": 1,
+        "atlas-mode": 1,
+        "atlas-mode about-open": 1,
+        "atlas-mode taxonomy-open": 63,
+        "atlas-mode map-open": 1,
+        "silicon-editorial": 1,
+        "article-editorial": 23
+      },
+      "legacyCSS": [
+        "dist/_astro/site-editorial.CqNLjLPA.css"
+      ],
+      "legacyBytes": 20523,
+      "linkedPages": []
+    },
+    "buildComparison": {
+      "beforeFiles": 444,
+      "afterFiles": 443,
+      "removed": [
+        "dist/_astro/site-editorial.CqNLjLPA.css"
+      ],
+      "added": [],
+      "changed": [],
+      "allRetainedFilesIdentical": true
+    },
+    "checks": {
+      "astro": "122 files, zero diagnostics",
+      "internalLinks": {
+        "html": 99,
+        "css": 15,
+        "references": 6730,
+        "broken": []
+      },
+      "styleBoundaries": {
+        "cssFiles": 15,
+        "htmlFiles": 99,
+        "legacyStyles": 0,
+        "legacyBodyModes": 0
+      },
+      "clientNavigation": "reader to home swaps reader CSS out"
+    },
+    "backup": "artifacts/companion-style-cleanup/source-before.zip",
+    "limits": [
+      "No runtime transfer or FPS improvement claim: old CSS was emitted but linked by zero pages",
+      "Common editorial-theme.css still contains harmless compatibility selectors for the retired mode; not a claim of all legacy selectors removed",
+      "Historical full release audit predates targeted changes; remote CI and physical device/human acceptance remain separate"
+    ]
+  },
+  "latest_integrated_audit": {
+    "evidence": "artifacts/release-check/verification.json",
+    "finishedAt": "2026-10-09T10:23:11.084Z",
+    "sourceHash": "a35d01a10e3a1cf2f25fe213a755a5c952b61f700f22ace83970bd522622c521",
+    "buildHash": "436f219fca8211c42658bc681bc5ef19d833905402c9042adbd9cd5817e9db33",
+    "commands": 48,
+    "servedFiles": 443,
+    "inputFiles": 253,
+    "sourceStable": true,
+    "buildStable": true,
+    "provenance": {
+      "stampHash": "4c90b6084c7f2edd3f46668597932aab7451129a0b519cccdc9d01d341583681",
+      "startedAt": "2026-10-09T10:15:12.321Z",
+      "finishedAt": "2026-10-09T10:15:13.879Z",
+      "runtime": "v22.23.3"
+    },
+    "limits": [
+      "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+      "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+    ],
+    "appliesTo": "Frozen state before the subsequent homepage silver-gradient CSS change."
+  },
+  "current_delivery_lcp_revision": {
+    "evidence": "artifacts/lcp-current/summary.json",
+    "reports": 18,
+    "applicationChanged": false,
+    "sourceHash": "a9bef7525e51c093a801f5ff9d2507f4be08b4cf303b3b30bda8bcc7a40a088e",
+    "buildHash": "2678a937ee2ef91948f763bb884f951806a958cc46695b2841c22ec6b51195e0",
+    "sameServerMedians": [
+      {
+        "route": "home",
+        "condition": "identity",
+        "metrics": {
+          "performance": 91,
+          "FCPms": 2251.3968,
+          "LCPms": 3151.3968,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 44,
+          "transferBytes": 354737
+        }
+      },
+      {
+        "route": "article",
+        "condition": "identity",
+        "metrics": {
+          "performance": 74,
+          "FCPms": 3750.9663999999993,
+          "LCPms": 4801.2080000000005,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 80,
+          "transferBytes": 705224
+        }
+      },
+      {
+        "route": "home",
+        "condition": "compressed",
+        "metrics": {
+          "performance": 99,
+          "FCPms": 1501.55655,
+          "LCPms": 1951.5565499999998,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 43,
+          "transferBytes": 180701
+        }
+      },
+      {
+        "route": "article",
+        "condition": "compressed",
+        "metrics": {
+          "performance": 95,
+          "FCPms": 2101.5618,
+          "LCPms": 2551.5618,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 85,
+          "transferBytes": 282074
+        }
+      }
+    ],
+    "decision": "先核验实际部署的内容压缩与缓存，再决定视觉/字体削减；压缩后文章模拟LCP仍略高于2500ms。",
+    "limits": [
+      "Simulated mobile Lighthouse, not physical-device latency, field p75 or INP",
+      "Observed local timings are separate from simulated weak-network timings",
+      "Preview group uses existing Python service; only identity/compressed groups are same-server controls",
+      "Sequential three-run groups, not randomized runs; warm fixture encoding cache and fresh Lighthouse browser profiles",
+      "No deployment configuration or application visual/content change was made; full audited app/build retained"
+    ],
+    "articleFollowupEvidence": "artifacts/article-font-budget/revision.json"
+  },
+  "deployment_delivery_readonly_revision": {
+    "checkedAt": "2026-10-09T09:47:02.285Z",
+    "evidence": "artifacts/deployment-readonly/verification.json",
+    "deployedDelivery": {
+      "htmlCssJsEncoding": "gzip",
+      "observedCacheControl": "max-age=600",
+      "observedVary": "Accept-Encoding"
+    },
+    "releaseIdentity": "Current homepage/archive/article fingerprints differ from deployed responses; /silicon/ is absent. Matching RSS or sitemap-index alone does not establish current release identity.",
+    "latestRemoteWorkflow": {
+      "id": 37226464356,
+      "status": "completed",
+      "conclusion": "success",
+      "headSHA": "9d20518886633157c3df82ce4347d6ef8e26101b",
+      "createdAt": "2026-10-04T18:58:22Z",
+      "updatedAt": "2026-10-04T19:05:10Z",
+      "url": "https://github.com/fwmax360/fwmax360.github.io/actions/runs/37226464356"
+    },
+    "decisions": [
+      "Do not add redundant compression settings based on the uncompressed local preview",
+      "Preserve visual fidelity; actual field metrics and current release still require deployment validation",
+      "Treat October 4 successful remote run as historical only; current 46-command local snapshot is not remotely tested or published",
+      "No push, dispatch, upload, cache purge or deployment performed"
+    ],
+    "limits": [
+      "Response headers may change after this timestamp",
+      "Only inspected selected live routes/assets; not a full remote audit",
+      "Remote older release is not the current local design and chip implementation"
+    ]
+  },
+  "article_font_budget_revision": {
+    "status": "implemented-targeted-local-verification",
+    "checkedAt": "2026-10-09T10:06:01.965729+00:00",
+    "change": "Load editorial serif fallback only for explicit editorialFont prop; remove article-type implicit download. Full Chinese sans and optional serif capabilities remain.",
+    "cases": 69,
+    "baselineCompared": true,
+    "automaticSerifRequestsBefore": 69,
+    "automaticSerifRequestsAfter": 0,
+    "unusedStylesheetDecodedBytes": 99044,
+    "representativeFirstViewportPixelIdentity": [
+      "chromium",
+      "webkit",
+      "firefox"
+    ],
+    "evidence": "artifacts/article-font-budget/current.json",
+    "performance": {
+      "before": {
+        "LCPms": 2551.5618,
+        "TBTms": 0,
+        "CLS": 0.0007871008233697848,
+        "transferBytes": 282074
+      },
+      "after": {
+        "LCPms": 2251.6164000000003,
+        "TBTms": 0,
+        "CLS": 0.0007871008233697848,
+        "transferBytes": 246293
+      },
+      "transferSavedBytes": 35781,
+      "LCPDeltaMs": 299.9453999999996,
+      "scope": "Three sequential pinned Lighthouse mobile-simulation runs per revision, same gzip fixture and config. Clean after-group runs after browser regressions terminate. Not randomized/device/field p75 proof."
+    },
+    "checks": [
+      "production build",
+      "Astro check:126 files, 0 diagnostics",
+      "69 article font/resource and optional baseline comparisons",
+      "Chinese sans/no-JS/explicit optional serif glyph loading",
+      "22 formal reader route contracts",
+      "three-engine critical interactions",
+      "style boundaries"
+    ],
+    "backups": [
+      "artifacts/article-font-budget/BaseHead-before.txt",
+      "artifacts/article-font-budget/font-test-before.txt"
+    ],
+    "limits": [
+      "Representative first viewport pixels, not every article pixel at every scroll position",
+      "Computed font families plus explicit glyph loading, not real Windows/Linux typography acceptance",
+      "46-command full audit is historical before this application change",
+      "New gate included in local core and CI definition; remote CI not executed"
+    ],
+    "defaultGateEvidence": "artifacts/article-font-budget/gate.json"
+  },
+  "build_input_provenance_revision": {
+    "evidence": "artifacts/build-provenance/verification.json",
+    "fixtureEvidence": "artifacts/build-provenance/fixtures.log",
+    "scope": "Local build provenance and immutable input/output inventory, not full release or remote CI acceptance",
+    "changes": [
+      "Include tsconfig and deletions/additions in content snapshots",
+      "Invalidate old stamp before cover/Astro/Pagefind build; record only unchanged inputs after successful steps",
+      "Release checks compare the stamp, inputs and entire dist before and after verification",
+      "Exclude experimental artifacts from application type checking"
+    ],
+    "verified": {
+      "fixtureTests": 13,
+      "typeCheckFiles": 127,
+      "typeErrors": 0,
+      "typeWarnings": 0,
+      "typeHints": 0,
+      "inputFiles": 253,
+      "outputFiles": 443,
+      "changedOutputFiles": 0,
+      "servedFilesMatched": 443,
+      "brokenLinks": 0
+    },
+    "remaining": [
+      "Current-version full integrated audit",
+      "Remote CI/deployment acceptance",
+      "Physical-device and human aesthetic acceptance"
+    ]
+  },
+  "home_silver_gradient_revision": {
+    "verifiedAt": "2026-10-09T10:27:33.645Z",
+    "version": 2,
+    "sourceHash": "16920956ba989fb524c7020333960ff4641cffedcf7062e5dc6c999025dad445",
+    "buildHash": "9e3c3bd996410d4bea9fb9ed49dec6cf12b89bce73a372e62d0b5d02ef550e59",
+    "stampHash": "c5b5503d2a6ffe33abeed51cf96e3dc193df809fcd51a27089a68c1a497e0587",
+    "changes": [
+      "Gray begins earlier and occupies more of the latest-note surface",
+      "Deeper silver hero lettering and white-to-gray buttons",
+      "Secondary text slightly darkened to preserve contrast on the grayer surface"
+    ],
+    "cases": 15,
+    "minFeatureTextContrast": 4.892026030326665,
+    "desktopLayoutUnchanged": true,
+    "homepageMatchesBuild": true,
+    "evidence": "artifacts/home-silver-gradient/verification.json",
+    "priorVersion": "artifacts/home-silver-gradient/v1/revision.json",
+    "scope": "15 targeted gradient checks only, not a new 48-command integrated audit. Previous quality/boundary results belong to v1."
+  },
+  "featured_motion_revision": {
+    "verifiedAt": "2026-10-09T10:31:27.205Z",
+    "sourceHash": "68b4c2734342fd4e100b3d810d1998f85106db0641ef5eae5cdfc6d07fb810e5",
+    "buildHash": "2895dd79e5c6d0c45eedc22be39bcb5434587cc2bebadbafd32e147d8570d6e2",
+    "changes": [
+      "Featured link hover lifts surface 3px and moves title/arrow",
+      "Press compresses surface slightly; original links retained",
+      "Existing reading transition snapshots the full gradient surface rather than only inner copy"
+    ],
+    "cases": 12,
+    "evidence": "artifacts/featured-motion/verification.json",
+    "video": "artifacts/featured-motion/desktop-demo.webm",
+    "regression": [
+      "test:navigation-glow",
+      "check",
+      "test:build-current"
+    ],
+    "limits": [
+      "Native surface transition only when the existing router/viewport/motion conditions allow it; ordinary native routing otherwise",
+      "Desktop/mobile emulation, not physical device or human acceptance",
+      "Not a rerun of all 48 integrated commands"
+    ]
+  },
+  "navigation_tempo_revision": {
+    "verifiedAt": "2026-10-09T10:33:49.101Z",
+    "sourceHash": "41ec4e9d15cd3465bef314a439948350871d74bd9e53f11cd1665926fe1d2a62",
+    "buildHash": "1fa25d7aa626eaa105a0c56ba2572cddd85cc1da3cb921c659c19603263001ee",
+    "changes": [
+      "Edge circulation 800→1000ms, slow-start accelerating curve",
+      "Edge settle 560→860ms with brightness buildup then fade; back 420→640ms",
+      "Preparation visual 160→260ms, no added navigation wait",
+      "Content 440→620ms; matched article surface 560→700ms, slow-start easing"
+    ],
+    "actualTempoEvidence": "artifacts/navigation-tempo/tempo.json",
+    "postSwapFinishedMs": 959.2999999970198,
+    "glowCleanup": true,
+    "regressions": [
+      "test:navigation-glow",
+      "12 three-engine featured interactions",
+      "check",
+      "test:build-current"
+    ],
+    "scope": "Targeted local navigation timing and regressions, not new full integrated/remote/device/aesthetic acceptance."
+  },
+  "hero_copy_cleanup_revision": {
+    "verifiedAt": "2026-10-09T10:36:42.281Z",
+    "sourceHash": "ffb94d4d493a5f72339d2ee03372ba173c7774253ebc0a987985ae5030d65a0f",
+    "buildHash": "826b66ec1d231412d3ca567972ec15750661a460cbfc05cc50a788dc2ce38fe7",
+    "results": [
+      {
+        "engine": "chromium",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "chromium",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "chromium",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      }
+    ],
+    "cases": 9,
+    "scope": "Three browser engines, desktop and narrow mobile emulation; targeted copy/layout and existing quality check, not full integrated audit."
+  },
+  "type_hierarchy_revision": {
+    "verifiedAt": "2026-10-10T03:12:20.984Z",
+    "sourceHash": "d9db0845a78377fc29a44135fe9ea7427d87e020a2ca5226bafc470a9a8b333d",
+    "buildHash": "3b2358a9687cafa682d3bb622845454dde05205f231cdd6bf54465e75cd12fa5",
+    "testedBuildHash": "3b2358a9687cafa682d3bb622845454dde05205f231cdd6bf54465e75cd12fa5",
+    "outputsUnchangedAfterWorkflowOnlyRebuild": true,
+    "servedFiles": 443,
+    "checks": [
+      "type-hierarchy:72",
+      "index-type-scale:198",
+      "reader:22 articles",
+      "quality",
+      "native-nav",
+      "style-boundaries",
+      "fonts",
+      "archive",
+      "build-current",
+      "covers:23",
+      "internal-links:6684 references"
+    ],
+    "changes": [
+      "Shared 12px caption and 13px metadata levels in home/archive/article",
+      "Removed redundant figure/index taglines",
+      "Kept title scale, silver gradients, chip composition and gray-edge navigation timing",
+      "Fixed 320px/200% article-end grid overflow and mobile nav clipping",
+      "Reserved archive hover-arrow room; removed arrow displacement with reduced motion",
+      "Added typography gate and aligned all 39 core checks with CI workflow"
+    ],
+    "scope": "Targeted current-build local regression. 72 new cases plus existing 198 scale cases; not a new complete 49-command audit, remote CI run, physical-device test or human aesthetic acceptance.",
+    "visualInspection": [
+      "Desktop/mobile default home and archive retain reading hierarchy and gray treatment",
+      "200% narrow home reflows to a long vertical layout with word wrapping; usability checks are not aesthetic acceptance"
+    ],
+    "remaining": [
+      "Cross-page visual review beyond this readability pass",
+      "Physical phones, current remote CI/deployment and field measurements",
+      "Human visual acceptance and final TEE/XBL/ABL content"
+    ]
+  },
+  "documentationAudit20261011": {
+    "scope": "结构和历史证据边界检查；不是重跑该记录的完整发布验收",
+    "notice": "旧篇数、测试数、状态与快照对应各自记录时点。当前内容为30篇正式文章和1篇sample；本轮文档修订后的证据以docs/document-audit-2026-10-11.md为准。",
+    "remaining": "历史artifact的每项完整性、远程部署与真机结论仍需要独立复核"
+  }
+}

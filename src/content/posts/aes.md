@@ -2,6 +2,7 @@
 title: 'AES 详解'
 description: 'AES 对称加密与 CBC/CTR/ECB/GCM 等常见模式：参数、填充与实现要点。'
 pubDate: 2025-07-28
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['AES', '加密', '密码学']
 series: '密码学基础'
@@ -16,7 +17,7 @@ AES（高级加密标准）是一种对称加密算法，广泛用于数据加�
 - CBC（Cipher Block Chaining）：需要IV（初始化向量），数据长度必须是块大小的整数倍。
 - CTR（Counter）：使用IV和计数器，数据长度可以是任意长度，不需要填充。
 - ECB（Electronic Codebook）：不使用IV，直接加密数据，数据长度必须是块大小的整数倍。
-- GCM（Galois/Counter Mode）：使用IV、加密数据和认证标签（16字节），加密数据长度可以是任意长度。
+- GCM（Galois/Counter Mode）：使用IV、加密数据和认证标签（常见为16字节，长度取决于协议与实现），加密数据长度可以是任意长度。
 
 ### 各模式所需参数说明
 
@@ -30,7 +31,7 @@ AES（高级加密标准）是一种对称加密算法，广泛用于数据加�
 
 - **密钥**：必须，长度为16/24/32字节
 - **明文**：要加密的数据，长度可以任意，无需填充
-- **IV（初始计数器/nonce）**：必须，长度为16字节（有些实现可变）
+- **计数器块**：AES-CTR 的输入块是16字节；库通常将它拆成 nonce 与递增计数器。PyCryptodome 的 `nonce=` 取0–15字节，不能把16字节完整计数器块直接塞入该参数。
 
 #### 3. ECB（Electronic Codebook）模式
 
@@ -62,12 +63,12 @@ AES（高级加密标准）是一种对称加密算法，广泛用于数据加�
         cipher = AES.new(key, AES.MODE_CBC, iv)
         plaintext = unpad(cipher.decrypt(ciphertext), AES.block_size)
         return plaintext
-    def aes_encrypt_ctr(key, plaintext, iv):
-        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+    def aes_encrypt_ctr(key, plaintext, nonce):
+        cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
         ciphertext = cipher.encrypt(plaintext)
         return ciphertext
-    def aes_decrypt_ctr(key, ciphertext, iv):
-        cipher = AES.new(key, AES.MODE_CTR, nonce=iv)
+    def aes_decrypt_ctr(key, ciphertext, nonce):
+        cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
         plaintext = cipher.decrypt(ciphertext)
         return plaintext
     def aes_encrypt_ecb(key, plaintext):
@@ -93,7 +94,7 @@ AES（高级加密标准）是一种对称加密算法，广泛用于数据加�
 
 #### PKCS#7填充原理
 
-PKCS#7是一种标准的块加密填充方式，适用于块大小为8~255字节的加密算法（AES块大小为16字节）。
+PKCS#7是一种标准的块加密填充方式，适用于块大小为1~255字节的加密算法（AES块大小为16字节）。
 
 **填充规则：**
 
@@ -110,7 +111,7 @@ PKCS#7是一种标准的块加密填充方式，适用于块大小为8~255字节
 
 **去除填充：**
 
-- 解密后，取最后一个字节的值P，去掉末尾P个字节即可还原原文。
+- 解密后，应检查最后一个字节给出的长度P合法，并确认末尾P个字节都等于P，再移除填充。实际实现使用经过检查的 `unpad`，不要只按末字节切片。
 
 **示例：**
 明文：`b"1234567890ABCDEF"`（16字节）
@@ -122,8 +123,10 @@ PKCS#7是一种标准的块加密填充方式，适用于块大小为8~255字节
 - 可自动判断填充长度，解密时安全去除
 
 ```python
+from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
+# 以下帮助函数用于单独展示填充，不与上面的 CBC 封装重复使用。
 # 填充明文到块大小
 def pad_plaintext(plaintext):
     return pad(plaintext, AES.block_size)
@@ -134,10 +137,11 @@ def unpad_plaintext(padded_plaintext):
 
 # 示例
 plaintext = b"Hello, World!"
-padded_plaintext = pad_plaintext(plaintext)
-ciphertext = aes_encrypt_cbc(key, padded_plaintext, iv)
-decrypted_padded_plaintext = aes_decrypt_cbc(key, ciphertext, iv)
-unpad_plaintext(decrypted_padded_plaintext)
+key = b"0123456789abcdef"  # 固定值仅用于演示
+iv = b"fedcba9876543210"
+# aes_encrypt_cbc 内部已 pad，aes_decrypt_cbc 内部已 unpad。
+ciphertext = aes_encrypt_cbc(key, plaintext, iv)
+assert aes_decrypt_cbc(key, ciphertext, iv) == plaintext
 ```
 
 ### 加密
@@ -148,7 +152,7 @@ AES 加密过程分为多个“轮”（Round），每一轮包含若干操作�
 - AES-192：12轮
 - AES-256：14轮
 
-每一轮分为：初始轮、普通轮、最终轮。
+整个加密过程分为初始 AddRoundKey、普通轮和最终轮；不是每一轮都包含这三个阶段。
 
 #### 1. 初始轮（Round 0）
 
@@ -230,7 +234,7 @@ AES 加密过程分为多个“轮”（Round），每一轮包含若干操作�
 
 ### S盒定义与打印
 
-AES S盒是一个256字节的查表数组，部分定义如下：
+AES S盒是一个256字节的查表数组。下面仅展示首16项；省略号是文章示意，不是有效S盒。直接编译这个不完整初始化器，会把剩余240项补零，所以必须从标准补齐后再用，也不要把这里的打印结果当成完整表：
 
     uint8_t Sbox[256] = {
         0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
@@ -254,11 +258,56 @@ AES S盒是一个256字节的查表数组，部分定义如下：
 - **ISO/IEC 7816-4**：先填充0x80，再补0x00到块末。
 - **ANSI X.923**：前面填充0x00，最后一个字节为填充长度。
 
-实际应用推荐PKCS#7，兼容性最好。
+CBC / ECB 等需要填充的场景可用 PKCS#7；GCM 等模式不使用这种块填充。新协议还应优先考虑带认证的加密，而不是只选填充方式。
 
 ### AES-128/192/256区别
 
 - **AES-128**：密钥长度16字节，10轮加密
 - **AES-192**：密钥长度24字节，12轮加密
 - **AES-256**：密钥长度32字节，14轮加密
-- 轮数越多，安全性越高，但加解密速度略慢
+- 三种配置的轮数由标准规定；不要把“自行增加轮数”当成安全性证明。实际安全性还受密钥管理、模式、nonce和认证影响，速度则需要按实现与硬件测量。
+
+
+## 安全使用：模式比“用了 AES”更重要
+
+CBC 和 CTR 提供加密，不直接提供完整性认证；ECB 会暴露相同明文块的重复关系。GCM 属于认证加密，但其安全性依赖同一密钥下 nonce 不重复。CBC 的 IV 应不可预测；CTR 的计数器输入在同一密钥下应避免重复，并在计数器耗尽前停止。
+
+PyCryptodome 中 CTR 的 `nonce` 与计数器组成一个完整块；GCM 的 nonce 长度则是另一套规则。上面的函数参数用于算法演示，不应把“能解密回来”当成协议已经安全。[Classic modes](https://www.pycryptodome.org/src/cipher/classic) 和 [Modern modes](https://www.pycryptodome.org/src/cipher/modern)给出了相应参数与使用要求。
+
+下面的 GCM 例子选择12字节 nonce、16字节标签，并把协议头作为关联数据绑定。固定密钥只用于可运行演示；真实系统应使用合适的密钥管理与 nonce 分配策略。
+
+```python
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+key = bytes.fromhex("00112233445566778899aabbccddeeff")
+nonce = get_random_bytes(12)
+aad = b"blog-demo:v1"
+plaintext = "这是二进制消息的 UTF-8 编码".encode("utf-8")
+
+enc = AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=16)
+enc.update(aad)
+ciphertext, tag = enc.encrypt_and_digest(plaintext)
+
+dec = AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=16)
+dec.update(aad)
+assert dec.decrypt_and_verify(ciphertext, tag) == plaintext
+
+# 认证失败必须终止；不要继续消费未经认证的明文。
+bad_tag = bytes([tag[0] ^ 1]) + tag[1:]
+check = AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=16)
+check.update(aad)
+try:
+    check.decrypt_and_verify(ciphertext, bad_tag)
+except ValueError:
+    print("认证失败：按预期拒绝修改后的标签")
+else:
+    raise AssertionError("修改后的标签不应通过")
+```
+
+传输或保存消息时，要保留 nonce、标签与协议需要的关联数据；它们不是密钥，但丢失或错配后就不能正确认证消息。这个例子验证本地数据往返与错误标签处理，不涉及设备硬件密钥或 TEE 实测。
+
+## 规范依据
+
+- [NIST FIPS 197：AES](https://csrc.nist.gov/pubs/fips/197/final)
+- [RFC 5652 §6.3：填充长度与块大小条件](https://www.rfc-editor.org/rfc/rfc5652#section-6.3)

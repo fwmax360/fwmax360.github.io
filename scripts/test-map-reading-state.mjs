@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import{test}from 'node:test';
+import{readMapReadingState}from '../src/lib/map-reading-state.ts';
+const categories=['','Android','Crypto'],nodes=['root','post:one','category:Android'];
+const read=value=>readMapReadingState(value,categories,nodes);
+test('Missing/wrong-version state is ignored',()=>{for(const value of [null,undefined,{},[],1,'text',{version:0},{version:'1'}])assert.equal(read(value),undefined);});
+test('Known state retains verbatim query and current declared choices',()=>{const state={version:1,query:' VPN ',category:'Android',selection:'post:one',openCategories:['Android']};assert.deepEqual(read(state),state);});
+test('Invalid fields normalize, not execute or interpolate',()=>{assert.deepEqual(read({version:1,query:3,category:'missing',selection:'<script>',openCategories:[null,'missing',3]}),{version:1,query:'',category:'',selection:'root',openCategories:[]});});
+test('Search text is bounded at 512 characters',()=>{assert.equal(read({version:1,query:'A'.repeat(2000)}).query.length,512);});
+test('Disclosure choices deduplicate and respect current options',()=>{assert.deepEqual(read({version:1,openCategories:['Android','Android','Crypto','missing']}).openCategories,['Android','Crypto']);});
+test('Absent disclosure preference preserves native defaults; explicit empty means closed',()=>{assert.equal(read({version:1}).openCategories,undefined);assert.deepEqual(read({version:1,openCategories:[]}).openCategories,[]);});
+test('Reading state parser does not mutate supplied object',()=>{const original=Object.freeze({version:1,query:'VPN',category:'Android',selection:'post:one',openCategories:Object.freeze(['Android','Android'])});assert.deepEqual(read(original).openCategories,['Android']);assert.deepEqual(original.openCategories,['Android','Android']);});

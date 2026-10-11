@@ -6,11 +6,16 @@
       <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#25303d" stroke-width="1" opacity="0.42"/>
       <circle cx="0" cy="0" r="1.25" fill="#354456" opacity="0.58"/>
     </pattern>
-    <radialGradient id="glow" cx="84%" cy="30%" r="66%">
-      <stop offset="0" stop-color="#52e198" stop-opacity="0.16"/>
-      <stop offset="0.52" stop-color="#52e198" stop-opacity="0.045"/>
+    <radialGradient id="glow" cx="88%" cy="35%" r="88%">
+      <stop offset="0" stop-color="#52e198" stop-opacity="0.64"/>
+      <stop offset="0.52" stop-color="#52e198" stop-opacity="0.24"/>
       <stop offset="1" stop-color="#52e198" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="wash" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#52e198" stop-opacity="0.32"/>
+      <stop offset="0.6" stop-color="#52e198" stop-opacity="0.025"/>
+      <stop offset="1" stop-color="#52e198" stop-opacity="0"/>
+    </linearGradient>
     <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#52e198" stop-opacity="0.95"/>
       <stop offset="0.58" stop-color="#52e198" stop-opacity="0.14"/>
@@ -21,88 +26,75 @@
     </marker>
     <style>
       .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; }
-      .sans { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; }
+      .sans { font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; }
       .micro { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .75px; }
-      .chip { font-family: 'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; font-size: 12px; font-weight: 600; }
+      .chip { font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; font-size: 12px; font-weight: 600; }
       .diagram-label { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
     </style>
   </defs>
 
   <rect width="1200" height="630" fill="#07090d"/>
-  <rect width="1200" height="630" fill="url(#grid)" opacity="0.7"/>
+  <rect width="1200" height="630" fill="url(#wash)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.25"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
-  <path d="M 0 0 H 1200 V 630 H 0 Z M 15 15 V 615 H 1185 V 15 Z" fill="#0d1219" fill-rule="evenodd" opacity="0.54"/>
-  <rect x="15" y="15" width="1170" height="600" fill="none" stroke="#354456" stroke-width="1" opacity="0.64"/>
   <rect x="15" y="15" width="380" height="2" fill="url(#rail)"/>
 
   <circle cx="72" cy="63" r="4" fill="#52e198"/>
-  <text x="88" y="68" class="mono" font-size="13" font-weight="700" letter-spacing="1.1" fill="#f1f5f9">FWMAX360 / ARTICLE_COVER</text>
-  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">19 / 22 · F02072</text>
+  <text x="88" y="68" class="mono" font-size="18" font-weight="500" letter-spacing="0" fill="#f1f5f9">sleep4r / Notes</text>
+  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">2026-01-08</text>
   <line x1="72" y1="91" x2="1128" y2="91" stroke="#25303d"/>
 
   <rect x="72" y="119" width="107" height="28" rx="3" fill="#52e198" opacity="0.12" stroke="#52e198"/>
   <text x="87" y="138" class="mono" font-size="11" font-weight="700" letter-spacing="1.2" fill="#52e198">ANDROID</text>
-  <text x="183" y="138" class="mono" font-size="12" fill="#93a1b2">2026-01-08</text>
-  <text x="780" y="138" class="mono" font-size="10" text-anchor="end" letter-spacing=".8" fill="#566475">/smali-cheatsheet</text>
 
-  <text class="sans" font-size="52" font-weight="760" letter-spacing="-1.1" fill="#f1f5f9"><tspan x="72" y="207">Smali 速查：从 Java 源码到</tspan><tspan x="72" y="273">Dalvik 字节码</tspan></text>
-  <rect x="72" y="305" width="4" height="37" rx="2" fill="#52e198"/>
-  <text x="91" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">SERIES</text>
-  <text x="91" y="338" class="sans" font-size="15" font-weight="700" fill="#93a1b2">逆向基础</text>
-  <line x1="300" y1="309" x2="300" y2="341" stroke="#354456"/>
-  <text x="319" y="320" class="mono" font-size="10" letter-spacing="1.1" fill="#566475">CHAPTER</text>
-  <text x="319" y="338" class="mono" font-size="15" font-weight="700" fill="#52e198">01</text>
+  <text class="sans" font-size="52" font-weight="400" letter-spacing="0" fill="#f1f5f9"><tspan x="72" y="207">Smali 速查：从 Java 源码</tspan><tspan x="72" y="273">到 Dalvik 字节码</tspan></text>
+  <text x="72" y="333" class="sans" font-size="20" font-weight="400" fill="#93a1b2">逆向基础 · 第 1 篇</text>
 
-  <rect x="824" y="119" width="304" height="340" rx="7" fill="#0d1219" fill-opacity="0.78" stroke="#25303d"/>
+  <rect x="824" y="119" width="304" height="340" rx="7" fill="#0d1219" fill-opacity="0.35" stroke="#52e198" stroke-opacity="0.35"/>
   <path d="M 824 156 V 126 Q 824 119 831 119 H 861" fill="none" stroke="#52e198" stroke-width="2"/>
   <circle cx="1112" cy="135" r="2" fill="#52e198" opacity="0.8"/>
-  
+
     <text x="858" y="167" class="diagram-label" fill="#52e198">CALL CHAIN / TRACE</text>
-    <text x="1118" y="167" class="micro" text-anchor="end" fill="#566475">TID 957</text>
     <path d="M 887 224 C 887 232, 1055 232, 1055 240" fill="none" stroke="#354456" stroke-width="1.5" marker-end="url(#arrow)"/><path d="M 1055 272 C 1055 293, 913 293, 913 313" fill="none" stroke="#52e198" stroke-width="2" marker-end="url(#arrow)"/><path d="M 913 345 C 913 358, 1047 358, 1047 370" fill="none" stroke="#354456" stroke-width="1.5" marker-end="url(#arrow)"/>
-    
+
         <circle cx="887" cy="208" r="16" fill="#111821" stroke="#354456" stroke-width="1"/>
         <circle cx="887" cy="208" r="4" fill="#52e198" opacity="0.5"/>
         <text x="911" y="201" class="micro" text-anchor="start" fill="#93a1b2">ENTRY</text>
-        <text x="911" y="218" class="micro" text-anchor="start" fill="#566475">0xF020</text>
-      
+
         <circle cx="1055" cy="256" r="16" fill="#111821" stroke="#354456" stroke-width="1"/>
         <circle cx="1055" cy="256" r="4" fill="#52e198" opacity="0.62"/>
-        <text x="1031" y="249" class="micro" text-anchor="end" fill="#93a1b2">CALL_01</text>
-        <text x="1031" y="266" class="micro" text-anchor="end" fill="#566475">0x725B</text>
-      
+        <text x="1031" y="249" class="micro" text-anchor="end" fill="#93a1b2">CALL</text>
+
         <circle cx="913" cy="329" r="20" fill="#111821" stroke="#52e198" stroke-width="2"/>
         <circle cx="913" cy="329" r="4" fill="#52e198" opacity="0.74"/>
         <text x="937" y="322" class="micro" text-anchor="start" fill="#93a1b2">HOOK</text>
-        <text x="937" y="339" class="micro" text-anchor="start" fill="#566475">0x5585</text>
-      
+
         <circle cx="1047" cy="386" r="16" fill="#111821" stroke="#354456" stroke-width="1"/>
         <circle cx="1047" cy="386" r="4" fill="#52e198" opacity="0.86"/>
         <text x="1023" y="379" class="micro" text-anchor="end" fill="#93a1b2">RETURN</text>
-        <text x="1023" y="396" class="micro" text-anchor="end" fill="#566475">0x2801</text>
-      
-    <path d="M 858 430 h 35 l 7 -10 10 20 10 -16 9 6 h 189" fill="none" stroke="#52e198" stroke-width="1.5" opacity="0.72"/>
-  
 
-  
-      <rect x="72" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+    <path d="M 858 430 h 35 l 7 -10 10 20 10 -16 9 6 h 189" fill="none" stroke="#52e198" stroke-width="1.5" opacity="0.72"/>
+
+
+
+      <rect x="72" y="480" width="75" height="31" rx="4" fill="#111821" stroke="#25303d"/>
       <circle cx="86" cy="495.5" r="2.5" fill="#52e198"/>
       <text x="96" y="500.5" class="chip" fill="#93a1b2">smali</text>
-    
-      <rect x="144" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="158" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="168" y="500.5" class="chip" fill="#93a1b2">dalvik</text>
-    
-      <rect x="216" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="230" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="240" y="500.5" class="chip" fill="#93a1b2">dex</text>
-    
-      <rect x="288" y="480" width="68" height="31" rx="4" fill="#111821" stroke="#25303d"/>
-      <circle cx="302" cy="495.5" r="2.5" fill="#52e198"/>
-      <text x="312" y="500.5" class="chip" fill="#93a1b2">逆向基础</text>
-    
+
+      <rect x="157" y="480" width="78" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="171" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="181" y="500.5" class="chip" fill="#93a1b2">dalvik</text>
+
+      <rect x="245" y="480" width="62" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="259" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="269" y="500.5" class="chip" fill="#93a1b2">dex</text>
+
+      <rect x="317" y="480" width="86" height="31" rx="4" fill="#111821" stroke="#25303d"/>
+      <circle cx="331" cy="495.5" r="2.5" fill="#52e198"/>
+      <text x="341" y="500.5" class="chip" fill="#93a1b2">逆向基础</text>
+
   <line x1="72" y1="545" x2="1128" y2="545" stroke="#25303d"/>
-  <text x="72" y="584" class="mono" font-size="14" font-weight="700" letter-spacing=".55" fill="#93a1b2">fwmax360.github.io</text>
-  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">CALL / 0xF020725B</text>
+  <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="#93a1b2">fwmax360.github.io</text>
+  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="#566475">Concept sketch</text>
   <rect x="72" y="601" width="88" height="2" fill="#52e198"/>
 </svg>

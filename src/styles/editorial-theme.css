@@ -1,29 +1,14 @@
-/* Shared chrome and palette for the editorial homepage and reading routes. */
-body:is(.home-editorial, .article-editorial, .site-editorial) {
-  --color-bg: #111212;
-  --color-bg-soft: #191b1a;
-  --color-surface: #202321;
-  --color-surface-2: #272a28;
-  --color-panel-strong: #151716;
-  --color-panel: #191b1a;
-  --shadow-panel: none;
-  --shadow-accent: none;
-  --color-line: #303432;
-  --color-line-bright: #4a514d;
-  --color-text-strong: #f1f2ef;
-  --color-text: #d5d8d3;
-  --color-dim: #acb3ad;
-  --color-faint: #a1a9a3;
-  --color-accent: #b5d6be;
-  --color-accent-soft: #7a9c83;
-  --radius-sm: 8px;
-}
-:is(.home-editorial, .article-editorial, .site-editorial) .nav-inner, :is(.home-editorial, .article-editorial, .site-editorial) .footer .inner, :is(.home-editorial, .article-editorial, .site-editorial) .footer .legal { max-width: 1160px; }
-:is(.home-editorial, .article-editorial, .site-editorial) .nav-links { margin-left: auto; margin-right: 16px; }
-:is(.home-editorial, .article-editorial, .site-editorial) .nav-link { font-size: 13px; }
-:is(.home-editorial, .article-editorial, .site-editorial) .nav-link.active::after { display: none; }
-:is(.home-editorial, .article-editorial, .site-editorial) .search-trigger { background: transparent; border-color: transparent; }
-:is(.home-editorial, .article-editorial, .site-editorial) .nav { box-shadow: none; background: rgb(17 18 18 / 88%); }
-:is(.home-editorial, .article-editorial, .site-editorial) .menu-toggle { width: 44px; height: 44px; }
+/* Shared chrome. Wide exploration modes configure one grid rather than competing selectors. */
+:is(.home-editorial,.atlas-mode) { --container-wide: 80rem; --chrome-width: 80rem; --footer-width: 77.5rem; }
+body:is(.home-editorial,.atlas-mode) :is(.nav-inner,.footer) { padding-inline: 20px; }
+@media (max-width: 640px) { body:is(.home-editorial,.atlas-mode) :is(.nav-inner,.footer) { padding-inline: 16px; } }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .nav-inner { max-width: var(--chrome-width,1160px); }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .footer :is(.inner,.legal) { max-width: var(--footer-width,1160px); }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .nav-links { margin-left: auto; margin-right: 16px; }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .nav-link { font-size: 13px; }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .nav-link.active::after { display: none; }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .search-trigger { background: transparent; border-color: transparent; }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .nav { box-shadow: none; background: rgb(17 18 18 / 88%); }
+:is(.home-editorial, .article-editorial, .site-editorial, .atlas-mode) .menu-toggle { width: 44px; height: 44px; }
 
-:is(.home-editorial,.article-editorial,.site-editorial) .nav-link.active { background: transparent; }
+:is(.home-editorial,.article-editorial,.site-editorial, .atlas-mode) .nav-link.active { background: transparent; }

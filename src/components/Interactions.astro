@@ -8,7 +8,6 @@
 <script>
   const SELECTOR = [
     'button',
-    'summary',
     '[data-press]',
     '.chip',
     '.nav-link',
@@ -28,11 +27,9 @@
     '.shell-run',
     '.feed-copy',
     '.btn',
-    '.faq-q',
     '.contact',
     '.adj',
     '.row',
-    '.toc-summary',
   ].join(',')
 
   function prefersReducedMotion() {
@@ -87,6 +84,9 @@
 
   function onPointerDown(e: PointerEvent) {
     if (e.button !== 0 && e.pointerType !== 'touch' && e.pointerType !== 'pen') return
+    // Native summary markers do not reliably clip absolute children across engines.
+    // Their color/focus/disclosure response is sufficient; do not paint an oversized ripple.
+    if ((e.target as Element | null)?.closest?.('summary')) return
     const el = (e.target as Element | null)?.closest?.(SELECTOR) as HTMLElement | null
     if (!el || el.closest('input, textarea, select, a[download]')) return
     // 链接整行命中时，涟漪打在 .row 上

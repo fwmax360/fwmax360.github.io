@@ -1,0 +1,41 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+const origin=process.env.PREVIEW_URL || 'http://127.0.0.1:4322';
+const out=new URL('../artifacts/archive-index/',import.meta.url);await mkdir(out,{recursive:true});
+const browser=await chromium.launch(process.env.CI ? {} : {channel:'chrome'});const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];const checks=[];
+page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`)});
+const ready=async()=>{await page.waitForSelector('[data-archive-ready]');};
+const openTools=async()=>{if(!await page.locator('.archive-tools').evaluate(el=>el.open))await page.locator('.archive-tools summary').click();};
+const visible=()=>page.locator('[data-archive-item]:not([hidden])');
+try {
+ await page.goto(origin+'/archive/');await ready();
+ assert.equal(await page.locator('.archive-tools').evaluate(el=>el.open),false,'Tools recede by default');
+ await openTools();
+ assert.equal(await page.locator('.year-dossier').first().evaluate(el=>getComputedStyle(el).marginTop),'0px','First year begins directly under the directory');
+ assert(await page.locator('.density-switch button').evaluateAll(items=>items.every(el=>!/(color|background|all)/.test(getComputedStyle(el).transitionProperty))),'Selection colors switch atomically to preserve contrast');
+ const baseline=await page.locator('[data-archive-item]').evaluateAll(items=>items.map(item=>({id:item.dataset.postId,category:item.dataset.category,series:item.dataset.series,title:item.dataset.title,href:item.dataset.href})));
+ assert.equal(new Set(baseline.map(p=>p.id)).size,baseline.length);
+ assert(!baseline.some(p=>p.id.includes('silicon-trust-boundary')));
+ for(const width of [320,390,640,700,768,1000,1280,1440]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow ${width}`);for(const target of ['#archive-category','#archive-series','[data-density="compact"]'])assert((await page.locator(target).boundingBox()).height>=44);}
+ checks.push('Eight viewports: no overflow, 44px filter controls, unique published-only notes');
+ await page.setViewportSize({width:1440,height:1000});
+ const options=await page.locator('#archive-category option').evaluateAll(items=>items.map(x=>x.value).filter(Boolean));const category=options[1] || options[0];const expected=baseline.filter(p=>p.category===category).length;
+ await page.locator('#archive-category').selectOption(category);assert.equal(await visible().count(),expected);assert.equal(new URL(page.url()).searchParams.get('category'),category);assert.equal(Number(await page.locator('[data-archive-count]').textContent()),expected);
+ for(const year of await page.locator('[data-archive-year]:not([hidden])').all())assert.equal(Number(await year.locator('[data-year-count]').textContent()),await year.locator('[data-archive-item]:not([hidden])').count());
+ const active=visible().nth(1);const activeTitle=await active.getAttribute('data-title');await active.locator('.entry-title-link').focus();assert.equal(await page.locator('[data-preview-title]').textContent(),activeTitle);assert.equal(await page.locator('.inspector-read').getAttribute('href'),await active.getAttribute('data-href'));
+ await page.locator('[data-density="compact"]').click();assert.equal(new URL(page.url()).searchParams.get('density'),'compact');assert.equal(await page.locator('[data-archive-density]').getAttribute('data-archive-density'),'compact');assert.equal(await page.locator('[data-preview-title]').textContent(),activeTitle);
+ const filteredUrl=page.url();await page.reload();await ready();assert.equal(await visible().count(),expected);assert.equal(await page.locator('#archive-category').inputValue(),category);assert.equal(await page.locator('[data-density="compact"]').getAttribute('aria-pressed'),'true');
+ checks.push('URL filters, count, density and keyboard-driven preview restore on reload');
+ const readingLink=visible().nth(3).locator('.entry-title-link');await readingLink.scrollIntoViewIfNeeded();await page.waitForTimeout(100);const savedScroll=await page.evaluate(()=>scrollY);await readingLink.click();await page.waitForURL('**/posts/**');await page.goBack();await ready();await page.evaluate(()=>document.fonts.ready);await page.waitForFunction(saved=>Math.abs(scrollY-saved)<8,savedScroll,{timeout:3000});assert(Math.abs(await page.evaluate(()=>scrollY)-savedScroll)<8,'Back restores the filtered index reading position');assert.equal(page.url(),filteredUrl);assert.equal(await visible().count(),expected);assert.equal(await page.locator('[data-archive-density]').getAttribute('data-archive-density'),'compact');await page.goForward();await page.waitForURL('**/posts/**');await page.goBack();await ready();assert.equal(await visible().count(),expected);
+ checks.push('Client article navigation, Back and Forward preserve filters, density and reading position');
+ const series=baseline.find(p=>p.series && !baseline.some(x=>x.category===category && x.series===p.series))?.series;assert(series,'fixture has a cross-category series');await page.locator('#archive-series').selectOption(series);assert.equal(await visible().count(),0);assert(await page.locator('[data-archive-empty]').isVisible());assert(!await page.locator('[data-archive-preview]').isVisible());await page.locator('[data-archive-empty] [data-archive-reset]').click();assert.equal(await visible().count(),baseline.length);assert.equal(new URL(page.url()).search,'');
+ checks.push('Empty cross-filter collapses preview and reset restores all notes');
+ const withExtras=new URL(origin+'/archive/?category=not-real&density=bad&campaign=keep#year-2025');await page.goto(withExtras.href);await ready();assert.equal(await visible().count(),baseline.length);assert.equal(new URL(page.url()).search,'?campaign=keep');assert.equal(new URL(page.url()).hash,'#year-2025');
+ await page.goto(origin);await page.locator('.nav-link[href="/archive"]').click();await ready();await openTools();await page.locator('#archive-category').selectOption(category);assert.equal(await visible().count(),expected);
+ checks.push('Invalid owned state normalizes; unrelated params and anchors survive; client entry rebinds');
+ const noJs=await browser.newPage({javaScriptEnabled:false,viewport:{width:390,height:844}});await noJs.goto(origin+'/archive/');assert.equal(await noJs.locator('[data-archive-item]').count(),baseline.length);assert(await noJs.locator('.entry-title-link').first().isVisible());assert(!await noJs.locator('[data-archive-controls]').isVisible());assert(await noJs.locator('.archive-noscript').isVisible());
+ const reduced=await browser.newPage({reducedMotion:'reduce'});await reduced.goto(origin+'/archive/');await reduced.waitForSelector('[data-archive-ready]');await reduced.locator('[data-archive-item]').nth(1).locator('.entry-title-link').focus();assert.equal(await reduced.locator('.archive-inspector').evaluate(el=>el.getAnimations().length),0);
+ checks.push('No-JS shows all notes without inert controls; reduced motion disables preview animation');
+ assert.deepEqual(errors,[]);await writeFile(new URL('verification.json',out),JSON.stringify({checks,errors,scope:'Chromium; real-device and other browser evidence pending'},null,2));console.log(checks.join('\n'));
+} finally {await browser.close()}

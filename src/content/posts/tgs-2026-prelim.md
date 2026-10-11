@@ -2,11 +2,15 @@
 title: '腾讯游戏安全 2026 初赛：Godot + libsec2026 的 GDC 解密与 Part1'
 description: '包名 com.tencent.ACE.gamesec2026.preliminary。从 Godot 扩展加载链入手，Frida dump GDC 解压结果，还原 token → Process → flag，并用飞行补丁做实机复核。'
 pubDate: 2026-03-05
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['腾讯游戏安全', 'Godot', 'Frida', '逆向', 'CTF']
 series: '腾讯游戏安全2026'
 order: 1
 ---
+
+本文保留原题解中的地址、脚本片段和执行描述。当前仓库没有配套 APK、原始 trace 与完整工具集，本轮没有重新复现这些题目；偏移、哈希及 Godot 行为只对应原记录，迁移到其他构建需先核对样本哈希、架构与引擎版本。
+
 
 2026 腾讯游戏安全技术竞赛安卓客户端初赛是一道 Godot 题：Java 层几乎没有业务，真正的逻辑在 `libgodot_android.so` 加载的 `libsec2026.so`，以及被压缩存放的 `.gdc` 脚本里。
 

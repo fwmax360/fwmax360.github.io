@@ -2,6 +2,7 @@
 title: 'Smali 速查：从 Java 源码到 Dalvik 字节码'
 description: 'baksmali 出来的代码看着像天书，其实结构非常固定。把 Java 的常见写法和它对应的 smali 形态放在一起对照，读起来就快了。'
 pubDate: 2026-01-08
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['smali', 'dalvik', 'dex', '逆向基础']
 series: '逆向基础'
@@ -56,7 +57,9 @@ order: 1
 
     if-eqz v2, :cond_fail
 
-    if-lt p2, 0x3, :cond_fail
+    const/4 v1, 0x3
+
+    if-lt p2, v1, :cond_fail
 
     const/4 v0, 0x1
 
@@ -67,7 +70,7 @@ order: 1
 
 `.registers 6` 加上两个参数和一个 `this`，意味着 `v0`–`v2` 是局部变量，`v3`(`p0`)、`v4`(`p1`)、`v5`(`p2`) 是参数。
 
-## 方法调用的四种形态
+## 方法调用的五种常见形态
 
 选哪条 `invoke-*` 完全由方法的性质决定，这是判断调用目标最快的线索：
 
@@ -77,16 +80,16 @@ order: 1
 - `invoke-interface` — 接口方法
 - `invoke-super` — 显式调用父类实现
 
-返回值不会直接落到寄存器里，必须紧跟一条 `move-result`：
+需要接收返回值时，紧跟对应的 `move-result*` 指令；`void` 调用或主动丢弃结果时不写它：
 
 ```smali
 invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 move-result-object v0
 ```
 
-漏看 `move-result-object` 是新手最容易出错的地方 —— 中间如果插入了别的指令，结果就丢了。
+漏看 `move-result-object` 是新手最容易出错的地方 —— 中间插入其他指令不符合该指令的使用约束，可能导致校验失败。
 
-## 条件跳转的方向是反的
+## 先看跳到哪里，再解释条件
 
 Java 里 `if (a == b) { X }`，smali 通常编译成「条件不成立就跳过 X」：
 
@@ -98,7 +101,7 @@ if-lez v0, :cond_skip
 :cond_skip
 ```
 
-所以读的时候要把条件取反。对应关系：`if-eqz` 判零相等、`if-nez` 判非零、`if-lez` 小于等于零、`if-gtz` 大于零，带 `z` 后缀的都是和 0 比。
+这只是常见编译形态，不是所有条件分支都要取反；先确定跳转目标对应哪个代码块。对应关系：`if-eqz` 判零相等、`if-nez` 判非零、`if-lez` 小于等于零、`if-gtz` 大于零，带 `z` 后缀的都是和 0 比。
 
 ## 字段读写
 
@@ -135,3 +138,5 @@ sget-object v1, Lcom/example/Config;->NAME:Ljava/lang/String;
 ---
 
 下一篇会讲 ARM64 这边的调用约定，Native 层的分析要从那里开始。
+
+指令操作数与结果指令的约束以 [AOSP Dalvik bytecode format](https://source.android.com/docs/core/runtime/dalvik-bytecode) 为准。`if-lt` 比较两个寄存器，不接受直接写入的立即数。

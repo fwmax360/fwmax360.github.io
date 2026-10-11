@@ -1,0 +1,4028 @@
+{
+  "objective": "梳理完善设计和具体实现，达到内容优先、视觉统一、可靠且可验证的商业级技术博客体验",
+  "status": "not-complete",
+  "auditedAt": "2026-10-09T10:23:11.084Z",
+  "sourceHash": "a35d01a10e3a1cf2f25fe213a755a5c952b61f700f22ace83970bd522622c521",
+  "releaseEvidence": "artifacts/release-check/verification.json",
+  "localCommandsPassed": 48,
+  "buildServerAgreement": [
+    {
+      "url": "/",
+      "sha256": "64f6d87a9fbfcc1461c7ff0190a33906876569dc483d20e3712088a67b6c4804"
+    },
+    {
+      "url": "/_astro/_..CnOumA3m.css",
+      "sha256": "83598662dc3a344447103aa69d372246cfb83d3570773393a293a02f16ba903f"
+    },
+    {
+      "url": "/_astro/about.Bfy7AwXM.css",
+      "sha256": "f2a8e478175ac792ed71f2c59ab1013d2c93ae147bc57ec2d6c01dd53bef7f97"
+    },
+    {
+      "url": "/_astro/archive.astro_astro_type_script_index_0_lang.D1TQboay.js",
+      "sha256": "183db0cf86b3f8e19f86e8674d4c068c9a1e5df68c45ed20d56bda59f87b6876"
+    },
+    {
+      "url": "/_astro/archive.BYcrG9rP.css",
+      "sha256": "d7ab7e86b7539ef80d342799936505bcd009c0e2efbe5650efc96693a5389e33"
+    },
+    {
+      "url": "/_astro/Base.DEJiR9ai.css",
+      "sha256": "55b0c55bcd8e8850342135c2c531ba661db6306778bc39bbc5cd8ece67c1377c"
+    },
+    {
+      "url": "/_astro/chip-preview.BwQAjo7H.js",
+      "sha256": "eb88bb79cfcafea4f7d80033565f92dcd65c9cba4e4223705b5550c811b56ed3"
+    },
+    {
+      "url": "/_astro/ChipExperience.astro_astro_type_script_index_0_lang.Bhsvkgol.js",
+      "sha256": "35fc203c65adcee9aea1bb4ac0e8e8142970a719c252d691904f9f7e563a0dec"
+    },
+    {
+      "url": "/_astro/ChipExperience.B0VBw062.css",
+      "sha256": "1f6d405f769ad0da7f7c61e31b387293690c65518383034e6b9b030562464cd8"
+    },
+    {
+      "url": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.BDCjmQ8c.js",
+      "sha256": "ca4a4f503f0dbc3e904781b0e5d543fca4fe46b1f8c81947572ade255d729a07"
+    },
+    {
+      "url": "/_astro/editorial-font.CzIbDS3G.css",
+      "sha256": "ab05fb9e15c1466535442494eead2e199dd2906b3b0e727c2d1d5c0b050f74af"
+    },
+    {
+      "url": "/_astro/fonts-cjk.DAlFC2u1.css",
+      "sha256": "eca4e25498b3a025f5f0cc76bc751062c73cbddcfa37b949be0d0c760ba53796"
+    },
+    {
+      "url": "/_astro/geist-cyrillic-ext-wght-normal.DjL33-gN.woff2",
+      "sha256": "2317fa4bb293c9c0b110e18315d529235c47a0ddd3338cea3d8c7955e927899e"
+    },
+    {
+      "url": "/_astro/geist-cyrillic-wght-normal.BEAKL7Jp.woff2",
+      "sha256": "6894439694946a589d157ece003086960a6a4013d74a813dab7602efdb3d8c09"
+    },
+    {
+      "url": "/_astro/geist-latin-ext-wght-normal.DC-KSUi6.woff2",
+      "sha256": "824f485b5d26e2f2da3c2b236132ece1bc8e4e43373452950bb0e40548b4313f"
+    },
+    {
+      "url": "/_astro/geist-latin-wght-normal.BgDaEnEv.woff2",
+      "sha256": "19f9c92546aa300c312235e3125af1b81394d8db9a4bc4a425cd5b641d2d54e1"
+    },
+    {
+      "url": "/_astro/geist-vietnamese-wght-normal.6IgcOCM7.woff2",
+      "sha256": "8fa40e5d248247735eb97a0bd593b8852440430600d6ba01364c31fe0abc1fe1"
+    },
+    {
+      "url": "/_astro/ImageViewer.astro_astro_type_script_index_0_lang.DOcP0glI.js",
+      "sha256": "f89c0f97e2409bef9a82806fcedd80e70d8eece6423dfe33536af0be2e79a508"
+    },
+    {
+      "url": "/_astro/index.7wlVKVps.css",
+      "sha256": "d21b55f719eaa14e9c733237f1fcfd1a36e6284116eb9560c17e6814f56939a7"
+    },
+    {
+      "url": "/_astro/jetbrains-mono-cyrillic-wght-normal.D73BlboJ.woff2",
+      "sha256": "d274604c40757f98f07df623a8b8fb5194508a6fa4f5413a7a107f09e3b7452a"
+    },
+    {
+      "url": "/_astro/jetbrains-mono-greek-wght-normal.Bw9x6K1M.woff2",
+      "sha256": "ee863198077f3093ffa81c072581cc4bd608a04e60a8a9c0b846396ce4f14109"
+    },
+    {
+      "url": "/_astro/jetbrains-mono-latin-ext-wght-normal.DBQx-q_a.woff2",
+      "sha256": "79bfdab9ba467e26eea4122e6f2567e188dd8a09a8c730d501fc487c4ab99c6e"
+    },
+    {
+      "url": "/_astro/jetbrains-mono-latin-wght-normal.B9CIFXIH.woff2",
+      "sha256": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e"
+    },
+    {
+      "url": "/_astro/jetbrains-mono-vietnamese-wght-normal.Bt-aOZkq.woff2",
+      "sha256": "2288795da89dd97e648954b96e22b4501bd85dfc453264460b252f888b582ca2"
+    },
+    {
+      "url": "/_astro/KnowledgeMap.astro_astro_type_script_index_0_lang.wp7N1B2F.js",
+      "sha256": "80667d8638f94af853040201dcade43d8d9437ef6d9a7bc532aefe37770096a2"
+    },
+    {
+      "url": "/_astro/map.DQlhphoz.css",
+      "sha256": "76d9ea3e3cb19baf59babb8ae3e6af24f9bb8793870f3c9b5841c625c1f5592a"
+    },
+    {
+      "url": "/_astro/Motion.astro_astro_type_script_index_0_lang.C72TvYf4.js",
+      "sha256": "d186e36b6f95d23ecec2b5db82c9ef8b2a93529b040ccc6714cc51a633c12015"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-100-wght-normal.DrqXJETY.woff2",
+      "sha256": "ad5f29028d5699a59688d807fda531f23cb2c1ecd7815495853bbae8e75b8646"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-101-wght-normal.c94LAl5p.woff2",
+      "sha256": "e189b81fc22ca6afcf03a1fcbf8fad93e8272a502d4b23241900113d9ddbe51a"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-102-wght-normal.C1RtbCZr.woff2",
+      "sha256": "941c0c2971fc1d6d1e36c3d40d74e6a133ad02f58f0bc3a9cb265d8a60f3eb31"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-103-wght-normal.DGHo20nu.woff2",
+      "sha256": "bafbd591af6493fface8ee91ca8701cd227f18b1636c5a380c1dbd84cd79b92d"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-104-wght-normal.CJT2ioDJ.woff2",
+      "sha256": "b0bf80ced89dd61bc3c1427c23203b44413dfef6aafb50da905ab28a7937a923"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-105-wght-normal.BFoiJwz2.woff2",
+      "sha256": "8d8b4e6f4a00621d2be4279e9ba4b07cded89ab6d4018d9b87d2116867ead335"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-106-wght-normal.D6uUHw3w.woff2",
+      "sha256": "bae74acc629d2e7484c66fd9bb0614df5bf3e98c39811d9e7e9222845a1c4b62"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-107-wght-normal.kFQzJDLH.woff2",
+      "sha256": "a42eff5010de7b0d6922a14734dd06c9b495655ac6e4397506f44c8e3eaee10c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-108-wght-normal.7aXvqIa2.woff2",
+      "sha256": "91882203459867be07157e9c8d433372b65cd4ce484fda26b97b05ed2cf6290d"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-109-wght-normal.CnjNbNmw.woff2",
+      "sha256": "a91f8b038e5ce10805a173a293484c8c49552c275cf901cdf21324d6dca3ed17"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-110-wght-normal.D2JBr045.woff2",
+      "sha256": "bbca9081655c45233a25c4cca030c47ebcf2e156eeedd48110836658adb31fa0"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-111-wght-normal.ClFr5QXM.woff2",
+      "sha256": "372be010ac0e87cb12065a861da39821104a43d68345a62ca95d3d3e2fb2c269"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-112-wght-normal.CiZxJMyY.woff2",
+      "sha256": "34a4580239eae8dc54b726a1e1e9fec266e74225b112063ed93b412d54b97ccd"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-113-wght-normal.OgQXOX6x.woff2",
+      "sha256": "614ab8f616352583f92cc2130fe8812c5aaaa8560b3828de45eefb318be7b503"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-114-wght-normal.CRH9SDZu.woff2",
+      "sha256": "cf7b8344807a316e8db054500a2b44ad9346ffa00763fec203ab5aa1c99ff602"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-115-wght-normal.BN__2iBG.woff2",
+      "sha256": "fb29957c7adccb9a89e34fb28d3d1c7d12bd7401f80c0dba6e1c9e5259cb3262"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-116-wght-normal.vdFVzbO2.woff2",
+      "sha256": "a98dc5a726f82141f74a827c443e120709a12fe737fabacf2530927a275fce0d"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-117-wght-normal.Dsz3vkzU.woff2",
+      "sha256": "d94b5af0c14838af99bf9855f91e851878726558531ddef5bd2100b70dfbe90c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-118-wght-normal.BPEb0gM9.woff2",
+      "sha256": "76c9ddb85ae4578cccd35ae4f6e6bbffaa2c8c2aec0fea17d3c17c84a3c6f7d1"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-119-wght-normal.BfzSEbFz.woff2",
+      "sha256": "b3b2374881f4cd93f239820dfd91f0fde8d52f8f92ba2888f7ab9cba21e4d7eb"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-21-wght-normal.DIu_1ZBI.woff2",
+      "sha256": "c1409c43e55ecff21bd7eee9327e71a6f4c66449842861b368dcdfe14445aab3"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-22-wght-normal.VXjdYcT-.woff2",
+      "sha256": "77037ed42ff4e7b0e5cc296cabe4f0580d1d518239a4a067c00ff8097f60819f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-23-wght-normal.4HrHKhpL.woff2",
+      "sha256": "38d0df21ac374e938a5c885f50a80b7be2dbab9a34803462a4f2c6c6fa777128"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-24-wght-normal.B58DWgHS.woff2",
+      "sha256": "8fa21e7e457acf3e8ca2e0561d5df4dd26cf0824a27a721c2b831b202e88e195"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-25-wght-normal.C3Jm6l7O.woff2",
+      "sha256": "f760b7a3871d214d421b378faa2e27a763bc632000f983964a837f2323665f1d"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-26-wght-normal.YNOygvr_.woff2",
+      "sha256": "be8386e7bd7facfe78886db838ece2fac15056ef9ea6c48d631054460cd37c6f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-27-wght-normal.BP2pEGQH.woff2",
+      "sha256": "4895abcaddbd162e48a212dd75c270d3ba1706519f527dff5fd7ec47dfa64dfd"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-28-wght-normal.BWPKDbtH.woff2",
+      "sha256": "82540b6201a9b9ade19206b3e6e9ba65038e6ab5d8b61952352d87b92978f967"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-29-wght-normal.45aVmHn_.woff2",
+      "sha256": "ff21d8fcc60ce39145c09da40c66f190dbb52b4b5ae6de1861dcaf15f87ef497"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-30-wght-normal.B8_s30jZ.woff2",
+      "sha256": "1f76f6ffded00b9ead063038ebfd5019ad334ffeb7035dda3aa33f4dd1bb7adc"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-31-wght-normal.DW0t445S.woff2",
+      "sha256": "e6c25be1bb08a63a0f4cd0cea425fc90b65df538be8505e3cf4010bec2853b64"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-32-wght-normal.ShbWPcei.woff2",
+      "sha256": "0cda750d7d04a4e12e4b2ea1d78c0a3ec430b5c07e02b87064e809ff75d76998"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-33-wght-normal.BOTZYTjM.woff2",
+      "sha256": "b9732b5606bd87c51942e5f56270d26495f2bc22a157493725417af2c70c265e"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-34-wght-normal.BF1rqDSt.woff2",
+      "sha256": "38aa326b4c84902a342b4225a452a7ca3ac32ebf40792663d7db2013c22bee9d"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-35-wght-normal.Bosspiyr.woff2",
+      "sha256": "bd98226c8e0aa80876366386a23e909087df5d6b570f48b2366a8849a3ca137b"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-36-wght-normal.CtU9CyKw.woff2",
+      "sha256": "0db1ca695a491d372060eba39ae66b1816457e8992698fbaacd35cc0f7786658"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-37-wght-normal.ghDiyiuv.woff2",
+      "sha256": "8df409a4e0a237c21db73608de96e2ae49c53de50826098d050a0e2cca867836"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-38-wght-normal.4Nz8k_dt.woff2",
+      "sha256": "672d2d994994a3c39072fbbc4a40f0e25424ab2ff36ec63f3b55849d1ab8a650"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-39-wght-normal.Ddtm1XVC.woff2",
+      "sha256": "272d6d0e153f56e8ab7d9412ca1e8581c06ce371641cf863859a0ab01751c1ea"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-40-wght-normal.BVn4-kgX.woff2",
+      "sha256": "5b9ef1ed48420aa7b9da1fbc18c4a4dfd3d4edf1c6b8aab89cf12b40913335a3"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-41-wght-normal.CZqajZnl.woff2",
+      "sha256": "30aee47f660fd88a68fee63052ce8f3746e78e606813de686b710692d7610529"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-42-wght-normal.CQ4lY28u.woff2",
+      "sha256": "ec0014830db682b682120085e07476df857d016fa7bb1b4bb3dfe82113819a10"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-43-wght-normal.psppu0d8.woff2",
+      "sha256": "43df2b5dad9bb8353549d68023297605443f251f1f846a9cb2e5363b84aacd0b"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-44-wght-normal.cbKJlTUe.woff2",
+      "sha256": "acaa6195041b1a928d35c7e80365a4e653ffc5cba556c0a1443ee3a561228eb8"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-45-wght-normal.MKIEVRIC.woff2",
+      "sha256": "8cdb9903f770db21bd3d17eab6a1dd7d302b47f7eab059b2ff814d9593ce2526"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-46-wght-normal.CErGc6Mt.woff2",
+      "sha256": "6590d0a6fe94571cfb84a6d9536e0f58b6a6164643ffa339d3c1788835c96147"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-47-wght-normal.C5Kgg1_m.woff2",
+      "sha256": "b05afdd32b3bf722adac4b2c936a3c3390fb4b6b8adc20a132a0b42cb9c23e83"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-48-wght-normal.DFMjDDY6.woff2",
+      "sha256": "c9585f7d070700be0435c1014761af37cd512faa68ffc33341d1e4634abed682"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-49-wght-normal.B7l_3BZr.woff2",
+      "sha256": "4943895a4dfa5dcf427429a13e1c56bb3fd344c1dd7b1ad927b9d6743e358ac0"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-5-wght-normal.DI846rD9.woff2",
+      "sha256": "e64f57937e3ae4feb9dd073d6a5257a74fda82575060718a162c95c8c09ef2ae"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-50-wght-normal.C5KfAmFp.woff2",
+      "sha256": "13e51063d7743cfe2d533620860719890426ef12f6fe036d50b3c1a8f41508e7"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-51-wght-normal.C2bq6hC8.woff2",
+      "sha256": "fd4df1f02c2cb4d7db99d2d35225561f9695483f5f829e0f6667adac4bbe7ff6"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-52-wght-normal.P18e_Y0j.woff2",
+      "sha256": "06999a39c4c3a7ea279822ec42aeaf7e2f99d4047e4f8b7c48254158b7e293fa"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-53-wght-normal.Bgkuo2tF.woff2",
+      "sha256": "767b7b9864658d91d81787ebeac555cb9d67ec920002845061516dd87fa1b95f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-54-wght-normal.DL5lmlUd.woff2",
+      "sha256": "4cd00537a46f6f1acaf2762a59176e059062d7259217a8a85a589df775531ea6"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-55-wght-normal.BV_Oy6IF.woff2",
+      "sha256": "0118ec5d8c30b1971a59ec5982f3eeee3e687a40ef5b79108e99e5d82fa67aa9"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-56-wght-normal.B4L7Hj8f.woff2",
+      "sha256": "a3e4a78929826930956ef1e3b3c1c329815d75c88f67296c4ffeac203e2cb544"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-57-wght-normal.DU8YBsDj.woff2",
+      "sha256": "7623501009e4a6db7c2d5a635f57099da3e78de33fa85cccdf8d3c1596064ccb"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-58-wght-normal.CE0BKS9u.woff2",
+      "sha256": "56ae1a59a32e4a258336c6d100d5288f3d1ece6f9e4f2bb3ec0548c289ede761"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-59-wght-normal.Azv2Ku9_.woff2",
+      "sha256": "7a377a40e99fd9bc3b1eb38517f08c4ac09520437bed24c3d3a39e2b64ff0ee9"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-6-wght-normal.ozUCEY9O.woff2",
+      "sha256": "17e15c4f0a5bfd92e65a65d285833633f2cc8d4a51a8ba6a2080663989123d7e"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-60-wght-normal.C1lngC61.woff2",
+      "sha256": "3657f66babdf6aff2d2ca3cbadf7bcdce820bda6be7c765d909afee8e74dad5c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-61-wght-normal.BxWkGF5M.woff2",
+      "sha256": "23919a2eb11d25dd3a78c020ecc337c9c72b8ca760412f5b4cd567cc43b776ba"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-62-wght-normal.CXXMAq-5.woff2",
+      "sha256": "a901edf25bc1cfae0fc4c474fce9f8783e93a46b9e88a1cb1cb1301feb1cbdb2"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-63-wght-normal.4La5uKvS.woff2",
+      "sha256": "92f56f713cc0b62f1cbbbc3533b957cff5d2db2abdb4b45a173564011d217ddc"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-64-wght-normal.CbIuD2Eg.woff2",
+      "sha256": "4929c9f39a5a4bd941050c7358e1556e57cef901b8c75503453e62c23ede281c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-65-wght-normal.BGqvKda2.woff2",
+      "sha256": "8daa61282fb62a111c17f896b12429a43a3d60bd5f2eceb8c5a4f7d57a26d83c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-66-wght-normal.BvNozWOY.woff2",
+      "sha256": "6479166925eb462be1a74ad446099719e8021949abf5c3eafefd9ad290836b9c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-67-wght-normal.CC-WRBV-.woff2",
+      "sha256": "a6b0e11c4c761ffda2e693d037f1384af67b6a338f81a8c0fcd7aa4eea9a177c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-68-wght-normal.c0FjfUaj.woff2",
+      "sha256": "65b77f1fe9d68dae692578370f64b50ace8469fcf737b34d8b4cdfabed344f23"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-69-wght-normal.D596Jjl2.woff2",
+      "sha256": "b34f765cbbf4d02e71cc0d3ea9d488ad4a9da2bcea08f4c84a74e6ec82877f06"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-70-wght-normal.ColEcmtJ.woff2",
+      "sha256": "a99d55c00e4f95b79ccc545fcd5464428edb7127670eaed421003473fd4ede7f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-71-wght-normal.ChZfXpdg.woff2",
+      "sha256": "3298bed30dc8d23323c0ba9cab32aa4088d39f5316d126b5cbdabd56884a5f01"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-72-wght-normal.D1VyfEG3.woff2",
+      "sha256": "6597209ca97077267b65fc072819325eb5a6d3787791d193cc481b3a71fb1b76"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-73-wght-normal.DwSJRYPJ.woff2",
+      "sha256": "e7ac1d4930eabd781b541d961576a89b49580cdf336ca2413e0eb7709b41e72a"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-74-wght-normal.Cte7o1QG.woff2",
+      "sha256": "1f0287be83a28e7ac104beb7f1b12ea6c0f327dd2dcd50033fb11c4aba123734"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-75-wght-normal.B0qL41rF.woff2",
+      "sha256": "d9a4bb7bcc2be578e52835906301f04f6caf285ffcd299065521830529532fd6"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-76-wght-normal.BPLMO_2x.woff2",
+      "sha256": "5a019946bcadcec6e510d2786b1a490a8ca4442c849e3fbf6251bdc06a7e1f47"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-77-wght-normal.Dkbi3pye.woff2",
+      "sha256": "7c445e85d04f5319eda4b07329a71f5e468fb7906547d34150b819916d2f6d31"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-78-wght-normal.BFUXeSw6.woff2",
+      "sha256": "7d4afb70f641781cfe859e18b81b5b641fb76872fb44760e9314e76fa6b42e3f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-79-wght-normal.DoJG4UTB.woff2",
+      "sha256": "5798753a721bb4eccbf7d9ca923d2496524009a6c27c4bfc36e2b27f0251ee59"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-80-wght-normal.BEFypWOO.woff2",
+      "sha256": "db887159ca6e46f3f2787f7a1037940805bb7db727fd3a7ee2bdf9fb47f74469"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-81-wght-normal.ed_TZlfo.woff2",
+      "sha256": "71e5743bbd225b3d80426f1b9e1d45c61fa7265aa453e2d22181944ec52569ff"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-82-wght-normal.DcxfR5OJ.woff2",
+      "sha256": "8c5094c3785fd04f84142ebc0362d835cce48e56b13e90d9900ddce5f9fe060f"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-83-wght-normal.C9UjAcMM.woff2",
+      "sha256": "4a60a1ccba9052841d6f22a1d8d84a553184689b1de4c3dc6bcaa654c2c91ef6"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-84-wght-normal.C7NxT478.woff2",
+      "sha256": "3ed54e59ef4758e3cf1f81d9dd5ac9197ba8a7071ec8c0d69e2d52b2a2826be6"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-85-wght-normal.DBcDBu1n.woff2",
+      "sha256": "e87e0a1342e1778c69040e768b5ad1d615068cec94579ba0176a875cb4170bde"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-86-wght-normal.CLJIoPpl.woff2",
+      "sha256": "6d3ac3e20959dbcb9c0f4fbe786a2fc4040f565577b35a13275959eec27a9ae0"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-87-wght-normal.DYfJ-vGE.woff2",
+      "sha256": "0eeffd5daad5c17bba306e06e89e93ac563a497c806c0fa1d4c3a53a8ffa4225"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-88-wght-normal.ClNDOCGW.woff2",
+      "sha256": "b1d9582dfa2684636af41b19f0e2b397f8200337e0302dcaac3638ad431b7000"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-89-wght-normal.IQU_KQA8.woff2",
+      "sha256": "8b437aeb9e9fcb5aa31bd8565986f92cb7c43dbf1ac3763531b8b384fcda7290"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-90-wght-normal.BWcrRNoG.woff2",
+      "sha256": "83b0a59e0a5e045a44b1819d98795bee83684f746844f6fc4ebf448db3d53d39"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-91-wght-normal.CGekvDdH.woff2",
+      "sha256": "382f72b98d4bb9d7006109efa128aedf846904490b52a5d4f1db151a73718faf"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-99-wght-normal.Q_IptJM5.woff2",
+      "sha256": "54e302c23f11a8fd518f0948183800ac954315067f0990eed41b9c91e55761ef"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-cyrillic-wght-normal.CRA5_Pf1.woff2",
+      "sha256": "5932d441e7126669016ce303fb19247ff258622291f13069124eb9b91304bbf9"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-latin-ext-wght-normal.CqPqLCfe.woff2",
+      "sha256": "e316201f3fc493d191136a3ea728d184227b9651aea2bb38e279c45ef58646a7"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-latin-wght-normal.DYAKOyvl.woff2",
+      "sha256": "c1d919c8701a86ed7f33a8044f7c4e5675db2fce8b754091e97b2c0792f9782c"
+    },
+    {
+      "url": "/_astro/noto-sans-sc-vietnamese-wght-normal.y5SU35Rl.woff2",
+      "sha256": "cba3d00c8db989f0f0c3c7c48b1672468d9cb3c8c06514fc5cf1bb82ddccae7e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-100-wght-normal.B_E8_y1S.woff2",
+      "sha256": "10d846c3e11659c57d906ae2ab9a9d418e0aaa36b99a991a09aca8e5bd6e3c64"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-101-wght-normal.D1afnVTV.woff2",
+      "sha256": "139765926260131beb5763bb8474d5441c7a504f62257cacd5b569ee39d119e4"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-102-wght-normal.C336twDL.woff2",
+      "sha256": "98eb7841a02d362b6b92646644d54e9a3ed296e931799f342acc76f844024328"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-103-wght-normal.DUyihgdX.woff2",
+      "sha256": "ae54f03733db84abcacd43c967c9d6afd647f0a1579ef3b595a807bd24f76a2f"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-104-wght-normal.BGjsMcQX.woff2",
+      "sha256": "ebda2b19fc7a325ab200e073d3152ef8761dd2e3fc6f4a36c757792ba393264e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-105-wght-normal.BgSod39R.woff2",
+      "sha256": "f43c00b1e7e213add01d19eecf6ef2e8a96f7087b46b908df407490b72fe09d9"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-106-wght-normal.CniXU52I.woff2",
+      "sha256": "1a6cc82f2ce03f8bbc6c78ad27bb79d1319dbabb6a016499d9042073acabcc0e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-107-wght-normal.D141098S.woff2",
+      "sha256": "2a55b026bb206504dc94a3fa0d58a1f2af2b9b4c3daf6dd988519458e7404876"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-108-wght-normal.BmakWj8P.woff2",
+      "sha256": "4665f9383f65a4fb003c53808f5b91d1e93fcccd3d2d8c799cfda6e3d14656d7"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-109-wght-normal.DomK5QIN.woff2",
+      "sha256": "16b43b96dc859eaf9b6f2ee884c9976318d6b55720ae72b118f9ec77582361d6"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-110-wght-normal.BSy0JP4E.woff2",
+      "sha256": "3616d3502701dcdf867d0c850ef50cbf19e1613b283a238fe4f8ea0c91908c6d"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-111-wght-normal.DOsFafg3.woff2",
+      "sha256": "8164af476b514e30654ecf3aa34edeecbad209782f4b026964032e4f594a2881"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-112-wght-normal.MAZT2qqq.woff2",
+      "sha256": "675553f67dda471ccc684b734a07db465fb6bb9ec1ce5a70b6d6b0f9a36a7a26"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-113-wght-normal.DyuoesZ9.woff2",
+      "sha256": "1594e53f4ab5fe067f7ba108b65a71ed07b2fb9da68af01349b4966c871e4d36"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-114-wght-normal.rN6TP-iN.woff2",
+      "sha256": "f402c381cb2eb5c6d1e65a8bae7629b5cb97faaa42759af6874f6d33fcc98273"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-115-wght-normal.CLw93OJ2.woff2",
+      "sha256": "1bd7a4092909a57cf3f2df1f983980fa45d37f0f77b038a31785719fc9580668"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-116-wght-normal.dLgproop.woff2",
+      "sha256": "2392f5989457174e847cc69a4eff0ff80f5ac744b8f1fe29b0b1925299cb0a0e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-117-wght-normal.XTbr9ZZT.woff2",
+      "sha256": "44c0c56034f2906014cd0082c42cef587cd4e2eb24983aca2a10d9805a0f26f6"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-118-wght-normal.DgpSdJgq.woff2",
+      "sha256": "9a03bacc0425e420573fa8ba6b4a1468ebfe8860ef2243e41a646dee45b67b54"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-119-wght-normal.BO-8DIcz.woff2",
+      "sha256": "28858c6c597253c4488e0ce1bddf52d6bb5464ebcf981927ea5c7269b5c1dc17"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-21-wght-normal.BWgIT3u9.woff2",
+      "sha256": "c56fed07baa5368c483c00d7963847caf0f9aff18bc78561fe8b14db7171b572"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-22-wght-normal.n_9gzBdK.woff2",
+      "sha256": "4e943fdd06982ac9a81d192846dab76a2797321c990774600dc65ff8fe1d4e68"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-23-wght-normal.PFb7vc5T.woff2",
+      "sha256": "e50204d9c99dee1b284a8f5c9508295fe6209c54e089ba7146813360d9c17713"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-24-wght-normal.CLtoVuTx.woff2",
+      "sha256": "03de62bc4c94fcf00ad2a87ed76731c95b0852b0b41c9028844e1a05c06082c0"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-25-wght-normal.CO_UFAdV.woff2",
+      "sha256": "9fa23b6cf30829d06600bda44f2b5d31880d088ef9bd5626aaf4557941457c10"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-26-wght-normal.CUJJnivC.woff2",
+      "sha256": "158a0be2cbba07d17824a5ba52319a3f914c59857f4bd70a332596bbe1b1128f"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-27-wght-normal.B9lzzaTa.woff2",
+      "sha256": "dc5909d502de13c096a9d4b6f674433f2da1ef62f71cce1e3f43be499f1a4a52"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-28-wght-normal.DpNoKRQu.woff2",
+      "sha256": "93daeb451edfe65dad18a468cc90933d6a5fc79e9411ce28027bacbfd7bfa0b8"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-29-wght-normal.GaECcatV.woff2",
+      "sha256": "d4ba29a42d58e9c71f523225d6c2257e231e4d3fe92b720bbcbf99dd08add33c"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-30-wght-normal.BthB64Y2.woff2",
+      "sha256": "106e18d90034e75630790ad203bc69850747bf96c0a398b96bd88bcaa81e9480"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-31-wght-normal.6gH0-Plj.woff2",
+      "sha256": "b9df2ce5d328a524975728c051385e14c1c823798e084c1227101ed4acc6174a"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-32-wght-normal.BWmx-AcC.woff2",
+      "sha256": "87fdad598fb7ab598784e43f87f1da2c5476f88e4a5a9aba56abc73973449a42"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-33-wght-normal.imYNTNMM.woff2",
+      "sha256": "a1e18c863c00ab7e6f17fddcc42b193fb94ccb5e3e01ee394a189c149aef447e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-34-wght-normal.DnkERd2u.woff2",
+      "sha256": "ba9fbd7fdbf7cce92c1a95946a7ad7b10ff9d3098403174b2b2b11ba6b282eb0"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-35-wght-normal.DvRk4hqy.woff2",
+      "sha256": "0eb731d70aa1f4966dfffab308b3fb11975886fd5375f45ce6b16f1eaebafb83"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-36-wght-normal.mA1onJjc.woff2",
+      "sha256": "b36a86aa9d07ae91a379ef0661f723c323677fb9106457318b1194d5c5f7cbc9"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-37-wght-normal.LC1yyc7m.woff2",
+      "sha256": "5b42c53aa93cc2a7fd855c85a5ca733d4da8d06984df8b4c9b2b76ce1090bc80"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-38-wght-normal.Da_NFf6-.woff2",
+      "sha256": "60bae2b9a8bf65e1b4c1a06d529079cea1824bbab0a37840469f24b698880aab"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-39-wght-normal.C_Pfsj-f.woff2",
+      "sha256": "ef454fca50875c2536bfbcf4e0b540f456c012a61d08ff778ea4e3e640bd938b"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-4-wght-normal.POi_Urbq.woff2",
+      "sha256": "92b93561d8af27754352918934377dc09ecbf91d2d65a0951fb1d60895367330"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-40-wght-normal.BjlpL5UW.woff2",
+      "sha256": "5392252c91bd0707d647df33a9a279501a029388c7882a0ad420a40b760e5a62"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-41-wght-normal.CVBLXKlt.woff2",
+      "sha256": "0f39f0bbe9a7a450b994c3c3bd9aa0627ae2dea8d36b67fc5a3554830f28005e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-42-wght-normal.BuqGeHAE.woff2",
+      "sha256": "2db79fd3aa1d48c07e30664553e9d1ddb9fc4c23fdf02d48c63e094ebf275a5d"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-43-wght-normal.C2AfGZIw.woff2",
+      "sha256": "7e94834579a87ac5bbeae3c8d0cfc33206d7e0fc85e7c59568f75358fb000c44"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-44-wght-normal.Ce6e62F2.woff2",
+      "sha256": "3f116c05fbb0abc3fba86bb85b4426eca3a41650d2763ed4c5b31fe8b28f752e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-45-wght-normal.CXgjcdJT.woff2",
+      "sha256": "6b583a41d620c6b504ce9d451fdbb8e08d073b2573e46d444820959647d7f3e0"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-46-wght-normal.zC517Lyl.woff2",
+      "sha256": "1581af3bbb4e78f52db3b1078a85595e0ffa30ee334b7dbb49baf42ba9fbb28a"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-47-wght-normal.C0d1RTo9.woff2",
+      "sha256": "a491a10a853d1fb3480d4471a275fd8824726b0e1a795fe8a98eb946001ac80e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-48-wght-normal.DdYwMBaW.woff2",
+      "sha256": "cad6d79ef7a000ed533559c080e92351797bb90d800243fa3a25c7064a3ce93e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-49-wght-normal.Cke2kJyu.woff2",
+      "sha256": "ca078411ddf19a164747d6e2220b0b2022f08e1682a1dc660a8902da13f2b0e0"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-5-wght-normal.KEByyGxm.woff2",
+      "sha256": "405f96fc00f5de66a11045874d0964dcb4230122f820771ee13dd329895074d8"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-50-wght-normal.zkdyL1V0.woff2",
+      "sha256": "80938d29c0efdbd634308ac52ecbbda6707a0b3e3b7d1c84e197c28a6c8c837b"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-51-wght-normal.D9iT-1TR.woff2",
+      "sha256": "6e0e93e30ac6e513ffdb1e5ddc50337e81c5f33d54bc3bb0e044113f228f5727"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-52-wght-normal.BLDAvkY6.woff2",
+      "sha256": "6f05dd92f2f040024ed6f401c03a78ec8f8058313ecab04b6ff195a0041a4a5a"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-53-wght-normal.CVEOz2md.woff2",
+      "sha256": "039698b9bc16db3439b86528c88c369086ed237f7baa13873ca33a0922edce18"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-54-wght-normal.DPWdAwq4.woff2",
+      "sha256": "2263f0841a3499dd34793a4b21c831760bcae5582b047cbcab0b55cf9b105ab5"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-55-wght-normal.CHCeRIrg.woff2",
+      "sha256": "c940bed82b2192c9a436af93a8ae990c9e66d1384376f56878c3906c6de35353"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-56-wght-normal.eKWz93j7.woff2",
+      "sha256": "373d1b4d724f4ee5fa02eb5ee5474033a914a990d966f2abbb36c96682e5e993"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-57-wght-normal.Cor1Tvn4.woff2",
+      "sha256": "a8e46481396f2a9e4ac4875b64645f26e4e9ff185a8503c2402c2bc9bf46219c"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-58-wght-normal.kpJ7mHnK.woff2",
+      "sha256": "4fb8ac1d7a95c72aa66de7673a352e3e8b9046ffa90c444d0f961221f7052e40"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-59-wght-normal.DuU0uqw2.woff2",
+      "sha256": "f69a03144d47d4987530030eceff2c2c4e37388ce5e45976a7a15f4dcd849d30"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-6-wght-normal.zG9mG1jB.woff2",
+      "sha256": "aba77127699e71bc7d13fd80c4eaaebcb5065862590f6dfbb05ba14bb0c0d2d8"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-60-wght-normal.DAKYpn8o.woff2",
+      "sha256": "952351694a0ada3a721a73decd3afeac99fac4637e0dbd2af987c7e147205ff1"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-61-wght-normal.DsFqK1wo.woff2",
+      "sha256": "90a9d9858975f1c073521af5df9a7286356ff78397d274cfe7b64cb97f719920"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-62-wght-normal.BetEYZyP.woff2",
+      "sha256": "854a14f63241e795bc8a17e64d472f09c834a02f9b59258637063aabca530070"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-63-wght-normal.CMtD-Kgv.woff2",
+      "sha256": "9d345b17ad128918a7d4eea67714a376f8840ffdc82b77da8dbc416071491f65"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-64-wght-normal.CjrUC92N.woff2",
+      "sha256": "ab7aef1b30a10f6643f3271cb55e64c49e6d8c4b91a2e68287196cde66ad7614"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-65-wght-normal.BQWoNL84.woff2",
+      "sha256": "24f7302e65f8adaec36d642aa8caf68cdf4c50c91e54f75e9e535382366766b4"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-66-wght-normal.C5lNsScf.woff2",
+      "sha256": "5c818243ce70b138c5e7edd2798f92d311d8d9158eb60bad6c4f5cebe4d46fc6"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-67-wght-normal.YN-qC7HW.woff2",
+      "sha256": "a4557ab88bbc6bb5272d315402d2448f92a7e53bdf3e89f1d839e95e5b67999a"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-68-wght-normal.DgVKmqhJ.woff2",
+      "sha256": "bca8897bbf2ee33d854e2d2cb19a31c66d549c2eb585af439e905378486df29e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-69-wght-normal.CYLESW-L.woff2",
+      "sha256": "52740303931d8b85ab9529076bf835aeaf877c56e47aead612281bc128318282"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-70-wght-normal.C1ivJfo6.woff2",
+      "sha256": "b677122aea77998b4b6c991cc0268585a48690a9347bd17057ac589728176c5d"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-71-wght-normal.CvXxbzcf.woff2",
+      "sha256": "6b91a10abb4a03d31c63d528f6ef6b0fcdf4dbe7c030d67e1943f6139c115d73"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-72-wght-normal.cGdTpPsV.woff2",
+      "sha256": "713d2bb29db38602e97e272bdafa666c5b426b7b779dbf3beb32313fd95b8551"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-73-wght-normal.CVaZwasb.woff2",
+      "sha256": "c5cbbb60e77f863af35524ec5a6674f5ce15735f05746923caa8d07e99b55886"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-74-wght-normal.BbF3qCor.woff2",
+      "sha256": "365512ffc9e2717c81cf5d9af42646426d657d5494b4fd04501a5beb0af6f2e7"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-75-wght-normal.93ee-1qL.woff2",
+      "sha256": "f0e12f7e577876bf2d554e924f0a2bbce375b647d885a568b37dd5b042133ad1"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-76-wght-normal.BLbVMqvY.woff2",
+      "sha256": "f0dbe158fa641cc4297af81a4d44d2a9a2b775a32a96d4f665d62820ee2e6562"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-77-wght-normal.Ba02t4uH.woff2",
+      "sha256": "cfabb52e72825965ec66b18bc1bab646d150206f2a3aa6d4fa6f29040058515e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-78-wght-normal.8sP0MgyD.woff2",
+      "sha256": "2101d62af080d6803513f4fe5d91aba6831b61bc95ed172dace75caa2a5b8c2d"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-79-wght-normal.3DZZprJd.woff2",
+      "sha256": "a5fdbb67e3dadebda5b447c1707fe47a2d9e40f095fb22dedc63aadf969d6609"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-80-wght-normal.7mf1Dpmj.woff2",
+      "sha256": "0a97bd54c22add0ce1fd54256f20bcafa92b8db870b3f80cefd3672da29eb3ae"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-81-wght-normal.C7zVck8N.woff2",
+      "sha256": "5945538dcbfc11c1db2d573e1a0889c33b90b45d8445cb9ce1f18b38db36336c"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-82-wght-normal.BCQNdhXI.woff2",
+      "sha256": "45f3ed82e9bd8231532b58a0de47d0b26fbe8e4ceba610615903e346e5213263"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-83-wght-normal.DxCiS-H8.woff2",
+      "sha256": "bf628db08549cbf5090c3486717d5121d48af1d82c79b6ab181ed9b49ba5e31b"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-84-wght-normal.BqNanTR7.woff2",
+      "sha256": "60e71123f0b838bf4fd52cb5de5e3d6af8e48c8f7f32481a39da625d1e63fd2e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-85-wght-normal.zDA9V0-4.woff2",
+      "sha256": "d8f48bbf844eadbaa2e3db648ed6889ccb8083572437eb6f0f717f9097b9e45b"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-86-wght-normal.BEBRIryH.woff2",
+      "sha256": "09248b343e7220ab8786b907c2d75aaf6d1a54830822070a0ab012ec03a02bb1"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-87-wght-normal.DYrIOgtA.woff2",
+      "sha256": "50751cd23b3787eff2af23d3b9676b13cb5263e750a72fd258328f5812520b08"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-88-wght-normal.4sUXZiL0.woff2",
+      "sha256": "45cb9a16cbc13eff333b49bfa5c63f0478078ac6bdc327de9d69bdb6cdd8ce2b"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-89-wght-normal.BHbmppex.woff2",
+      "sha256": "ba142270184772c2bbc1985bf88e42d05e9462b14163001b8c253765c3f1d55e"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-90-wght-normal.CAN9aOBC.woff2",
+      "sha256": "5968dd127304a59f1e2ea36b875f3702dadb0a229bc87a9053727c26807a15dc"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-91-wght-normal.Cs76p7wD.woff2",
+      "sha256": "30691665669ee807f465d552b3247cd41f9097020662bc43f28dbaf243cbd883"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-98-wght-normal.Cb4Ymdjf.woff2",
+      "sha256": "26b9dec17f125371d5f5089f89de39094a11f98ffebb061011158d7e4aa602d0"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-99-wght-normal.Dxrjm0os.woff2",
+      "sha256": "7bf7c8fd9809004cba36338a94c338cffbce66069c2b091a7472e0b4dfa6b041"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-cyrillic-wght-normal.CEncxE_U.woff2",
+      "sha256": "d6e6ed7b0a14b508f94072aea3bb29abe236fd012ba6174b49292a6c900718e6"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-latin-ext-wght-normal.B_BpesqA.woff2",
+      "sha256": "b07e7e5e090ed9220e5fd4afc6a22339a77f63f79f1f7ac010e3b05a8849c5ce"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-latin-wght-normal.C94SydbU.woff2",
+      "sha256": "2ac76686e472db28292edcc26bcc201a3b40b08b2615db7e75e03d07ab853017"
+    },
+    {
+      "url": "/_astro/noto-serif-sc-vietnamese-wght-normal.BDuesHz7.woff2",
+      "sha256": "9826143bb6278155de4f76910fd6ec34fe450385dd0d85df10e4497bb174eac7"
+    },
+    {
+      "url": "/_astro/preload-helper.DHhhL8Zf.js",
+      "sha256": "616967e76046f7a294c7ad1643f1ab9993561d942fd47c439a02f58b0569e70c"
+    },
+    {
+      "url": "/_astro/Search.astro_astro_type_script_index_0_lang.Bx8YuZwE.js",
+      "sha256": "a305ff8f7c0cac63084ef52979b808a98de5f9b3e1ce76472c2473afb8e8b3cd"
+    },
+    {
+      "url": "/_astro/series-open.4rCjhWGy.css",
+      "sha256": "cd56fc565cd274695aff212441179c6deabf6d3f754f8128d480a78e15053661"
+    },
+    {
+      "url": "/_astro/silicon-static.Ct3YdVZ9.css",
+      "sha256": "38520aa73fcad3fa199c0327bfb8da463cc15e851d11e6ac816dea00a3afc985"
+    },
+    {
+      "url": "/_astro/taxonomy-open.BCLvwBkk.css",
+      "sha256": "5666c4d408a542f7a57d43d9b1476ae44d57aa96ea8916871bc3f2b93ff67b48"
+    },
+    {
+      "url": "/.DS_Store",
+      "sha256": "612a4308c4ea7937abf37eabecb2d83ab666533b424b3adb98bc0493a65c979e"
+    },
+    {
+      "url": "/404.html",
+      "sha256": "e257fcd61f4667ad0903214e81873528cd129bf820d4c08056c424e3a50c2096"
+    },
+    {
+      "url": "/about/",
+      "sha256": "a6df5991fe027edc0884874f9c916aa37ed6fc2e5d24ac744d83058c9b72da7f"
+    },
+    {
+      "url": "/archive/",
+      "sha256": "4c4e05790368a26bc2b518f39db6ae7b220ad8add58714ade5282892c2fc74f4"
+    },
+    {
+      "url": "/categories/Android/",
+      "sha256": "c4da20abefd64416909d40f1341116c7e34ff7fcc995a628322203ded893f0d4"
+    },
+    {
+      "url": "/categories/Binary/",
+      "sha256": "7a502017a5b726c22da8d90a5ffc9cb140dfcf189a572e3f3e0c79bc3a4977e3"
+    },
+    {
+      "url": "/chip-preview/",
+      "sha256": "02bbe35653cb6269a4c2e52bd0ef93f4da7887d369a65a33453fe2fa46eaf478"
+    },
+    {
+      "url": "/covers/posts/aes.png",
+      "sha256": "0ae0622b9ebdf6940241c451a0575ebd14283158b181528898bf26a511d039a1"
+    },
+    {
+      "url": "/covers/posts/aes.svg",
+      "sha256": "0f909e73523fc42a823c9b5c138005c1128a496ff955f72136935418d0bc9682"
+    },
+    {
+      "url": "/covers/posts/android-vpn-capture.png",
+      "sha256": "b219c88959d21da4fb8c2b02d4c6be21ba13a59a76ea35d82f9d1c07f2d5a293"
+    },
+    {
+      "url": "/covers/posts/android-vpn-capture.svg",
+      "sha256": "3fe88c73caf4864b9a98e1cf6a9252b6813b6d15d3362129e5325889dc5df06d"
+    },
+    {
+      "url": "/covers/posts/arm64-calling-convention.png",
+      "sha256": "d913e6fb033f9e27c2651adbc9ef7266ce0c34de670d598b4bfff4f7491e3a19"
+    },
+    {
+      "url": "/covers/posts/arm64-calling-convention.svg",
+      "sha256": "c80bc7ea29b0f6af7a15eff527a6861a9f94e1b13dbfe1b181df91607eb8316d"
+    },
+    {
+      "url": "/covers/posts/behavioral-neural-risk.png",
+      "sha256": "aed8bc603a6de131a60253c02aff59914193b4642fd98bdbc95768edb672aee3"
+    },
+    {
+      "url": "/covers/posts/behavioral-neural-risk.svg",
+      "sha256": "6c006483fdd0386491ff40801e1ecde872522d6dedb9fb73d3900e2f56d18412"
+    },
+    {
+      "url": "/covers/posts/des.png",
+      "sha256": "fab5fe2fe164feafaaa6d97233b095d96defbe812e43f69ff82e4e6d7b30501b"
+    },
+    {
+      "url": "/covers/posts/des.svg",
+      "sha256": "7dc7368cc43c27015e66e665b6828a829f01720e5d06891bbebe2408032614e6"
+    },
+    {
+      "url": "/covers/posts/elf-format.png",
+      "sha256": "e4a925d579a3bf5c14701f750e2245541a01b31100ded49a455a276206dd061e"
+    },
+    {
+      "url": "/covers/posts/elf-format.svg",
+      "sha256": "32214bea5910f36824f2762e22b9bcae7919caf509318fa9aea7c10ffa60f5b1"
+    },
+    {
+      "url": "/covers/posts/file-descriptor.png",
+      "sha256": "b0ca4c552a8a67b12d6854955223d7d6dcee5f1e274a9b30c6118e939f6c730b"
+    },
+    {
+      "url": "/covers/posts/file-descriptor.svg",
+      "sha256": "091faa0d1fb2f58bf29aa8b8d9f0636dd680e484db46400b37172ef236624fe6"
+    },
+    {
+      "url": "/covers/posts/frida-hook-patterns.png",
+      "sha256": "273341096eb00ca090ed46c409767fc5d8272724bd89694b8e69c42833e22d2e"
+    },
+    {
+      "url": "/covers/posts/frida-hook-patterns.svg",
+      "sha256": "06ad19513b484344089ef52cc4d900918f1dd11778c615a43809c14532120e23"
+    },
+    {
+      "url": "/covers/posts/hook.png",
+      "sha256": "e9894a23d0a00e041391357bc7f95245e943ec8d25420b84909d6fb7be505da6"
+    },
+    {
+      "url": "/covers/posts/hook.svg",
+      "sha256": "f5de00457218b893aa35827921182854fba739f632a6d72450d6d8173dad6815"
+    },
+    {
+      "url": "/covers/posts/iptables-transparent-proxy.png",
+      "sha256": "20dd0b7bd2d9a87a97f415d72756a4e03f8f3f82e21d29c808f55c56edce618e"
+    },
+    {
+      "url": "/covers/posts/iptables-transparent-proxy.svg",
+      "sha256": "15204b1e307152e21910c1fc9916a74bbe10919d4c35aa7c5f3a470bf7e9c10d"
+    },
+    {
+      "url": "/covers/posts/js-beautify-unpack.png",
+      "sha256": "5127eb4f6f754ccc2558aa7726c2c1337dcfd52fa8671114e4a799abb59ad23a"
+    },
+    {
+      "url": "/covers/posts/js-beautify-unpack.svg",
+      "sha256": "0fb812c1c689951f3d06498d851d7c634c873a491b06dc0128dda2393e3b43cb"
+    },
+    {
+      "url": "/covers/posts/launcher-trace.png",
+      "sha256": "ef1f4ed329a2ab0f5a03462eb219555d8994206ede6ab76c73d7237e71ca379c"
+    },
+    {
+      "url": "/covers/posts/launcher-trace.svg",
+      "sha256": "ed6d299be17f0ff26c91129b7cb52748d12f6cade8b4b2cad5e143e0fc5713cc"
+    },
+    {
+      "url": "/covers/posts/mitm-proxy-capture.png",
+      "sha256": "f5b70f5d4ba1137483efaa0b1ec58c4cc749936fe5af1c3374c4596dd84cf7e2"
+    },
+    {
+      "url": "/covers/posts/mitm-proxy-capture.svg",
+      "sha256": "fbdb4bca4ede66cd2e653787b04a7e253795df7fd53be4697da6d6f748944ec9"
+    },
+    {
+      "url": "/covers/posts/pe-memory-map.png",
+      "sha256": "75d1b35286557f99841e0f119a6dbfb166c92c5388a326856ac27eb3e7d37e6b"
+    },
+    {
+      "url": "/covers/posts/pe-memory-map.svg",
+      "sha256": "37f37626a58449b8965ce53ad700e8d6933728b22b0dde15273f4d6c0589ada8"
+    },
+    {
+      "url": "/covers/posts/peb-teb-antidebug.png",
+      "sha256": "f5cbab04f360f378099c1c93f021dcab0317773f3c3189cb0028ad4e1e259dee"
+    },
+    {
+      "url": "/covers/posts/peb-teb-antidebug.svg",
+      "sha256": "0edd4b4e12ec54db3c9deba47a7126897fc02a65905b04e858a44aff52abdeec"
+    },
+    {
+      "url": "/covers/posts/python-reverse.png",
+      "sha256": "b561d1019655086bf30357b5d1a95f32eaeaa0ed349ee41d17ee848d5827e34c"
+    },
+    {
+      "url": "/covers/posts/python-reverse.svg",
+      "sha256": "a9c7e92b32317ff5ea92ba614934090ec0e06f330f863fe1486c466cf95dcbec"
+    },
+    {
+      "url": "/covers/posts/rc4.png",
+      "sha256": "ff5a3b78bd17d5295eae84aa96f480482642651c1723307cac2ee890e76ad5da"
+    },
+    {
+      "url": "/covers/posts/rc4.svg",
+      "sha256": "e0ce9abc2bffe9e5b71c7441b463b4c9c7a893f0b13e05ccd58ca492c44cfb45"
+    },
+    {
+      "url": "/covers/posts/silicon-trust-boundary.png",
+      "sha256": "ebc9f57ab30850567444573bca09e3d2b17d2c83bca67477115774026018a71f"
+    },
+    {
+      "url": "/covers/posts/silicon-trust-boundary.svg",
+      "sha256": "e35fd5681db6c1b3807b68f64fad8828327362ba8fcfb531ec41e3d08af6986d"
+    },
+    {
+      "url": "/covers/posts/simple-vm.png",
+      "sha256": "6f35c80532ae6264d5b1408d2772133990ec732c443aa15bfece9ed5bc5a6df1"
+    },
+    {
+      "url": "/covers/posts/simple-vm.svg",
+      "sha256": "e7306c0099a8c184b860fe4a9e64f8de7cc48017b3bac05ae2b318f25d3d46f1"
+    },
+    {
+      "url": "/covers/posts/smali-cheatsheet.png",
+      "sha256": "e72a6ce503536a81eb4ebcb240f2cb172c145687230e103704fa1f09e97c82d0"
+    },
+    {
+      "url": "/covers/posts/smali-cheatsheet.svg",
+      "sha256": "45cdc073c4b5e93eceac2d00c9fa600a6279c9699c194e02b13c7846098c4c4f"
+    },
+    {
+      "url": "/covers/posts/tgs-2026-final.png",
+      "sha256": "cd8b20b79d91aab5f714edcddb9466836f768b5454a972bd617b797bd14abe8b"
+    },
+    {
+      "url": "/covers/posts/tgs-2026-final.svg",
+      "sha256": "adcddf1489ab04748ec603c19e274960697e0f226a6ddab671214de80bf483d3"
+    },
+    {
+      "url": "/covers/posts/tgs-2026-prelim.png",
+      "sha256": "449f336665e02002d93475ba349574fb5817ffad950fbdf6869d04930316b0f2"
+    },
+    {
+      "url": "/covers/posts/tgs-2026-prelim.svg",
+      "sha256": "8fed6370ef1eea256bd8f87704e287ee188e423390d1525d64af9c25d827ec5f"
+    },
+    {
+      "url": "/covers/posts/transparent-proxy-capture.png",
+      "sha256": "2ccd39847f89f729661206205399f155b536f24e8d3f8f9d459d7daec335c082"
+    },
+    {
+      "url": "/covers/posts/transparent-proxy-capture.svg",
+      "sha256": "745f596b89a0736ac158532bf4316e2d17401fcede104fa12b0702d2116e5d5d"
+    },
+    {
+      "url": "/favicon.svg",
+      "sha256": "e345024a0efc7cb37781ff4cf723fce03097d6d8892dac53c9ef68acfc65f69b"
+    },
+    {
+      "url": "/images/miku-night.jpg",
+      "sha256": "ea2c8d7f4e61add71f2ce716e4caaaeb342fd3827522f80a52649a211293762d"
+    },
+    {
+      "url": "/images/miku-run.png",
+      "sha256": "fad059c531a9b6667e5b99b1c1364b7ac3fed77fd1e92487508545b90f995718"
+    },
+    {
+      "url": "/images/silicon/layers.webp",
+      "sha256": "55a439faa7afe433a51573976f6c2e3a5bf09c9bf4f34c61c8407a5834d0c45c"
+    },
+    {
+      "url": "/licenses/fonts/GEIST-OFL.txt",
+      "sha256": "71609cbb5c78b5870d712eab73a31d76622635c6ed034ab5cee3b9ecbda8685f"
+    },
+    {
+      "url": "/licenses/fonts/JETBRAINS-MONO-OFL.txt",
+      "sha256": "403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b"
+    },
+    {
+      "url": "/licenses/fonts/NOTO-SANS-SC-OFL.txt",
+      "sha256": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3"
+    },
+    {
+      "url": "/licenses/fonts/NOTO-SERIF-SC-OFL.txt",
+      "sha256": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3"
+    },
+    {
+      "url": "/licenses/fonts/README.txt",
+      "sha256": "6031a48e6f6444be6760f346f9c0737115f20862b6b295f6a972bbf78b3328bb"
+    },
+    {
+      "url": "/live2d/lib/L2Dwidget.0.min.js",
+      "sha256": "0201a0d80d3fafdbea982fb9ab6bcbddc39ba9e522450c71b0c6aff916085c24"
+    },
+    {
+      "url": "/live2d/lib/L2Dwidget.min.js",
+      "sha256": "a8838e32c668e7df9707658387fa9b358fd6616328dd2764fa83a323f997f2b5"
+    },
+    {
+      "url": "/live2d/model/miku/miku.model.json",
+      "sha256": "789dc7b35bd2caa5aa09b71837d5d2e2b5b49ef07a74d504d6c1c62ae487dfae"
+    },
+    {
+      "url": "/live2d/model/miku/miku.physics.json",
+      "sha256": "6f11bbcdf2b53ad96f5ddbd45e50f8071ff10c4a7ae1f42c3e9311674ee72b23"
+    },
+    {
+      "url": "/live2d/model/miku/moc/miku.2048/texture_00.png",
+      "sha256": "d9468e2b09f8119ad7a0d2a09a69448b34f6037bdf34e6cfcdd7febbfa20dfab"
+    },
+    {
+      "url": "/live2d/model/miku/moc/miku.moc",
+      "sha256": "192b25cfdf459a00b7a6b05d26811ab52c9784abf5c5efde676bdf2e044b4bbe"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_idle_01.mtn",
+      "sha256": "287f2db30adb2e3fe5a6fa41c0bd050d7906bac755ffdc6a3893ce3c26aeb535"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_01.mtn",
+      "sha256": "2bea7e21c038a12a2caca322c23c39574a9b36bc793f63bbaea558524560b40d"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_02.mtn",
+      "sha256": "cda87a180eb134558da5cb69fe65d708f46603cbb057ee0a28f145924b2970fa"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_03.mtn",
+      "sha256": "952b252f1cb9de6babc8433d00dfa3efdbf3ac3db87207e22e5c3c90fdcb5ba1"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_04.mtn",
+      "sha256": "e205b84c1f3f0a0f72007ec6481ad1fb3b0f9e94c21f568a27323e4d7005d39b"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_05.mtn",
+      "sha256": "dc048aa5c9661c7b7128c433bcb242ff0053d5036d6df9166c4bfc526bc3c259"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_m_06.mtn",
+      "sha256": "f171e27f5bb3457aad16d49264c53c4629b806e2183e7004a39a20e08fb069c6"
+    },
+    {
+      "url": "/live2d/model/miku/mtn/miku_shake_01.mtn",
+      "sha256": "7abf4c373f08de92af6e9961775249f7c6609d7d31e9e4ce370c6bea59cb68c6"
+    },
+    {
+      "url": "/map/",
+      "sha256": "f907d4ce2b359eb8c58aac6e61459dc75dfc6408bead81eb2a0dcb1643389e84"
+    },
+    {
+      "url": "/og.png",
+      "sha256": "030d40f6b3fb278c56dcf0a89e58c7aeea7eb1a24b102eefd3c2b95a8937d2ce"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_3444297.pf_fragment",
+      "sha256": "01c358860204bef04a4d0c68788b37b423fb8aa0244d3b680fd0a2d1b3f7c0dd"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_39772b7.pf_fragment",
+      "sha256": "5b018460383da6bb044d228ca496d338366ec40d3cfcb88b05c63aea5e55f73c"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_41ca098.pf_fragment",
+      "sha256": "a4c65752ce969cef00e79c794cd9a66e00c8f82d0b42aaa8018f799649fc111e"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_4750e4d.pf_fragment",
+      "sha256": "403e5f4bd3273a572613c02063685e06c870001e55777570ffbb89abcdb0fb81"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_4ce7c7e.pf_fragment",
+      "sha256": "d10166a289e36d3a003ae0c196023d3dc77609a9a797101c546b94accd707098"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_4d6f927.pf_fragment",
+      "sha256": "c738ae31f2287c2229485b4e91c0add788ebb7866930a79f88c2deba9a20ddca"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_5df9c05.pf_fragment",
+      "sha256": "be13c68394a10c72fa2c1c4b1f0650ad931b35a370ecf71fb1ad91202c36e93b"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_6cfded3.pf_fragment",
+      "sha256": "c4dffb8bb67f9b343b6fac4f19d3e153d1264ac7aea6518486b647c7af3d7de3"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_6f6fe63.pf_fragment",
+      "sha256": "82dd6887ade1f9028abf035ba0c9e60cf55bc97e0c6115e7ef306cd2baf569de"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_7a30c25.pf_fragment",
+      "sha256": "0cfcff0a1403c2ac887d9161bb4c7b784f82fdbdc0305bdbf55989b776490910"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_81b9cba.pf_fragment",
+      "sha256": "c1958796cfd1f5874c0e862144cce043e5cc68d1e993ddb44d91d3d6da3c9cf7"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_92e62da.pf_fragment",
+      "sha256": "64fdb1458672b86baa759b677b2fbc5a008f492c0ec905a301aff4da021238ed"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_96778df.pf_fragment",
+      "sha256": "2cbdf0bbbd270527852af57049563dd2150499461322e3b99fe35814ff9b4c3c"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_d848b8d.pf_fragment",
+      "sha256": "05cf132bafbe30916309bfc225447ff506fd956e97c276d2638b8486fe1420b6"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_de23809.pf_fragment",
+      "sha256": "144a88a1d6ec1a23a6c0ee36eb554b2a44e7914d2630f72228292675e2c8c26a"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_e1ff8b3.pf_fragment",
+      "sha256": "444c00631693586962d762cc660095656d38ef7cb2662810fb3d2446079614ff"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_e79f654.pf_fragment",
+      "sha256": "b12defa06e876a5f0a7e12c90b5f2d3d8e30d81aca5694e7a35e2503c74b58dc"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_e877c14.pf_fragment",
+      "sha256": "afe12a3aed0fa136e5190353684911fc31d64e4ce77fe25fc21c0aff8693e357"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_e8dc506.pf_fragment",
+      "sha256": "5891da2eb7a61abe324b8ff33e26b4e7937be556d9eaeb81ee3119339d0e13bb"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_f2e7e2b.pf_fragment",
+      "sha256": "2b0f8ba2dd5991bcd491e9275bff0e258a0b26171a5ed6b050404b62de1100e0"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_f8f561c.pf_fragment",
+      "sha256": "0152cb1f3c4c2d613d36698113022a1790c3e7151c25e41603518c8eb031a74c"
+    },
+    {
+      "url": "/pagefind/fragment/zh-cn_fc5a179.pf_fragment",
+      "sha256": "a412455299767b6d7ad41a2450798ebd415d73e85a86b37a00de8e3b1a8f6c8e"
+    },
+    {
+      "url": "/pagefind/index/zh-cn_25da43e.pf_index",
+      "sha256": "32a8e756999a606fd1f85c4aaae9afaca17704c6083211c430e1edad6cc9c058"
+    },
+    {
+      "url": "/pagefind/index/zh-cn_8dd35ec.pf_index",
+      "sha256": "9a11f3f177e544e58d216fcf535e93af0013d5bc8cd7c94c019aa013cfe249d4"
+    },
+    {
+      "url": "/pagefind/index/zh-cn_919f925.pf_index",
+      "sha256": "bc515abcd0da24bb9cd590c21e21fbb1cafdf3ba5ea3e86224b3f8ce1c0d7b59"
+    },
+    {
+      "url": "/pagefind/index/zh-cn_c717c39.pf_index",
+      "sha256": "1a5769fe8b00a91644c58f51514267804d310de9e43a1d7a87d8d66d03f79764"
+    },
+    {
+      "url": "/pagefind/index/zh-cn_f932879.pf_index",
+      "sha256": "7d5aa6149bd982ab2aa61bcdb69125b54665d214f4f4ae53f0ca919d405e5fd6"
+    },
+    {
+      "url": "/pagefind/pagefind-component-ui.css",
+      "sha256": "de389c7e5d87d6e2b10d65fb1e36e8989a12a2ad8dd6239b7e070d81fb5d8b0d"
+    },
+    {
+      "url": "/pagefind/pagefind-component-ui.js",
+      "sha256": "958620129dd14bd851805daeb12ce708bd63b9287325d1d5ae6f73a04d1723f8"
+    },
+    {
+      "url": "/pagefind/pagefind-entry.json",
+      "sha256": "1c4108b4b4e609f08b1ad2fae69478b317b42e57a1de432f10128ea9c0e3757b"
+    },
+    {
+      "url": "/pagefind/pagefind-highlight.js",
+      "sha256": "04741266a86911636cefc41c8b407e380dda99b7d208724f700f94cdf57e37b5"
+    },
+    {
+      "url": "/pagefind/pagefind-modular-ui.css",
+      "sha256": "653ab29e4de5629f6ddf5f6fcdf5d2b3eb539a8c07fff8a56b8ce2156a570788"
+    },
+    {
+      "url": "/pagefind/pagefind-modular-ui.js",
+      "sha256": "f3efa0f74b305ccab0bc9edc7c09ab69867180b4c43093d84bb9b508ac4ec32c"
+    },
+    {
+      "url": "/pagefind/pagefind-ui.css",
+      "sha256": "e113b816110ed07b017613e901addfe635350f2a5b84990aa76c91a74b158084"
+    },
+    {
+      "url": "/pagefind/pagefind-ui.js",
+      "sha256": "2efa93f2e80a199ca742a69bd4cfffabc5c591ebe7763f64f7c655fd00d2209f"
+    },
+    {
+      "url": "/pagefind/pagefind-worker.js",
+      "sha256": "4ca50d25bcab9e1c3afbc00ab5f7761114e83c8fc1b83d38655af1558b650c2a"
+    },
+    {
+      "url": "/pagefind/pagefind.js",
+      "sha256": "252d272bd34d483d19a752060f6a065114d15ab12c42d8f905ca565e2768a009"
+    },
+    {
+      "url": "/pagefind/pagefind.zh-cn_b6e2158bb392b.pf_meta",
+      "sha256": "a020adf477b1552e806d54a3d73f336a7b6d75539664fe3e62737e32d7dbd4ea"
+    },
+    {
+      "url": "/pagefind/wasm.unknown.pagefind",
+      "sha256": "2533da887ac06de36813d031310af0f737daadacc931775e342aa5a3857a4959"
+    },
+    {
+      "url": "/posts/aes/",
+      "sha256": "997dcd775ab458289940e9c3e81065c7bd909f755754ff71d1b87bde18cf113b"
+    },
+    {
+      "url": "/posts/android-vpn-capture/",
+      "sha256": "07abcb9c74aeb15dcc20af264bbf2639ecf770eb2db2936f70a2bb0c9744d184"
+    },
+    {
+      "url": "/posts/arm64-calling-convention/",
+      "sha256": "bafefe7c72138e72d860ff679949b790aa01908b033e11aa7a8018ed589f7709"
+    },
+    {
+      "url": "/posts/behavioral-neural-risk/",
+      "sha256": "2c552af243b6c5354e77095123d12d4295abd69998f5b8a7b4df6a8f208b88cd"
+    },
+    {
+      "url": "/posts/des/",
+      "sha256": "d7bcf45026ed5c00068acdb8efe929570da63c740608c8dbbb096fac3c3d6f4a"
+    },
+    {
+      "url": "/posts/elf-format/",
+      "sha256": "d890d370dbb6229c97c233e534098dc10d1bd41e196728a927a079c2aa23b779"
+    },
+    {
+      "url": "/posts/file-descriptor/",
+      "sha256": "93f1cfc75fa130c91603c41d7689595a7ac1d4b614bf593c7d9943a23c05032b"
+    },
+    {
+      "url": "/posts/frida-hook-patterns/",
+      "sha256": "0265935a7eaa4a4438b1386c9925bfe54b33eb7c56322325967458e882e65eb3"
+    },
+    {
+      "url": "/posts/hook/",
+      "sha256": "5622374f4026e6105e38eb6b504bf202b6eb2fa4340e9ab128ed7c0b38462787"
+    },
+    {
+      "url": "/posts/iptables-transparent-proxy/",
+      "sha256": "330bb89a4ccce70342abd303c0d68970a74b0775c63ff35aa39e890885d27767"
+    },
+    {
+      "url": "/posts/js-beautify-unpack/",
+      "sha256": "aa172ca0248e4e550f587b4513042236f0747fbdb6c935e09b3093dc3d52af7a"
+    },
+    {
+      "url": "/posts/launcher-trace/",
+      "sha256": "e264ce0ebc9b22d754942ccb863aa784c66a3f15d2b14d34efb07967dc9d4e64"
+    },
+    {
+      "url": "/posts/mitm-proxy-capture/",
+      "sha256": "dc5cac78ed1f61cdb56c3821242698dbdb2611e6a1b15de5346cd855209d754d"
+    },
+    {
+      "url": "/posts/pe-memory-map/",
+      "sha256": "a7622c3c4839791630f2c018a22c52006d431bc32a1a7ba2c6c9a1c1f34acc80"
+    },
+    {
+      "url": "/posts/peb-teb-antidebug/",
+      "sha256": "3b93347f49741fcc1ac89c9c86a771270f00cf1c11f54f7f78ca45304b3fa547"
+    },
+    {
+      "url": "/posts/python-reverse/",
+      "sha256": "e55db8ca07a51f7ef94464b7dcb125225d3a69d962806cb937e18450954a21e6"
+    },
+    {
+      "url": "/posts/rc4/",
+      "sha256": "a53d76258dd467b24d562e568f6823714309da3a8bd2084bcad27412bf07def2"
+    },
+    {
+      "url": "/posts/silicon-trust-boundary/",
+      "sha256": "dc4b802c711edd19eaa28fc306b5435cb671cb2413d73636df0b6104eb50644d"
+    },
+    {
+      "url": "/posts/simple-vm/",
+      "sha256": "5dd183afeeb69cf685aaed8d919f5c013e0bba9e8f0e8e7bd5c2d9fee618113d"
+    },
+    {
+      "url": "/posts/smali-cheatsheet/",
+      "sha256": "3e00030231a3dab218c75457cb9e797f7e54a4893095d2ac285ddc903126c1eb"
+    },
+    {
+      "url": "/posts/tgs-2026-final/",
+      "sha256": "96b8aa61284374df6b005c8bebbf8e8b8e7e136a9a480b96742890afc24538b5"
+    },
+    {
+      "url": "/posts/tgs-2026-prelim/",
+      "sha256": "fef7286f49dbebbaa22a3bef570098129e66fe3ec9eb7de19519f8f5d75f5490"
+    },
+    {
+      "url": "/posts/transparent-proxy-capture/",
+      "sha256": "6b6fef2d844df0f624a29775cc748a64cba8a307dc45781179489d8ea1085772"
+    },
+    {
+      "url": "/robots.txt",
+      "sha256": "d315d92ce91ca1b95ada9923743fe8b9b8f91cf4dfa7cdae039d2a2ac91f8900"
+    },
+    {
+      "url": "/rss.xml",
+      "sha256": "1b4f8c871d4cf06a5ca1309465f5f9607fd7b2b448c26a275c3397fce55364a6"
+    },
+    {
+      "url": "/rss.xsl",
+      "sha256": "d57450176b2685ad40bcfe49c01635ec2c38750d0267ea6e5a6ef812cd17b081"
+    },
+    {
+      "url": "/rss/",
+      "sha256": "9f62b1500e44974d6367216e311882e4ebd0a4e0d5e41cf1c77bebaa25b9d2d7"
+    },
+    {
+      "url": "/series/",
+      "sha256": "10f82453028acba08716e963c0c374bba6fffe2573eab71c485ff314c9f4f5d5"
+    },
+    {
+      "url": "/series/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/",
+      "sha256": "c87a41ac619b32d91441e406a5fab32495ada14273b2a95b9410c76ed4ef9763"
+    },
+    {
+      "url": "/series/%E6%8A%93%E5%8C%85%E5%AE%9E%E6%88%98/",
+      "sha256": "51424abfca7a346c79ba3527d19d33f8edebe9074cfa5f72a82ba034971fe895"
+    },
+    {
+      "url": "/series/%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A82026/",
+      "sha256": "7ffed67efd2bd6737270ab47823b1eb0cab9fa6e08209da7b29d91d764dfadd2"
+    },
+    {
+      "url": "/series/%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80/",
+      "sha256": "df569095f745cd0349483745dc16e908d59115e13bd99008f288e3d8fa070f8f"
+    },
+    {
+      "url": "/silicon/",
+      "sha256": "a71e7f7ac378cad74183b5ad1dfdfa8ac74ffdb38bf103ab55826204bde0803a"
+    },
+    {
+      "url": "/sitemap-0.xml",
+      "sha256": "c9b74e16e2ed618ad2f3330d5fd2cf93e1224ee984480f72468cf700226f93d9"
+    },
+    {
+      "url": "/sitemap-index.xml",
+      "sha256": "004b263e25048135654e83f5e44677f0572d32191c51d3b93ec72246374744db"
+    },
+    {
+      "url": "/tags/",
+      "sha256": "8e691bb296fe3ed74d611c549b497fc4735d5328342d83fd882f54e0e918a81a"
+    },
+    {
+      "url": "/tags/%E5%8A%A0%E5%AF%86/",
+      "sha256": "51842ba99221c8dc3a979d1690af7cbf5505e31a5fcc11ccbadc0a9e7ab58ca3"
+    },
+    {
+      "url": "/tags/%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/",
+      "sha256": "38490ba3f8f28818e158f5ee3c516c4b1d3bd8a7056919744fd82cd906707a71"
+    },
+    {
+      "url": "/tags/%E5%8F%8D%E8%B0%83%E8%AF%95/",
+      "sha256": "74708eec30ac444053659fa3a339e0cfa5f2fc3ef539e67781fc19be4a9067ed"
+    },
+    {
+      "url": "/tags/%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6/",
+      "sha256": "8a261f3ffa9ab07e4f2cac848bea8c408ba8dccfe408e9b13e9eb969e1d41b80"
+    },
+    {
+      "url": "/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/",
+      "sha256": "7ccf8f5fe096cab21ca81a5380ffbf3e4e7d4089f6d7bb6a5171abb24ee7efc3"
+    },
+    {
+      "url": "/tags/%E5%B0%8F%E7%A8%8B%E5%BA%8F/",
+      "sha256": "556d5d45b14787ef8c28c28998cfda1b520c5fad25a7bd962676c424ce375806"
+    },
+    {
+      "url": "/tags/%E6%8A%93%E5%8C%85/",
+      "sha256": "fa7280b9e1b3ae7271881bb7b3cc2ad29ffa1e02c6c1b348824f7611c400cbfe"
+    },
+    {
+      "url": "/tags/%E6%A8%A1%E5%9E%8B%E9%80%86%E5%90%91/",
+      "sha256": "3e196926c05be7c687a81cf0d73cef9601dfff580552bc80a12165236de2ebfc"
+    },
+    {
+      "url": "/tags/%E6%B1%87%E7%BC%96/",
+      "sha256": "17b23c58d1b0b15873ae750862691828fc701d891dde92fe009ffed46a2f1425"
+    },
+    {
+      "url": "/tags/%E7%94%9F%E7%89%A9%E6%8E%A2%E9%92%88/",
+      "sha256": "0bf39f999e782b2b4b62f1939efd12ebe2b4e979134feb9445279e9bd8989770"
+    },
+    {
+      "url": "/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/",
+      "sha256": "29423ad3086db265c740b52f8f48602791dbef7edd6fec218af53ab507c1e737"
+    },
+    {
+      "url": "/tags/%E7%B3%BB%E7%BB%9F/",
+      "sha256": "66d2181657d71e231d1a6a439f0b380c7db50de284323f155d8e7914aeba69e6"
+    },
+    {
+      "url": "/tags/%E7%BE%8E%E5%8C%96/",
+      "sha256": "65a37e677d62e5dcc6d8ac63475cf2b281f6d6ddd7745c2e595e5d12a9fa1565"
+    },
+    {
+      "url": "/tags/%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A8/",
+      "sha256": "3fee0ef2cc0f73c7474f2f234c0f006bbbc681b8b595cb543bcf6c2baf017cad"
+    },
+    {
+      "url": "/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BF%9D%E6%8A%A4/",
+      "sha256": "544ba1b2925c8b4060e5fc9ac01ddec35f6a01fffbd5dae5bd66f3968a981e93"
+    },
+    {
+      "url": "/tags/%E8%A1%8C%E4%B8%BA%E5%BB%BA%E6%A8%A1/",
+      "sha256": "165629e38d804c42d8b011f23107e4f58a13f7ffcd911823310bfab18c684ddf"
+    },
+    {
+      "url": "/tags/%E8%A7%A3%E5%8C%85/",
+      "sha256": "b2c1e817f03bd3a9371f7340e3ef2d1bef38e77aa867e4f5545af4ed3bc8e6af"
+    },
+    {
+      "url": "/tags/%E9%80%86%E5%90%91/",
+      "sha256": "467458927937a31eb0e1667b3ff1ba628c2e61b3664a733d2eeaf7e3aff8c90d"
+    },
+    {
+      "url": "/tags/%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80/",
+      "sha256": "0d7a87c9221adfbd76970349a13b4dd70203471996cf62d072e4c6878a2e7673"
+    },
+    {
+      "url": "/tags/%E9%80%8F%E6%98%8E%E4%BB%A3%E7%90%86/",
+      "sha256": "ac446f3d58c2256fa2703168b66a50b08e8394b543bbd42881a61d117b4a0d9f"
+    },
+    {
+      "url": "/tags/%E9%A3%8E%E6%8E%A7/",
+      "sha256": "62e0ece4d69c2475391a5eeb9e530e65072150643d0051f9a2dd4053924d69cd"
+    },
+    {
+      "url": "/tags/aarch64/",
+      "sha256": "da01d5a3789317a37dd0b5a9e910b8132b9c3aaa1aefc192ac2b95a21182604a"
+    },
+    {
+      "url": "/tags/AES/",
+      "sha256": "2836b45638a8b945cfc8e4e3d82c176439f52a1fcb830c4fd08c02d4e3ff6e59"
+    },
+    {
+      "url": "/tags/Android%20Framework/",
+      "sha256": "67d69dd5e66a8a8116ab57d9d0f8a4bb8889e1927bb331c73c9194e4c67c5304"
+    },
+    {
+      "url": "/tags/arm64/",
+      "sha256": "481dac831197a7f737564502ba3afa9f791d73e595ae80a77acc421a6c288d03"
+    },
+    {
+      "url": "/tags/Charles/",
+      "sha256": "ca8eda4a522426c40fe4036ab868e39bf0c50bca9e463323daf33f923fc9f5e5"
+    },
+    {
+      "url": "/tags/CTF/",
+      "sha256": "1ce1fbd9c99c4768b1a6b14755d417ddc429c8c4c9280691f263b00cbd8f0585"
+    },
+    {
+      "url": "/tags/dalvik/",
+      "sha256": "5aa3736eef8edd773d3fc1e114413785d21f214a7d488974075350a27f9ba644"
+    },
+    {
+      "url": "/tags/DES/",
+      "sha256": "c7e041ea00ba454bdaad1dfe02dcd399b02ca32eae46c17f5d229b852166187f"
+    },
+    {
+      "url": "/tags/dex/",
+      "sha256": "7551bcb4e4a5484278b77c69931d03fca1528396025707c83732a12efc87c89e"
+    },
+    {
+      "url": "/tags/ELF/",
+      "sha256": "1d18bf6b6fa2b42d04678fef6eeb03c75ac1fda5136bbddee534da613adf33b0"
+    },
+    {
+      "url": "/tags/FD/",
+      "sha256": "29912e6eb061580cc19a2466d231985685ea1b94f106c6f268aa7bbd10cb9e82"
+    },
+    {
+      "url": "/tags/Frida/",
+      "sha256": "fba4722d1d59afbef23ea6d447228a066dd561aa56777fb1f6a867b78150a9a7"
+    },
+    {
+      "url": "/tags/Godot/",
+      "sha256": "a0f9ce5f4fde3efe81d2ccf66a7fa3ec16ca8d99ab9af29ac10e2b3e6c08e34f"
+    },
+    {
+      "url": "/tags/Hook/",
+      "sha256": "c18b3ee274372461c652b73a210e8d464109736ea02b327039fec26ea70903cd"
+    },
+    {
+      "url": "/tags/HTTPS/",
+      "sha256": "9b647d196cd5e876564c72bd036a1834ef93b42ddbf13ca18ef70123771d5074"
+    },
+    {
+      "url": "/tags/IAT/",
+      "sha256": "01770e4f2e3416de11fe8ca0a3328bb5bc05234847ab47db36797b168d3c89c8"
+    },
+    {
+      "url": "/tags/Inline%20Hook/",
+      "sha256": "af11b3acaf7a95a09fc6d54cd48f10a4e4b11bfbd7a205eb908238c66853593e"
+    },
+    {
+      "url": "/tags/iptables/",
+      "sha256": "8ed663fa2446c64eba748706e19d0b5ad18c073e2b1e875841cbf3f2d3950c8d"
+    },
+    {
+      "url": "/tags/javascript/",
+      "sha256": "51405f3a58de8be4757494658ba8a319affbe748701c94ab845b2e3fc9d63595"
+    },
+    {
+      "url": "/tags/jni/",
+      "sha256": "11e1d8d9168d7ec8d87471c9b361be059b4180403874d9345878023441446e42"
+    },
+    {
+      "url": "/tags/Launcher/",
+      "sha256": "2eb5096bb3a843af3fb9e55e42ddab7d9bc2c026708371e5e1dfcdd18b8632a1"
+    },
+    {
+      "url": "/tags/Linux/",
+      "sha256": "f2d3c0acf9654f4588b7b125b7c3cf10d979edc8d21e0717d24b53e2d80af0c9"
+    },
+    {
+      "url": "/tags/MITM/",
+      "sha256": "d17e07f6ba76e7915ad5a913d6a494ac7d8e282ffd8f746db6e81d396c0b72e5"
+    },
+    {
+      "url": "/tags/netfilter/",
+      "sha256": "9617422ffcd5c22957f4b615e879309826f5e8cda93c3d21d6c2e4c865beb2b2"
+    },
+    {
+      "url": "/tags/PE/",
+      "sha256": "b218207967d314f189064e52328fb2a17608d83fc8f8acdbc8cd20e8b6a23cec"
+    },
+    {
+      "url": "/tags/PEB/",
+      "sha256": "13e9bb9d663935afd2dac5a14260cbcd27dae66fb1f9687e5ba1dd9481f899b5"
+    },
+    {
+      "url": "/tags/pyc/",
+      "sha256": "0adb42b5503d01d29affa571409d2dd028eae8bd6f59de69e7605534b58e15e6"
+    },
+    {
+      "url": "/tags/Python/",
+      "sha256": "a33a5baaaa20f901b92723fa0d626013690b2f2d047d8dc36fb3de0c840cffaf"
+    },
+    {
+      "url": "/tags/RC4/",
+      "sha256": "6ef27c015fa230fb3901a6c5e0a6c795bd4ed510e912acf9d8d02732bc35ff68"
+    },
+    {
+      "url": "/tags/redsocks/",
+      "sha256": "ed6b07b7a5bf4787cf09ec23230b428067e10253254b6b25b15f58f82aa6a579"
+    },
+    {
+      "url": "/tags/Reqable/",
+      "sha256": "ec08e564b3fb1a3c91e22d9ce9bdbbbfb3eae6582eaf792095a52ab0e9b0f709"
+    },
+    {
+      "url": "/tags/root/",
+      "sha256": "41035db90cb74a4f2e44b50521613d7dd7a0036605f3eabcc703de8c7282f9f7"
+    },
+    {
+      "url": "/tags/smali/",
+      "sha256": "6a491b588f37d967225f9d7329977e576936c8e11a174baa48d275e00dc2a7c3"
+    },
+    {
+      "url": "/tags/so/",
+      "sha256": "b3c1ef02ddfe6a42a6f804c1a0b1761b49819d9d6edb166c829d1da5a1cb8b13"
+    },
+    {
+      "url": "/tags/TEB/",
+      "sha256": "8ee758036a2b196c7018dac65882f345e22a258480f3de58df416a0e8940963a"
+    },
+    {
+      "url": "/tags/VM/",
+      "sha256": "f78884f7df2a8a4b0583d9560e0778d279276008ee169d9253786ab45a983d4b"
+    },
+    {
+      "url": "/tags/VPN/",
+      "sha256": "b33953af469989d0ebbd54e049896ed1f577baaf1ac812a75821408a6bc135fc"
+    },
+    {
+      "url": "/tags/VpnService/",
+      "sha256": "2414f661885f98b97a6e96d59e647d41bbcb7abb9d602e2368457620e736f831"
+    },
+    {
+      "url": "/tags/Windows/",
+      "sha256": "03d768a023fca338544c93a40a80ff6fd70311a8c8c7954768473abab6d8eef1"
+    }
+  ],
+  "internalLinks": {
+    "html": 99,
+    "css": 15,
+    "references": 6684,
+    "broken": []
+  },
+  "requirements": [
+    {
+      "id": "quality-foundation",
+      "requirementScope": [
+        "搜索失败反馈和可恢复重试",
+        "Escape关闭搜索",
+        "知识图谱语义",
+        "系列文字对比度",
+        "专题分享元信息",
+        "预览路由站点地图隔离",
+        "内部链接、同页锚点和资源的构建后门禁",
+        "搜索输入键盘焦点、标识对比度与44px移动操作区域",
+        "提示/空结果/失败消息与listbox分离；仅真实选项展开弹出列表"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:quality",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3398,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-quality.log"
+        },
+        {
+          "name": "internal-links",
+          "code": 0,
+          "log": "/Users/ytz/blog/artifacts/release-check/internal-links.log"
+        },
+        {
+          "name": "test:cross-browser",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 11568,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cross-browser.log"
+        },
+        {
+          "name": "test:home-reading-return",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 24084,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-home-reading-return.log"
+        },
+        {
+          "name": "test:map-reading-return",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 28161,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map-reading-return.log"
+        },
+        {
+          "name": "test:map-input-stress",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7713,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map-input-stress.log"
+        },
+        {
+          "name": "test:note-preview-loading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7065,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-preview-loading.log"
+        },
+        {
+          "name": "test:silicon-static-reading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 14782,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon-static-reading.log"
+        },
+        {
+          "name": "test:chip-reading-anchor",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8847,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-reading-anchor.log"
+        }
+      ],
+      "remaining": "部署CI实际结果、线上错误与人工辅助技术验收"
+    },
+    {
+      "id": "publishing-model",
+      "requirementScope": [
+        "明确正式/示例/草稿状态",
+        "示例独立于正式RSS、列表、搜索和站点地图",
+        "示例专题仍可本地完整预览"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:publication",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 125,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-publication.log"
+        },
+        {
+          "name": "test:quality",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3398,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-quality.log"
+        },
+        {
+          "name": "test:taxonomy",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8112,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-taxonomy.log"
+        },
+        {
+          "name": "test:utility-open",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7609,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-utility-open.log"
+        }
+      ],
+      "remaining": "部署后索引/RSS/站点地图一致性；后续真实TEE/XBL/ABL文章待用户内容"
+    },
+    {
+      "id": "design-system",
+      "requirementScope": [
+        "统一颜色、字阶、间距、焦点与响应式组件",
+        "逐步移除重复选择器与历史覆盖",
+        "清理经确认零引用的旧组件",
+        "首页品牌与专题焦点收敛"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:style-boundaries",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1077,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-style-boundaries.log"
+        },
+        {
+          "name": "test:fonts",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2232,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-fonts.log"
+        },
+        {
+          "name": "test:cover-editorial",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3255,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-editorial.log"
+        },
+        {
+          "name": "test:cover-layout",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2229,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-layout.log"
+        },
+        {
+          "name": "test:home-static-entry",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5927,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-home-static-entry.log"
+        },
+        {
+          "name": "test:index-type-scale",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 17126,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-index-type-scale.log"
+        },
+        {
+          "name": "test:note-color-coherence",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3560,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-color-coherence.log"
+        },
+        {
+          "name": "test:note-polish",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3337,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-polish.log"
+        },
+        {
+          "name": "test:note-preview-placement",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 60912,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-preview-placement.log"
+        }
+      ],
+      "remaining": "用户视觉确认、遗留零引用样式/组件复核、真实平台字体观感",
+      "completed": [
+        "移除未被99个构建页面使用的旧页面覆盖与Base加载分支；备份已核验，除旧CSS外443个产物逐字节一致。"
+      ],
+      "evidence": [
+        "artifacts/companion-style-cleanup/revision.json"
+      ]
+    },
+    {
+      "id": "font-pipeline",
+      "requirementScope": [
+        "保留多平台中文阅读品质",
+        "精简阻塞字体声明与不必要预加载",
+        "相同测量环境比较首屏、字形和CLS"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:fonts",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2232,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-fonts.log"
+        },
+        {
+          "name": "test:style-boundaries",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1077,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-style-boundaries.log"
+        },
+        {
+          "name": "test:reader",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4779,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-reader.log"
+        },
+        {
+          "name": "test:index-type-scale",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 17126,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-index-type-scale.log"
+        }
+      ],
+      "remaining": "当前真实设备字形、LCP/CLS与线上指标；历史实验室数字不当作本次实测"
+    },
+    {
+      "id": "silicon-performance",
+      "requirementScope": [
+        "静态封面与文字优先",
+        "渐进启动和初始化分段",
+        "按设备能力自适应DPR及后处理",
+        "保留选择、镜头、注释、暂停、减少动态及故障回退"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:chip-quality",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 129,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-quality.log"
+        },
+        {
+          "name": "test:chip-startup",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1960,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-startup.log"
+        },
+        {
+          "name": "test:chip-preview",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7373,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-preview.log"
+        },
+        {
+          "name": "test:silicon",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3823,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon.log"
+        },
+        {
+          "name": "test:chip-cross-browser",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 18387,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-cross-browser.log"
+        },
+        {
+          "name": "test:chip-antialias",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 22227,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-antialias.log"
+        },
+        {
+          "name": "test:chip-boot-compat",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2416,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-boot-compat.log"
+        },
+        {
+          "name": "test:chip-early-loss",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8835,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-early-loss.log"
+        },
+        {
+          "name": "test:chip-lifecycle",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3577,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-lifecycle.log"
+        },
+        {
+          "name": "test:chip-reading-anchor",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8847,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-reading-anchor.log"
+        },
+        {
+          "name": "test:chip-runtime-retry",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7436,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-runtime-retry.log"
+        }
+      ],
+      "remaining": "物理GPU帧时间、完整内存与功耗；首帧成本继续分析；安装版Safari"
+    },
+    {
+      "id": "visual-polish",
+      "requirementScope": [
+        "芯片缩略图焦点与材质轮廓",
+        "芯片镜头节奏与正式文章叙事",
+        "全站中英文字阶与留白一致",
+        "页面转场单一编排与可中断性"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:note-hover",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4596,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-hover.log"
+        },
+        {
+          "name": "test:cover-editorial",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3255,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-editorial.log"
+        },
+        {
+          "name": "test:cover-layout",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2229,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-layout.log"
+        },
+        {
+          "name": "test:archive-preview-loading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4026,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-archive-preview-loading.log"
+        },
+        {
+          "name": "test:index-type-scale",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 17126,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-index-type-scale.log"
+        },
+        {
+          "name": "test:note-color-coherence",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3560,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-color-coherence.log"
+        },
+        {
+          "name": "test:navigation-glow",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7175,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-navigation-glow.log"
+        },
+        {
+          "name": "test:note-polish",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3337,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-polish.log"
+        },
+        {
+          "name": "test:note-preview-placement",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 60912,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-preview-placement.log"
+        },
+        {
+          "name": "test:silicon-mobile-reading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 20595,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon-mobile-reading.log"
+        }
+      ],
+      "remaining": "用户审美验收、芯片与真实技术文章叙事；转场专项另有独立日志"
+    },
+    {
+      "id": "release-validation",
+      "requirementScope": [
+        "跨浏览器回归",
+        "真实iPhone及中端Android验证",
+        "无JS/减少动态/弱网/异常资源路径",
+        "持续链接、语义与性能门禁",
+        "上线后隐私友好的真实用户指标测量"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "check",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4777,
+          "log": "/Users/ytz/blog/artifacts/release-check/check.log"
+        },
+        {
+          "name": "covers:check",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 104,
+          "log": "/Users/ytz/blog/artifacts/release-check/covers-check.log"
+        },
+        {
+          "name": "test:publication",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 125,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-publication.log"
+        },
+        {
+          "name": "test:chip-quality",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 129,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-quality.log"
+        },
+        {
+          "name": "test:archive-state",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 130,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-archive-state.log"
+        },
+        {
+          "name": "test:map-reading-state",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 134,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map-reading-state.log"
+        },
+        {
+          "name": "test:cover-title",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 94,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-title.log"
+        },
+        {
+          "name": "test:quality",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3398,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-quality.log"
+        },
+        {
+          "name": "test:archive",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3939,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-archive.log"
+        },
+        {
+          "name": "test:archive-preview-loading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4026,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-archive-preview-loading.log"
+        },
+        {
+          "name": "test:index-type-scale",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 17126,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-index-type-scale.log"
+        },
+        {
+          "name": "test:series",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2529,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-series.log"
+        },
+        {
+          "name": "test:map",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1302,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map.log"
+        },
+        {
+          "name": "test:map-reading-return",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 28161,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map-reading-return.log"
+        },
+        {
+          "name": "test:map-input-stress",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7713,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map-input-stress.log"
+        },
+        {
+          "name": "test:reader",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4779,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-reader.log"
+        },
+        {
+          "name": "test:note-hover",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4596,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-hover.log"
+        },
+        {
+          "name": "test:note-preview-loading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7065,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-preview-loading.log"
+        },
+        {
+          "name": "test:note-color-coherence",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3560,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-color-coherence.log"
+        },
+        {
+          "name": "test:note-polish",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3337,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-polish.log"
+        },
+        {
+          "name": "test:note-preview-placement",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 60912,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-note-preview-placement.log"
+        },
+        {
+          "name": "test:navigation-glow",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7175,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-navigation-glow.log"
+        },
+        {
+          "name": "test:taxonomy",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8112,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-taxonomy.log"
+        },
+        {
+          "name": "test:about",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4075,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-about.log"
+        },
+        {
+          "name": "test:utility-open",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7609,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-utility-open.log"
+        },
+        {
+          "name": "test:native-nav",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6846,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-native-nav.log"
+        },
+        {
+          "name": "test:home-reading-return",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 24084,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-home-reading-return.log"
+        },
+        {
+          "name": "test:home-static-entry",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5927,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-home-static-entry.log"
+        },
+        {
+          "name": "test:fonts",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2232,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-fonts.log"
+        },
+        {
+          "name": "test:style-boundaries",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1077,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-style-boundaries.log"
+        },
+        {
+          "name": "test:cover-editorial",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3255,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-editorial.log"
+        },
+        {
+          "name": "test:cover-layout",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2229,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cover-layout.log"
+        },
+        {
+          "name": "test:cross-browser",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 11568,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-cross-browser.log"
+        },
+        {
+          "name": "test:chip-startup",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1960,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-startup.log"
+        },
+        {
+          "name": "test:silicon-static-reading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 14782,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon-static-reading.log"
+        },
+        {
+          "name": "test:chip-reading-anchor",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8847,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-reading-anchor.log"
+        },
+        {
+          "name": "test:chip-preview",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7373,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-preview.log"
+        },
+        {
+          "name": "test:silicon",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3823,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon.log"
+        },
+        {
+          "name": "test:silicon-mobile-reading",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 20595,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-silicon-mobile-reading.log"
+        },
+        {
+          "name": "test:chip-cross-browser",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 18387,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-cross-browser.log"
+        },
+        {
+          "name": "test:chip-antialias",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 22227,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-antialias.log"
+        },
+        {
+          "name": "test:chip-boot-compat",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2416,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-boot-compat.log"
+        },
+        {
+          "name": "test:chip-early-loss",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8835,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-early-loss.log"
+        },
+        {
+          "name": "test:chip-lifecycle",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3577,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-lifecycle.log"
+        },
+        {
+          "name": "test:chip-runtime-retry",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 7436,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-chip-runtime-retry.log"
+        },
+        {
+          "name": "internal-links",
+          "code": 0,
+          "log": "/Users/ytz/blog/artifacts/release-check/internal-links.log"
+        }
+      ],
+      "remaining": "真实iPhone/中端Android、部署404路由、线上p75指标与远程CI"
+    },
+    {
+      "id": "research-atlas-redesign",
+      "requirementScope": [
+        "空间化芯片展台与双语排版",
+        "最新文章明暗材质切换",
+        "研究路径、开放式单列研究日志、独立系列入口取代右侧栏",
+        "首页与长文分离加载伴随页面样式"
+      ],
+      "conclusion": "部分要求已获本地证据，整体尚未完成",
+      "verifiedCommands": [
+        {
+          "name": "test:archive",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3939,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-archive.log"
+        },
+        {
+          "name": "test:series",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2529,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-series.log"
+        },
+        {
+          "name": "test:map",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1302,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-map.log"
+        },
+        {
+          "name": "test:reader",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4779,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-reader.log"
+        },
+        {
+          "name": "test:taxonomy",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8112,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-taxonomy.log"
+        },
+        {
+          "name": "test:about",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4075,
+          "log": "/Users/ytz/blog/artifacts/release-check/test-about.log"
+        }
+      ],
+      "remaining": "首页大构图方向确认与真实文章联动；旧计划的双列日志已由后续开放式单列实现替代"
+    }
+  ],
+  "nextDecisions": [
+    "等待归档字体/配色/开放布局的视觉反馈，不据自动检查自行批准设计",
+    "使用真实iPhone及中端Android做完整浏览与芯片体验验证",
+    "部署/推送须另行执行，当前本地测试不是远程CI结果",
+    "选择隐私友好的线上指标方案后再验证p75 LCP<=2500ms、INP<=200ms、CLS<=0.1",
+    "补齐CI定义缺少的转场与封面布局两项核心检查；静态对照证据在artifacts/build-provenance/ci-core-parity.json，尚非远程执行结果。"
+  ],
+  "limitations": [
+    "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+    "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+  ],
+  "postAuditChanges": [
+    {
+      "change": "Homepage white-to-gray silver gradients",
+      "evidence": "artifacts/home-silver-gradient/revision.json",
+      "scope": "Targeted local verification following the completed 48-command frozen audit; not remote CI/physical device/user aesthetic acceptance."
+    },
+    {
+      "change": "Featured press/hover and full gradient surface reading transition",
+      "evidence": "artifacts/featured-motion/revision.json",
+      "scope": "12 targeted cases plus navigation/type/build regression, newer than 48-command full audit"
+    },
+    {
+      "change": "Longer Siri-inspired gray edge motion with slow-start acceleration",
+      "evidence": "artifacts/navigation-tempo/revision.json",
+      "scope": "Targeted local navigation timing and regressions, not new full integrated/remote/device/aesthetic acceptance."
+    },
+    {
+      "change": "Remove both hero Chinese slogans; retain English title, silicon and two navigation links; close unused copy styles and rebalance gaps",
+      "evidence": "artifacts/hero-copy-cleanup/verification.json",
+      "scope": "Three browser engines, desktop and narrow mobile emulation; targeted copy/layout and existing quality check, not full integrated audit."
+    },
+    {
+      "change": "Shared type hierarchy, redundant label cleanup and large-text/mobile overflow fixes",
+      "evidence": "artifacts/type-hierarchy-2026-10-10/revision.json",
+      "scope": "Targeted current-build local regression. 72 new cases plus existing 198 scale cases; not a new complete 49-command audit, remote CI run, physical-device test or human aesthetic acceptance."
+    }
+  ],
+  "archive_color_type_revision": {
+    "status": "implemented-local-targeted-tests-passed",
+    "changes": [
+      "23 SVG/PNG covers: stronger series-colored lighting and regular-weight Helvetica Neue/PingFang titles",
+      "Native note font stack adds Helvetica Neue; archive title line height 1.5 with balanced wrapping",
+      "Small series-colored metadata marker; existing pointer/focus/reduced-motion behavior preserved"
+    ],
+    "checks": [
+      "npm run covers",
+      "npm run check: 115 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:cover-editorial: 23 covers and 6 browser/viewport cases",
+      "npm run test:cover-layout: 81 measured SVG layout cases",
+      "npm run test:note-hover",
+      "npm run test:archive-preview-loading: three engines"
+    ],
+    "screenshot": "/Users/ytz/blog/artifacts/archive-color-type/after.png",
+    "limits": [
+      "Local browser checks, not human aesthetic acceptance or physical devices",
+      "Prior full-release audit is historical; this revision ran targeted tests only"
+    ]
+  },
+  "priorReleaseAuditAppliesTo": "48 commands cover fonts and build-input provenance before the homepage gradient CSS; later gradient has 15-case targeted and quality/boundary verification.",
+  "home_reading_return_revision": {
+    "status": "implemented-local-regressions-passed",
+    "problem": "Expanded homepage reset from 17 to 9 entries after reading a later post and returning; previous reading entry became hidden",
+    "fix": "Per-entry expansion state merged into Astro history; restore destination rows before scroll restoration",
+    "evidence": "artifacts/home-reading-return/verification.json",
+    "checks": [
+      "npm run check: 115 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:home-reading-return: 12 cases",
+      "npm run test:note-hover",
+      "npm run test:home-static-entry: 18 enhanced/disabled/blocked-script cases"
+    ],
+    "coverage": "Chromium/WebKit/Firefox × 390/1440 × normal/reduced motion; Back, Forward, reload, fresh nav entry, invalid/clamped state, all-expanded button, preserved Astro index/history length",
+    "limits": [
+      "Physical devices and human design acceptance remain pending",
+      "Previous full-release audit remains historical; current turn ran targeted regression scope only"
+    ]
+  },
+  "index_type_scale_revision": {
+    "status": "implemented-local-regressions-passed",
+    "issuesConfirmed": [
+      "Series mobile chapter titles were 12px",
+      "32px mobile series number rail wrapped 02 onto two lines",
+      "Series/map reading titles still used the older Geist/450 stack"
+    ],
+    "changes": [
+      "Series chapter titles and descriptions at 16px default, native note font and regular weight",
+      "Series text sizes use rem; rails scale with text; series and chapter numbers stay on one line",
+      "Mobile map reading titles regular native 16px and metadata 12px; inspector native regular title",
+      "Desktop SVG label sizes left unchanged to preserve fixed graph geometry"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run check: 117 files, zero errors/warnings/hints",
+      "npm run build",
+      "npm run test:index-type-scale: 108 cases",
+      "npm run test:series",
+      "npm run test:map",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/index-type-scale/series-before.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/series-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/map-after.png"
+    ],
+    "limits": [
+      "100%/200% CSS root-font scaling in local browser engines, not OS text settings or physical-device validation",
+      "Applies to series and map reading surfaces, not a claim that all routes scale identically",
+      "Human aesthetic acceptance and remote CI remain pending"
+    ]
+  },
+  "archive_reading_type_revision": {
+    "status": "implemented-local-regressions-passed",
+    "confirmedBefore": {
+      "mobileSummaryPx": 12,
+      "mobileTitleAt200PercentRootFontPx": 20,
+      "summaryLineClamp": 2
+    },
+    "changes": [
+      "Archive 15px native-font summaries, 12px metadata; regular-weight note titles retained",
+      "Archive font sizes use rem and scale with reading preference",
+      "Full short summaries instead of mid-sentence two-line clipping; compact mode still hides them",
+      "Date rail scales with text; years/status and controls wrap without horizontal overflow"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run check",
+      "npm run build",
+      "npm run test:index-type-scale: 126 cases, including 18 archive cases",
+      "npm run test:archive",
+      "npm run test:archive-preview-loading",
+      "npm run test:cover-editorial",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/archive-reading-type/before.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/archive-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/archive-large-text.png"
+    ],
+    "limits": [
+      "CSS root-font 100%/200% preference testing, not physical-device OS font settings",
+      "Changes scoped to archive reading surface; not all-site accessibility certification",
+      "Prior full-release audit historical; this revision uses targeted evidence"
+    ]
+  },
+  "home_topic_reading_revision": {
+    "status": "implemented-local-regressions-passed",
+    "changes": [
+      "Homepage featured/recent summaries use native note font at 15px, full short sentences instead of one/two-line truncation",
+      "Homepage reading/path/series type and topic page titles aligned with note typography; brand wordmark and chip composition preserved",
+      "Homepage and taxonomy font sizes converted to rem, so reading preference affects text",
+      "Long tags wrap within available width; mobile topic column stretches to container instead of leaking past 320px viewport"
+    ],
+    "evidence": "artifacts/index-type-scale/verification.json",
+    "checks": [
+      "npm run build",
+      "npm run check",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:note-hover",
+      "npm run test:home-reading-return: 12 cases",
+      "npm run test:home-static-entry: 18 cases",
+      "npm run test:taxonomy",
+      "npm run test:cross-browser"
+    ],
+    "screenshots": [
+      "/Users/ytz/blog/artifacts/index-type-scale/home-after.png",
+      "/Users/ytz/blog/artifacts/index-type-scale/tags-after.png",
+      "/Users/ytz/blog/artifacts/home-topic-reading/category-overflow.png"
+    ],
+    "limits": [
+      "Typography matrix samples one tag detail and one category detail at 100%/200%; taxonomy membership/layout regression separately covers all published topic routes",
+      "Local browser engine and CSS root-font tests, not physical-device or OS text-setting certification",
+      "User aesthetic acceptance and release-wide current-build audit remain pending"
+    ]
+  },
+  "historicalLocalAudit": {
+    "auditedAt": "2026-10-09T06:47:50.391Z",
+    "sourceHash": "a79a803c522212c8a6417f77212dc13095c2d85ac0186f22ce789c8c69b127f1",
+    "localCommandsPassed": 31,
+    "evidence": "artifacts/release-history/pre-reading-type/verification.json"
+  },
+  "buildHash": "436f219fca8211c42658bc681bc5ef19d833905402c9042adbd9cd5817e9db33",
+  "snapshotScope": [
+    "src",
+    "public",
+    "scripts",
+    ".github/workflows",
+    "astro.config.ts",
+    "tsconfig.json",
+    "package.json",
+    "package-lock.json"
+  ],
+  "sourceStable": true,
+  "buildStable": true,
+  "current_release_validation_revision": {
+    "status": "historical-local-suite-passed",
+    "commands": 33,
+    "supplementalCommand": "test:navigation-glow",
+    "servedBuildFiles": 442,
+    "snapshottedInputFiles": 244,
+    "sourceHash": "0b210aacc6bc56a0e485596ab09e70538c8d672531032cbc405621e30a2a7fa9",
+    "buildHash": "b27ca8902cf53295cb0b432ba40021592b0118ed92e30c094c72a9e67f88c9af",
+    "sourceAndBuildUnchanged": true,
+    "evidence": "artifacts/release-history/pre-lifecycle-20261009-161013/verification.json",
+    "historicalEvidence": "artifacts/release-history/pre-reading-type/verification.json",
+    "limits": [
+      "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+      "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+    ],
+    "remaining": [
+      "User aesthetic acceptance",
+      "Physical iPhone/Android and installed Safari validation",
+      "Remote CI/deployment routing",
+      "Online p75 performance metrics"
+    ],
+    "historicalNote": "33-command source/build fingerprints belong to the pre-lifecycle archive, not the later 40-command archive."
+  },
+  "retired_ui_cleanup_revision": {
+    "status": "implemented-build-byte-equivalence-verified",
+    "removed": [
+      "src/components/JmpTransition.astro",
+      "src/components/ScrollMiku.astro",
+      "src/components/FieldBrief.astro",
+      "src/components/AtlasHeader.astro",
+      "src/components/HomeMotion.astro",
+      "src/components/TerminalHero.astro",
+      "src/components/PostRow.astro",
+      "src/components/Live2D.astro",
+      "src/components/BinaryXray.astro",
+      "src/components/ReadingProgress.astro",
+      "src/styles/atlas.css",
+      "src/styles/jmp-transition.css"
+    ],
+    "removedLines": 5519,
+    "scannedFiles": 169,
+    "externalImports": [],
+    "backup": "/Users/ytz/blog/artifacts/legacy-ui-cleanup/retired-ui.zip",
+    "backupByteVerified": true,
+    "backupMatchesPriorFullAudit": true,
+    "restoreCommand": "python3 -m zipfile -e /Users/ytz/blog/artifacts/legacy-ui-cleanup/retired-ui.zip /Users/ytz/blog",
+    "checks": [
+      "npm run check: 107 files, zero errors/warnings/hints",
+      "npm run build"
+    ],
+    "buildComparison": {
+      "before": 442,
+      "after": 442,
+      "added": [],
+      "removed": [],
+      "changed": [],
+      "sameAllFiles": true
+    },
+    "evidence": "artifacts/legacy-ui-cleanup/",
+    "limits": [
+      "Source cleanup only; no claim of runtime speed, memory or bundle reduction",
+      "Previous 33-command suite remains prior-source evidence; delivered build bytes are exactly unchanged",
+      "Public images and asset generation scripts retained; only the 12 confirmed unused source files removed"
+    ]
+  },
+  "map_reading_return_revision": {
+    "status": "implemented-local-regressions-passed",
+    "confirmedBefore": "VPN + Android filter returned 2 / 22 posts; article Back reset it to 22 / 22 and cleared both controls",
+    "fix": [
+      "Per-history-entry keyword, category, selected node and native category disclosure state",
+      "Apply destination filters/tree height before Astro restores scroll",
+      "Restore selected inspector only when the node is still visible",
+      "Preserve unrelated URL, Astro index and history length; fresh map entry starts unfiltered",
+      "Abort listeners on route swap; state parsing validates version/options/nodes and bounds query at 512 characters"
+    ],
+    "evidence": "artifacts/map-reading-return/verification.json",
+    "checks": [
+      "npm run check",
+      "npm run build",
+      "npm run test:map-reading-state: 7 cases",
+      "npm run test:map-reading-return: 12 engine/viewport/motion cases",
+      "npm run test:map",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:cross-browser"
+    ],
+    "ci": "Added both map reading-state tests to workflow and release runner; remote execution not claimed",
+    "limits": [
+      "Local installed engines, not physical devices or deployed CI",
+      "Prior full 33-command audit predates this map runtime change; current revision uses targeted evidence"
+    ]
+  },
+  "map_input_stress_revision": {
+    "status": "implemented-local-stress-and-regressions-passed",
+    "beforeEvidence": "artifacts/map-input-stress/before.json",
+    "confirmedBefore": [
+      "WebKit native quota exception during 200-event burst; saved query lagged at query-98",
+      "Firefox burst retained query-197 while UI already showed VPN"
+    ],
+    "changes": [
+      "Live filters remain immediate; native History writes coalesce after 150ms",
+      "Bounded 32-entry in-memory cache restores fast Back/Forward without waiting for serialization",
+      "Tab-only, per-history-entry token journal handles immediate reload; fresh native visits do not reuse an index-zero journal",
+      "Native history quota is caught and retried on the same active entry; unavailable/full storage falls back to memory and batched History",
+      "Route swaps cancel old-entry timers to avoid writing state into the destination"
+    ],
+    "afterWritesPerBurst": {
+      "chromium": 1,
+      "webkit": 1,
+      "firefox": 1
+    },
+    "evidence": "artifacts/map-input-stress/verification.json",
+    "checks": [
+      "npm run build",
+      "npm run check",
+      "npm run test:map-input-stress: three engines",
+      "npm run test:map-reading-return: 12 cases",
+      "npm run test:map-reading-state: 7 cases",
+      "npm run test:map",
+      "npm run test:index-type-scale: 198 cases",
+      "npm run test:cross-browser"
+    ],
+    "ci": "Stress test added to local release runner and CI definition; remote run not claimed",
+    "limits": [
+      "Synthetic rapid-input and fault fixtures in local engines; not physical devices or installed OS Safari",
+      "No claim of better real-world FPS/INP from the state-write count",
+      "Immediate reload journal requires available tab storage; blocked storage retains memory/history fallback rather than persistent journal guarantees",
+      "Previous full-suite audit predates these map runtime changes"
+    ]
+  },
+  "chip_hardware_profile_revision": {
+    "measuredAt": "2026-10-09T07:56:09.322Z",
+    "kind": "local hardware evidence; no scene visual change",
+    "evidence": "artifacts/chip-hardware-profile/current.json",
+    "command": "npm run profile:chip-hardware",
+    "backend": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)",
+    "fixtures": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1,
+        "tier": "full",
+        "cpuSubmitMs": {
+          "samples": 120,
+          "p50": 0.6000000014901161,
+          "p95": 1.0999999977648258,
+          "max": 1.6000000014901161
+        },
+        "gpuDrawIntervalMs": {
+          "samples": 120,
+          "p50": 3.589583,
+          "p95": 4.324541,
+          "max": 4.956625
+        },
+        "idleFrames": 0,
+        "warmResources": {
+          "geometries": 24,
+          "textures": 24
+        },
+        "errors": []
+      },
+      {
+        "width": 390,
+        "height": 1000,
+        "dpr": 1,
+        "tier": "balanced",
+        "cpuSubmitMs": {
+          "samples": 120,
+          "p50": 0.5,
+          "p95": 0.8999999985098839,
+          "max": 1.0999999977648258
+        },
+        "gpuDrawIntervalMs": {
+          "samples": 120,
+          "p50": 0.881041,
+          "p95": 1.028083,
+          "max": 1.925833
+        },
+        "idleFrames": 0,
+        "warmResources": {
+          "geometries": 24,
+          "textures": 19
+        },
+        "errors": []
+      }
+    ],
+    "decision": "Retain current scene quality: no warm render bottleneck demonstrated on this device. Cold first submission is separate and remains a startup consideration.",
+    "limits": [
+      "Actual local Chrome hardware backend; no capability, CPU, network, or GPU overrides.",
+      "Mobile width is a desktop GPU fixture, not a physical mobile device measurement.",
+      "Two warmup passes; three measured passes, same 40 progress positions per pass.",
+      "CPU is composer.render submission only; GPU timer covers first draw through end of synchronous render task, omitting pre-first-draw work.",
+      "Not presentation FPS; instrumentation adds overhead. Resource counters are partial evidence, not GPU memory bytes or route-disposal proof.",
+      "Different viewport fixtures are not an isolated optimization comparison."
+    ],
+    "releaseAudit": "Historical full audit remains historical; manual profiler is not a CI performance gate."
+  },
+  "note_preview_loading_revision": {
+    "verifiedAt": "2026-10-09T08:00:03.487Z",
+    "problem": "Firefox decoded the old bitmap while the replacement SVG request was held; pending and obsolete completions could reveal a stale preview.",
+    "before": [
+      {
+        "engine": "chromium",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "staleVisible": true,
+        "obsoleteVisible": true,
+        "errors": []
+      }
+    ],
+    "after": [
+      {
+        "engine": "chromium",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "staleVisible": false,
+        "obsoleteVisible": false,
+        "errors": []
+      }
+    ],
+    "change": "Observe load/error for the current source before decode; generation and AbortController cancel listeners on selection, Escape, scroll, media change and navigation.",
+    "visualScope": "No palette/font/layout change in this revision. Current screenshot reviewed: native regular note typography, colored hover and actual cover preserved.",
+    "evidence": "artifacts/note-preview-loading/current.json",
+    "checks": [
+      "npm run build",
+      "npm run check: 114 files, zero diagnostics",
+      "npm run test:note-preview-loading: three engines, delayed/obsolete loads and Escape-before-completion",
+      "npm run test:note-hover: existing pointer/focus/motion/touch/navigation/expansion",
+      "npm run test:home-reading-return: 12 cases"
+    ],
+    "limits": [
+      "Controlled local image delays, not real mobile networks",
+      "Remote CI definition updated, not executed",
+      "Historical full release audit predates this runtime change"
+    ]
+  },
+  "note_color_coherence_revision": {
+    "verifiedAt": "2026-10-09T08:02:50.437Z",
+    "intent": "Colors carry category/series identity instead of independent per-cover randomness",
+    "palette": {
+      "Android": "cyan",
+      "Binary": "green",
+      "密码学基础": "amber",
+      "腾讯游戏安全2026": "violet"
+    },
+    "source": "src/lib/seriesThemes.json shared category palette used by note-accent.ts and gen-covers.mjs",
+    "changedCoverCount": 11,
+    "changedSvgInvariant": "All 11 changed SVG files match their backup exactly after substituting only the old accent hex for the new one; title/diagram geometry and metadata preserved.",
+    "browserChecks": [
+      {
+        "engine": "chromium",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "route": "/archive/",
+        "rows": 22,
+        "colorFamilies": 4,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "route": "/",
+        "rows": 21,
+        "colorFamilies": 4,
+        "errors": []
+      }
+    ],
+    "checks": [
+      "npm run covers: 23 SVG/PNG cover pairs",
+      "npm run build (includes deterministic covers check)",
+      "npm run check: 114 files, zero diagnostics",
+      "npm run test:note-color-coherence: 22 archive / 21 homepage notes per engine",
+      "npm run test:cover-editorial: 23 assets, 6 viewport/engine cases",
+      "npm run test:cover-layout: 81 SVG title cases",
+      "npm run test:note-hover",
+      "npm run test:note-preview-loading"
+    ],
+    "evidence": "artifacts/note-color-coherence/verification.json",
+    "visualSourceBackup": "artifacts/note-color-coherence/before.zip",
+    "limits": [
+      "No physical-device or human aesthetic acceptance claim",
+      "CI definition/local release runner updated; remote execution not verified",
+      "Historical full release audit predates these asset/source changes"
+    ]
+  },
+  "chip_lifecycle_revision": {
+    "verifiedAt": "2026-10-09T08:09:45.103154+00:00",
+    "problem": "Renderer properties were disposed before owned materials; installed Three r186 also omits AO material/noise texture and bloom high-pass material in pass.dispose.",
+    "changes": [
+      "Owned resources now disposed before renderer properties",
+      "Explicit AO/noise and high-pass material disposal",
+      "Retired renderer context explicitly lost after cleanup; already-lost contexts not lost again"
+    ],
+    "before": {
+      "cycles": 6,
+      "programsCreated": 36,
+      "programsDeleted": 16,
+      "contextLost": false
+    },
+    "after": {
+      "cycles": 6,
+      "programsCreated": 36,
+      "programsDeleted": 36,
+      "allContextsLost": true,
+      "noPostDisposalDraws": true
+    },
+    "evidence": "artifacts/chip-lifecycle/verification.json",
+    "sourceBackup": "artifacts/chip-lifecycle/chip-preview-before.txt",
+    "checks": [
+      "build",
+      "check:116 files, zero diagnostics",
+      "chip-lifecycle:6 direct init/abort cycles",
+      "chip-early-loss:9 fixtures, three engines",
+      "chip-cross-browser:three tiers/controls/recovery, three engines",
+      "chip-boot-compat:pixel-identical fixed frame SHA256 0c02d10ebbf4eaab86f67eb5c8dee967ba33b1fe90e5c843a2a99b7913776620"
+    ],
+    "limits": [
+      "Local Chrome; direct repeated init/AbortSignal disposal against the actual built module in one document, not native route navigation or physical mobile testing.",
+      "GL counters track explicit create/delete calls; context loss retires remaining context-owned resources. Neither is a GPU byte measurement.",
+      "WeakMap instrumentation does not retain handles; CDP requested garbage collection changes natural lifetime behavior.",
+      "Heap and DOM trends are reported, not an exact leak-free guarantee; no arbitrary universal memory threshold. The original before fixture had persistent instrumentation loss listeners; its heap/listener counts are not a clean causal before/after comparison."
+    ],
+    "releaseAudit": "Included in optional local GPU release runner, not non-GPU deployment workflow; historical full audit predates this runtime change."
+  },
+  "localAuditHistory": [
+    {
+      "auditedAt": "2026-10-09T07:20:43.349Z",
+      "sourceHash": "0b210aacc6bc56a0e485596ab09e70538c8d672531032cbc405621e30a2a7fa9",
+      "buildHash": "b27ca8902cf53295cb0b432ba40021592b0118ed92e30c094c72a9e67f88c9af",
+      "localCommandsPassed": 33,
+      "evidence": "artifacts/release-history/pre-lifecycle-20261009-161013/verification.json"
+    },
+    {
+      "auditedAt": "2026-10-09T08:14:23.495Z",
+      "sourceHash": "6ae1e437843ed4b75879849d18e4d57afeb004a497a47206dd7a663d55fbee64",
+      "buildHash": "eaeae5626ea75c485dfb2d7d5a5939e85c3313fe72b32f8baecdb2abac4b3d77",
+      "localCommandsPassed": 40,
+      "evidence": "artifacts/release-history/pre-interface-followups-20261009-172834/verification.json"
+    },
+    {
+      "auditedAt": "2026-10-09T09:34:36.826Z",
+      "sourceHash": "a9bef7525e51c093a801f5ff9d2507f4be08b4cf303b3b30bda8bcc7a40a088e",
+      "buildHash": "2678a937ee2ef91948f763bb884f951806a958cc46695b2841c22ec6b51195e0",
+      "localCommandsPassed": 46,
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json"
+    }
+  ],
+  "historicalSupplemental": {
+    "command": "npm run test:navigation-glow",
+    "status": "passed",
+    "log": "artifacts/release-history/pre-lifecycle-20261009-161013/test-navigation-glow.log",
+    "scope": "本地Chrome桌面/触屏模拟、快速跳转、减弱动画、缺少原生转场API",
+    "auditedAt": "2026-10-09T07:22:28.112557+00:00",
+    "exitCode": 0,
+    "evidence": "artifacts/release-history/pre-lifecycle-20261009-161013/supplemental.json"
+  },
+  "currentAuditScope": "Local immutable production build and installed browser engines. Does not prove physical devices, deployed CI, human aesthetic acceptance or field p75 metrics.",
+  "silicon_mobile_reading_revision": {
+    "verifiedAt": "2026-10-09T08:34:34.954862+00:00",
+    "intent": "Readable English mobile silicon narrative without changing geometry or adding visual decoration",
+    "changes": [
+      "Primary descriptions 11/12px → 14px, execution-context explanations 8px → 12px, chapter/structure labels 10px → 12px",
+      "Rem-based typography and 50rem minimum stage; tall stages can scroll up to reveal controls",
+      "Container query stacks narrow controls at enlarged root text instead of squeezing the native picker",
+      "Explicit 44px minimum/select height fixes WebKit 22px intrinsic popup field",
+      "Advanced panel temporarily hides auxiliary world captions; cleared inspection and closed panel restore visible captions",
+      "Mobile rules consolidated in a component-scoped block; duplicate open-panel override removed"
+    ],
+    "sourceScope": "Scene script and component markup/bootstrap verified unchanged against prior full audit/backup. CSS only.",
+    "evidence": "artifacts/silicon-mobile-reading/verification.json",
+    "fixtures": 24,
+    "checks": [
+      "build (deterministic covers included)",
+      "check:117 files, zero diagnostics",
+      "silicon-mobile-reading:24 viewport/root-font/reduced-motion fixtures in three engines",
+      "silicon integration:home/model/article anchors/mobile controls/reduced motion",
+      "chip-cross-browser:three tiers and rendering/controls/recovery in three engines",
+      "chip-lifecycle:6 direct init/abort cycles",
+      "chip-boot-compat:native/forced timer render matches each other; historical viewport PNG intentionally differs due larger HTML labels"
+    ],
+    "sourceBackup": "artifacts/silicon-mobile-reading/ChipExperience-before.txt",
+    "limits": [
+      "CSS root-font 100/200% scaling, not physical OS text scaling",
+      "Screenshots and automation are not human aesthetic approval",
+      "Prior 40-command full audit predates this CSS revision; current scope has targeted checks",
+      "New test is in optional GPU release runner; no remote CI execution claimed"
+    ],
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "silicon_static_reading_revision": {
+    "verifiedAt": "2026-10-09T08:56:12.578750+00:00",
+    "intent": "Readable truthful static/dormant silicon entry, not an animated-only hero",
+    "changes": [
+      "No-script-only stylesheet places introduction, notice, poster and reading anchor in natural flow; interactive users do not download that sheet",
+      "Dormant SSR status says STATIC PREVIEW rather than falsely claiming REAL-TIME 3D",
+      "Enlarged dormant poster/message positioned below introduction",
+      "Skip link hidden by its own height, fully revealed on keyboard focus",
+      "Static save-data journey selector corrected against component-scoped mobile rule; no empty animation scroll",
+      "No-script font readiness uses bounded external status polling instead of an indefinitely pending browser Promise"
+    ],
+    "checks": [
+      "build",
+      "check:118 files, zero diagnostics",
+      "silicon-static-reading:39 fixtures, three engines, no-JS/CSP/save-data, 100/200% root font, actual held lazy module and network failure",
+      "silicon-mobile-reading:24 interactive/reduced-motion fixtures",
+      "chip-startup:opt-in economy rendering, held module, constructor failure recovery",
+      "silicon integration:model/article anchors and mobile controls"
+    ],
+    "evidence": "artifacts/silicon-static-reading/verification.json",
+    "sourceBackup": "artifacts/silicon-static-reading/ChipExperience-before.txt",
+    "limits": [
+      "CSS root-font scaling is not physical device or OS scaling",
+      "Slow failed module fixture proves static/read-link survival, not recovery of a cached failed dynamic import",
+      "Existing startup recovery fixture concerns WebGL initialization failure, not module network failure",
+      "Current full 40-command audit remains historical; remote CI not invoked",
+      "No human aesthetic acceptance or field p75 performance claim"
+    ],
+    "recoveryFollowup": "artifacts/chip-runtime-retry/current.json now verifies module load recovery separately from the original static-survival fixture.",
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "chip_runtime_retry_revision": {
+    "verifiedAt": "2026-10-09T09:05:52.294077+00:00",
+    "problem": "Actual aborted module request: Chrome cached rejected import, Retry issued no further request; WebKit/Firefox recovered in-document in the before fixture.",
+    "before": [
+      {
+        "engine": "chromium",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 1,
+        "documents": 1,
+        "recovered": false,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 1,
+        "documents": 1,
+        "recovered": false,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": false,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": true,
+        "label": "Retry interactive model ↗",
+        "failure": null,
+        "requests": 2,
+        "documents": 1,
+        "recovered": true,
+        "errors": []
+      }
+    ],
+    "after": [
+      {
+        "engine": "chromium",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "chromium",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "webkit",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": false,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "manual": true,
+        "label": "Reload page ↻",
+        "failure": "runtime",
+        "requests": 2,
+        "documents": 2,
+        "recovered": true,
+        "errors": []
+      },
+      {
+        "engine": "firefox",
+        "case": "constructor-and-context-recovery",
+        "requests": 1,
+        "documents": 1,
+        "loss": "actual context loss",
+        "recovered": true,
+        "errors": []
+      }
+    ],
+    "decision": "Failed module load offers explicit Reload page; loaded runtime plus initialization/context failure retains in-place Retry. Fresh document retries exact published URL, no chunk cache-busting. Save-data reload preserves opt-in.",
+    "changes": [
+      "Track runtime versus renderer failure separately",
+      "Clear failure classification on a new initialization attempt",
+      "Reload button explicitly names full-page operation, disables duplicate clicks while navigating",
+      "pageshow re-enables a retained runtime-failure button; native BFCache acceptance is not claimed"
+    ],
+    "checks": [
+      "build",
+      "check:119 files, zero diagnostics",
+      "chip-runtime-retry:9 fixtures across three engines, six actual aborted module recoveries plus three constructor/actual-context-loss recovery cases",
+      "silicon-static-reading:39 fixtures",
+      "chip-startup:existing slow-module/opt-in/constructor recovery",
+      "chip-early-loss:9 pre-frame interruptions and retries"
+    ],
+    "evidence": "artifacts/chip-runtime-retry/current.json",
+    "sourceBackup": "artifacts/chip-runtime-retry/chip-entry-before.txt",
+    "limits": [
+      "Headless local engines with capability fixtures, not physical phones",
+      "No permanent server outage, malformed dependency, or native BFCache recovery guarantee",
+      "Manual reload returns to the static opt-in gate; user explicitly starts the model again",
+      "Prior full 40-command audit is historical; new GPU test included in optional local runner, no remote CI run"
+    ],
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "note_polish_revision": {
+    "evidence": "artifacts/note-polish/verification.json",
+    "changes": [
+      "Unified note typography with Helvetica Neue and PingFang SC regular weight",
+      "Archive preview edge and reading link inherit the selected note color",
+      "Hover accents extend to a small editorial marker; existing moving cover preview retained"
+    ],
+    "verified": [
+      "production build",
+      "Astro check: 0 diagnostics",
+      "three-engine note palette coherence",
+      "note hover and touch/reduced-motion behavior",
+      "archive state/navigation",
+      "three-engine typography and selected-preview accents",
+      "198 typography/text-scale fixtures across index routes; 3 engines, 3 widths, 2 root font sizes"
+    ],
+    "scope": "Targeted local checks only; previous full release audit remains historical; human visual acceptance pending",
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "chip_reading_anchor_revision": {
+    "evidence": "artifacts/chip-reading-anchor/current.json",
+    "beforeEvidence": "artifacts/chip-reading-anchor/before.json",
+    "sourceBackup": "artifacts/chip-reading-anchor/chip-entry-before.txt",
+    "fixtures": 12,
+    "maxAbsoluteShiftBeforePx": 951,
+    "maxAbsoluteShiftAfterPx": 0.1875,
+    "change": "Measure visible notes before/after static-stage collapse and compensate only the remaining viewport displacement, preserving native anchoring, focus and current reading offset.",
+    "checks": [
+      "12 actual delayed/aborted module fixtures",
+      "39 static reading fixtures",
+      "existing startup contracts",
+      "9 runtime/renderer recovery fixtures"
+    ],
+    "limits": [
+      "CSS root-font scaling and local browser engines, not real mobile networks or physical phones",
+      "No current full-suite release claim",
+      "Remote CI definitions updated but remote runs not verified"
+    ],
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "note_preview_placement_revision": {
+    "status": "implemented-targeted-local-verification",
+    "changes": [
+      "Keep active note text clear by placing preview above/below its full reading row",
+      "Reserve rotated-artwork bounds and actual navigation height",
+      "Follow pointer horizontally within reading-safe vertical space",
+      "Hide decoration only when the viewport has no reading-safe space",
+      "Keep decoded readiness separate from visibility; preserve cancelled-load guards",
+      "Keep one pending animation frame when immediate placement and queued pointer motion interleave"
+    ],
+    "before": {
+      "fixtures": 36,
+      "overlaps": 36,
+      "overflow": 12
+    },
+    "after": {
+      "fixtures": 48,
+      "overlaps": 0,
+      "overflow": 0,
+      "hidden": 24
+    },
+    "scope": "Before has 36 fixtures; after includes the same dimensions plus 12 extra 240px-height edge cases. Local three-engine pointer/focus checks, not physical device or human acceptance.",
+    "checks": [
+      "production build",
+      "Astro check: 122 files, 0 diagnostics",
+      "48 placement fixtures",
+      "existing note-hover including actual pointer movement, touch and reduced-motion",
+      "three-engine delayed/obsolete image requests and Escape cancellation",
+      "three-engine cover/title palette coherence"
+    ],
+    "evidence": "artifacts/note-preview-placement/current.json",
+    "backup": "artifacts/note-preview-placement/note-hover-before.txt",
+    "releaseGate": "Added local core and CI definition; remote run not executed.",
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "companion_style_cleanup_revision": {
+    "status": "implemented-targeted-local-verification",
+    "changes": [
+      "Removed unused companion stylesheet URL import and conditional loading branch from Base",
+      "Removed obsolete default site-editorial body mode; current routes retain their explicit body modes",
+      "Deleted retired src/styles/site-editorial.css with verified source backup",
+      "Extended style boundary gate to inspect every emitted HTML/CSS for retired body mode/companion overrides"
+    ],
+    "before": {
+      "html": 99,
+      "bodyClasses": {
+        "home-editorial": 1,
+        "atlas-mode utility-open": 2,
+        "atlas-mode series-open": 5,
+        "(none)": 1,
+        "atlas-mode": 1,
+        "atlas-mode about-open": 1,
+        "atlas-mode taxonomy-open": 63,
+        "atlas-mode map-open": 1,
+        "silicon-editorial": 1,
+        "article-editorial": 23
+      },
+      "legacyCSS": [
+        "dist/_astro/site-editorial.CqNLjLPA.css"
+      ],
+      "legacyBytes": 20523,
+      "linkedPages": []
+    },
+    "buildComparison": {
+      "beforeFiles": 444,
+      "afterFiles": 443,
+      "removed": [
+        "dist/_astro/site-editorial.CqNLjLPA.css"
+      ],
+      "added": [],
+      "changed": [],
+      "allRetainedFilesIdentical": true
+    },
+    "checks": {
+      "astro": "122 files, zero diagnostics",
+      "internalLinks": {
+        "html": 99,
+        "css": 15,
+        "references": 6730,
+        "broken": []
+      },
+      "styleBoundaries": {
+        "cssFiles": 15,
+        "htmlFiles": 99,
+        "legacyStyles": 0,
+        "legacyBodyModes": 0
+      },
+      "clientNavigation": "reader to home swaps reader CSS out"
+    },
+    "backup": "artifacts/companion-style-cleanup/source-before.zip",
+    "limits": [
+      "No runtime transfer or FPS improvement claim: old CSS was emitted but linked by zero pages",
+      "Common editorial-theme.css still contains harmless compatibility selectors for the retired mode; not a claim of all legacy selectors removed",
+      "Historical full release audit predates targeted changes; remote CI and physical device/human acceptance remain separate"
+    ],
+    "integratedAudit": {
+      "evidence": "artifacts/release-history/pre-provenance-integrated-20261009-181659/verification.json",
+      "finishedAt": "2026-10-09T09:34:36.826Z",
+      "scope": "Current source/build snapshot passed all local gates; specific performance, device and human limits retained."
+    }
+  },
+  "changesIntegratedByCurrentAudit": {
+    "evidence": "artifacts/release-check/verification.json",
+    "changes": [
+      {
+        "change": "Mobile silicon readable type, responsive controls and component style scope",
+        "evidence": "artifacts/silicon-mobile-reading/revision.json",
+        "scope": "CSS-only app change plus test/package/release gate additions; full audit is historical."
+      },
+      {
+        "change": "Natural no-script silicon flow, dormant-state semantics and static journey priority",
+        "evidence": "artifacts/silicon-static-reading/revision.json",
+        "scope": "Current targeted evidence; historical full release audit predates this revision"
+      },
+      {
+        "change": "Explicit module reload vs in-place renderer retry",
+        "evidence": "artifacts/chip-runtime-retry/revision.json",
+        "scope": "Targeted current recovery tests; full audit remains historical"
+      },
+      {
+        "change": "note typography and hover accent follow-up",
+        "evidence": "artifacts/note-polish/verification.json",
+        "scope": "Targeted local evidence; full release audit remains historical."
+      },
+      {
+        "change": "chip failure reading-anchor compensation",
+        "evidence": "artifacts/chip-reading-anchor/current.json",
+        "scope": "Targeted local evidence; full release audit remains historical."
+      },
+      {
+        "change": "Reading-safe moving note preview placement",
+        "evidence": "artifacts/note-preview-placement/revision.json",
+        "scope": "Targeted current checks; full release audit remains historical."
+      },
+      {
+        "change": "Retired companion-style loading branch removed",
+        "evidence": "artifacts/companion-style-cleanup/revision.json",
+        "scope": "All retained production outputs byte-identical; targeted current checks, no new full-suite claim."
+      },
+      {
+        "change": "Article serif stylesheet now explicit opt-in, not type-based default",
+        "evidence": "artifacts/article-font-budget/revision.json",
+        "scope": "Application source/build newer than the 46-command full audit; targeted local evidence only."
+      },
+      {
+        "change": "Build provenance uses complete content inventories, with tsconfig coverage and artifact diagnostic boundary",
+        "evidence": "artifacts/build-provenance/verification.json",
+        "scope": "Local build provenance and immutable input/output inventory, not full release or remote CI acceptance"
+      }
+    ]
+  },
+  "current_delivery_lcp_revision": {
+    "evidence": "artifacts/lcp-current/summary.json",
+    "reports": 18,
+    "applicationChanged": false,
+    "sourceHash": "a9bef7525e51c093a801f5ff9d2507f4be08b4cf303b3b30bda8bcc7a40a088e",
+    "buildHash": "2678a937ee2ef91948f763bb884f951806a958cc46695b2841c22ec6b51195e0",
+    "sameServerMedians": [
+      {
+        "route": "home",
+        "condition": "identity",
+        "metrics": {
+          "performance": 91,
+          "FCPms": 2251.3968,
+          "LCPms": 3151.3968,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 44,
+          "transferBytes": 354737
+        }
+      },
+      {
+        "route": "article",
+        "condition": "identity",
+        "metrics": {
+          "performance": 74,
+          "FCPms": 3750.9663999999993,
+          "LCPms": 4801.2080000000005,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 80,
+          "transferBytes": 705224
+        }
+      },
+      {
+        "route": "home",
+        "condition": "compressed",
+        "metrics": {
+          "performance": 99,
+          "FCPms": 1501.55655,
+          "LCPms": 1951.5565499999998,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 43,
+          "transferBytes": 180701
+        }
+      },
+      {
+        "route": "article",
+        "condition": "compressed",
+        "metrics": {
+          "performance": 95,
+          "FCPms": 2101.5618,
+          "LCPms": 2551.5618,
+          "TBTms": 0,
+          "CLS": 0.0007871008233697848,
+          "observedLCPms": 85,
+          "transferBytes": 282074
+        }
+      }
+    ],
+    "decision": "先核验实际部署的内容压缩与缓存，再决定视觉/字体削减；压缩后文章模拟LCP仍略高于2500ms。",
+    "limits": [
+      "Simulated mobile Lighthouse, not physical-device latency, field p75 or INP",
+      "Observed local timings are separate from simulated weak-network timings",
+      "Preview group uses existing Python service; only identity/compressed groups are same-server controls",
+      "Sequential three-run groups, not randomized runs; warm fixture encoding cache and fresh Lighthouse browser profiles",
+      "No deployment configuration or application visual/content change was made; full audited app/build retained"
+    ],
+    "articleFollowupEvidence": "artifacts/article-font-budget/revision.json"
+  },
+  "deployment_delivery_readonly_revision": {
+    "checkedAt": "2026-10-09T09:47:02.285Z",
+    "evidence": "artifacts/deployment-readonly/verification.json",
+    "deployedDelivery": {
+      "htmlCssJsEncoding": "gzip",
+      "observedCacheControl": "max-age=600",
+      "observedVary": "Accept-Encoding"
+    },
+    "releaseIdentity": "Current homepage/archive/article fingerprints differ from deployed responses; /silicon/ is absent. Matching RSS or sitemap-index alone does not establish current release identity.",
+    "latestRemoteWorkflow": {
+      "id": 37226464356,
+      "status": "completed",
+      "conclusion": "success",
+      "headSHA": "9d20518886633157c3df82ce4347d6ef8e26101b",
+      "createdAt": "2026-10-04T18:58:22Z",
+      "updatedAt": "2026-10-04T19:05:10Z",
+      "url": "https://github.com/fwmax360/fwmax360.github.io/actions/runs/37226464356"
+    },
+    "decisions": [
+      "Do not add redundant compression settings based on the uncompressed local preview",
+      "Preserve visual fidelity; actual field metrics and current release still require deployment validation",
+      "Treat October 4 successful remote run as historical only; current 46-command local snapshot is not remotely tested or published",
+      "No push, dispatch, upload, cache purge or deployment performed"
+    ],
+    "limits": [
+      "Response headers may change after this timestamp",
+      "Only inspected selected live routes/assets; not a full remote audit",
+      "Remote older release is not the current local design and chip implementation"
+    ]
+  },
+  "article_font_budget_revision": {
+    "status": "implemented-targeted-local-verification",
+    "checkedAt": "2026-10-09T10:06:01.965729+00:00",
+    "change": "Load editorial serif fallback only for explicit editorialFont prop; remove article-type implicit download. Full Chinese sans and optional serif capabilities remain.",
+    "cases": 69,
+    "baselineCompared": true,
+    "automaticSerifRequestsBefore": 69,
+    "automaticSerifRequestsAfter": 0,
+    "unusedStylesheetDecodedBytes": 99044,
+    "representativeFirstViewportPixelIdentity": [
+      "chromium",
+      "webkit",
+      "firefox"
+    ],
+    "evidence": "artifacts/article-font-budget/current.json",
+    "performance": {
+      "before": {
+        "LCPms": 2551.5618,
+        "TBTms": 0,
+        "CLS": 0.0007871008233697848,
+        "transferBytes": 282074
+      },
+      "after": {
+        "LCPms": 2251.6164000000003,
+        "TBTms": 0,
+        "CLS": 0.0007871008233697848,
+        "transferBytes": 246293
+      },
+      "transferSavedBytes": 35781,
+      "LCPDeltaMs": 299.9453999999996,
+      "scope": "Three sequential pinned Lighthouse mobile-simulation runs per revision, same gzip fixture and config. Clean after-group runs after browser regressions terminate. Not randomized/device/field p75 proof."
+    },
+    "checks": [
+      "production build",
+      "Astro check:126 files, 0 diagnostics",
+      "69 article font/resource and optional baseline comparisons",
+      "Chinese sans/no-JS/explicit optional serif glyph loading",
+      "22 formal reader route contracts",
+      "three-engine critical interactions",
+      "style boundaries"
+    ],
+    "backups": [
+      "artifacts/article-font-budget/BaseHead-before.txt",
+      "artifacts/article-font-budget/font-test-before.txt"
+    ],
+    "limits": [
+      "Representative first viewport pixels, not every article pixel at every scroll position",
+      "Computed font families plus explicit glyph loading, not real Windows/Linux typography acceptance",
+      "46-command full audit is historical before this application change",
+      "New gate included in local core and CI definition; remote CI not executed"
+    ],
+    "defaultGateEvidence": "artifacts/article-font-budget/gate.json"
+  },
+  "build_input_provenance_revision": {
+    "evidence": "artifacts/build-provenance/verification.json",
+    "fixtureEvidence": "artifacts/build-provenance/fixtures.log",
+    "scope": "Local build provenance and immutable input/output inventory, not full release or remote CI acceptance",
+    "changes": [
+      "Include tsconfig and deletions/additions in content snapshots",
+      "Invalidate old stamp before cover/Astro/Pagefind build; record only unchanged inputs after successful steps",
+      "Release checks compare the stamp, inputs and entire dist before and after verification",
+      "Exclude experimental artifacts from application type checking"
+    ],
+    "verified": {
+      "fixtureTests": 13,
+      "typeCheckFiles": 127,
+      "typeErrors": 0,
+      "typeWarnings": 0,
+      "typeHints": 0,
+      "inputFiles": 253,
+      "outputFiles": 443,
+      "changedOutputFiles": 0,
+      "servedFilesMatched": 443,
+      "brokenLinks": 0
+    },
+    "remaining": [
+      "Current-version full integrated audit",
+      "Remote CI/deployment acceptance",
+      "Physical-device and human aesthetic acceptance"
+    ]
+  },
+  "latest_integrated_audit": {
+    "evidence": "artifacts/release-check/verification.json",
+    "finishedAt": "2026-10-09T10:23:11.084Z",
+    "sourceHash": "a35d01a10e3a1cf2f25fe213a755a5c952b61f700f22ace83970bd522622c521",
+    "buildHash": "436f219fca8211c42658bc681bc5ef19d833905402c9042adbd9cd5817e9db33",
+    "commands": 48,
+    "servedFiles": 443,
+    "inputFiles": 253,
+    "sourceStable": true,
+    "buildStable": true,
+    "provenance": {
+      "stampHash": "4c90b6084c7f2edd3f46668597932aab7451129a0b519cccdc9d01d341583681",
+      "startedAt": "2026-10-09T10:15:12.321Z",
+      "finishedAt": "2026-10-09T10:15:13.879Z",
+      "runtime": "v22.23.3"
+    },
+    "limits": [
+      "Local production build and installed browser engines, not deployed CI/HTTP routing or physical device acceptance",
+      "Exit status is evidence for each named test scope, not human aesthetic acceptance"
+    ],
+    "appliesTo": "Frozen state before the subsequent homepage silver-gradient CSS change."
+  },
+  "home_silver_gradient_revision": {
+    "verifiedAt": "2026-10-09T10:27:33.645Z",
+    "version": 2,
+    "sourceHash": "16920956ba989fb524c7020333960ff4641cffedcf7062e5dc6c999025dad445",
+    "buildHash": "9e3c3bd996410d4bea9fb9ed49dec6cf12b89bce73a372e62d0b5d02ef550e59",
+    "stampHash": "c5b5503d2a6ffe33abeed51cf96e3dc193df809fcd51a27089a68c1a497e0587",
+    "changes": [
+      "Gray begins earlier and occupies more of the latest-note surface",
+      "Deeper silver hero lettering and white-to-gray buttons",
+      "Secondary text slightly darkened to preserve contrast on the grayer surface"
+    ],
+    "cases": 15,
+    "minFeatureTextContrast": 4.892026030326665,
+    "desktopLayoutUnchanged": true,
+    "homepageMatchesBuild": true,
+    "evidence": "artifacts/home-silver-gradient/verification.json",
+    "priorVersion": "artifacts/home-silver-gradient/v1/revision.json",
+    "scope": "15 targeted gradient checks only, not a new 48-command integrated audit. Previous quality/boundary results belong to v1."
+  },
+  "featured_motion_revision": {
+    "verifiedAt": "2026-10-09T10:31:27.205Z",
+    "sourceHash": "68b4c2734342fd4e100b3d810d1998f85106db0641ef5eae5cdfc6d07fb810e5",
+    "buildHash": "2895dd79e5c6d0c45eedc22be39bcb5434587cc2bebadbafd32e147d8570d6e2",
+    "changes": [
+      "Featured link hover lifts surface 3px and moves title/arrow",
+      "Press compresses surface slightly; original links retained",
+      "Existing reading transition snapshots the full gradient surface rather than only inner copy"
+    ],
+    "cases": 12,
+    "evidence": "artifacts/featured-motion/verification.json",
+    "video": "artifacts/featured-motion/desktop-demo.webm",
+    "regression": [
+      "test:navigation-glow",
+      "check",
+      "test:build-current"
+    ],
+    "limits": [
+      "Native surface transition only when the existing router/viewport/motion conditions allow it; ordinary native routing otherwise",
+      "Desktop/mobile emulation, not physical device or human acceptance",
+      "Not a rerun of all 48 integrated commands"
+    ]
+  },
+  "navigation_tempo_revision": {
+    "verifiedAt": "2026-10-09T10:33:49.101Z",
+    "sourceHash": "41ec4e9d15cd3465bef314a439948350871d74bd9e53f11cd1665926fe1d2a62",
+    "buildHash": "1fa25d7aa626eaa105a0c56ba2572cddd85cc1da3cb921c659c19603263001ee",
+    "changes": [
+      "Edge circulation 800→1000ms, slow-start accelerating curve",
+      "Edge settle 560→860ms with brightness buildup then fade; back 420→640ms",
+      "Preparation visual 160→260ms, no added navigation wait",
+      "Content 440→620ms; matched article surface 560→700ms, slow-start easing"
+    ],
+    "actualTempoEvidence": "artifacts/navigation-tempo/tempo.json",
+    "postSwapFinishedMs": 959.2999999970198,
+    "glowCleanup": true,
+    "regressions": [
+      "test:navigation-glow",
+      "12 three-engine featured interactions",
+      "check",
+      "test:build-current"
+    ],
+    "scope": "Targeted local navigation timing and regressions, not new full integrated/remote/device/aesthetic acceptance."
+  },
+  "hero_copy_cleanup_revision": {
+    "verifiedAt": "2026-10-09T10:36:42.281Z",
+    "sourceHash": "ffb94d4d493a5f72339d2ee03372ba173c7774253ebc0a987985ae5030d65a0f",
+    "buildHash": "826b66ec1d231412d3ca567972ec15750661a460cbfc05cc50a788dc2ce38fe7",
+    "results": [
+      {
+        "engine": "chromium",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "chromium",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "chromium",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "webkit",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 320,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 390,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      },
+      {
+        "engine": "firefox",
+        "width": 1440,
+        "copyRemoved": true,
+        "titleAndLinksVisible": true,
+        "noOverflow": true
+      }
+    ],
+    "cases": 9,
+    "scope": "Three browser engines, desktop and narrow mobile emulation; targeted copy/layout and existing quality check, not full integrated audit."
+  },
+  "type_hierarchy_revision": {
+    "verifiedAt": "2026-10-10T03:12:20.984Z",
+    "sourceHash": "d9db0845a78377fc29a44135fe9ea7427d87e020a2ca5226bafc470a9a8b333d",
+    "buildHash": "3b2358a9687cafa682d3bb622845454dde05205f231cdd6bf54465e75cd12fa5",
+    "testedBuildHash": "3b2358a9687cafa682d3bb622845454dde05205f231cdd6bf54465e75cd12fa5",
+    "outputsUnchangedAfterWorkflowOnlyRebuild": true,
+    "servedFiles": 443,
+    "checks": [
+      "type-hierarchy:72",
+      "index-type-scale:198",
+      "reader:22 articles",
+      "quality",
+      "native-nav",
+      "style-boundaries",
+      "fonts",
+      "archive",
+      "build-current",
+      "covers:23",
+      "internal-links:6684 references"
+    ],
+    "changes": [
+      "Shared 12px caption and 13px metadata levels in home/archive/article",
+      "Removed redundant figure/index taglines",
+      "Kept title scale, silver gradients, chip composition and gray-edge navigation timing",
+      "Fixed 320px/200% article-end grid overflow and mobile nav clipping",
+      "Reserved archive hover-arrow room; removed arrow displacement with reduced motion",
+      "Added typography gate and aligned all 39 core checks with CI workflow"
+    ],
+    "scope": "Targeted current-build local regression. 72 new cases plus existing 198 scale cases; not a new complete 49-command audit, remote CI run, physical-device test or human aesthetic acceptance.",
+    "visualInspection": [
+      "Desktop/mobile default home and archive retain reading hierarchy and gray treatment",
+      "200% narrow home reflows to a long vertical layout with word wrapping; usability checks are not aesthetic acceptance"
+    ],
+    "remaining": [
+      "Cross-page visual review beyond this readability pass",
+      "Physical phones, current remote CI/deployment and field measurements",
+      "Human visual acceptance and final TEE/XBL/ABL content"
+    ]
+  },
+  "documentationAudit20261011": {
+    "scope": "结构和历史证据边界检查；不是重跑该记录的完整发布验收",
+    "notice": "旧篇数、测试数、状态与快照对应各自记录时点。当前内容为30篇正式文章和1篇sample；本轮文档修订后的证据以docs/document-audit-2026-10-11.md为准。",
+    "remaining": "历史artifact的每项完整性、远程部署与真机结论仍需要独立复核"
+  }
+}

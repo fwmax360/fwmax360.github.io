@@ -2,289 +2,78 @@
 title: 'Python 逆向'
 description: '从识别 PyInstaller 打包、提取 pyc 到反编译还原的 Python 逆向流程。'
 pubDate: 2025-08-03
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['Python', '逆向', 'pyc']
 ---
-## Python逆向
 
-### 整体流程概述
+拿到一个 EXE，先别急着套“提取、解密、反编译”三连。PyInstaller、Nuitka、嵌入式解释器生成的文件，后续路线不同；识别工具的标签只能作为入口，还要看归档结构和运行时依赖。
 
-1.  识别Python打包文件：使用Detect It Easy (DIE)工具识别是否为Python打包的EXE
+## 先把打包版本记下来
 
-2.  提取PYC文件：使用pyinstxtractor工具
+如果确认是 PyInstaller，保留原文件的 SHA-256、Python 版本线索、打包器版本和提取器的提交号，再在副本上提取：
 
-3.  处理加密PYC：解密AES加密的PYC文件
+```bash
+python pyinstxtractor.py sample.exe
+```
 
-4.  分析PYC结构：理解Python字节码文件格式
+这是 [pyinstxtractor 原项目](https://github.com/extremecoders-re/pyinstxtractor) 的基本用法；原稿里的 `pyinstxtractor.py --key ...` 不是这个脚本提供的命令行接口。提取器的提示也应保留，尤其是 PYZ 提取失败、Python 版本不匹配和缺少头部的提示。
 
-5.  反编译/反汇编：还原Python源码或分析字节码
+输出里哪些文件有完整 `.pyc` 头、哪些只是归档里的 marshal 数据，要分别确认。不要默认 `struct.pyc` 一定存在，也不要把它的整个头部复制到所有文件上。
 
-6.  处理花指令：清理混淆的字节码
+## 加密是旧版本分支，不是必经步骤
 
-### 详细
+旧版 PyInstaller 曾有 `--key` 字节码加密选项；现行版本已移除这项功能，具体变更见 [官方变更记录](https://pyinstaller.org/en/stable/CHANGES.html)。遇到历史文件，应回到对应版本的归档读取和解密实现，确认密钥处理、IV、加密模式及压缩顺序。
 
-#### EXE -\> PYC文件提取
+长度是 16 的倍数，不足以确定 CBC 或 ECB；尾部有 16 个非零字节，也不足以认定那里是 GCM tag。原稿依据这些特征猜模式的脚本已经撤下。解密后的 zlib 解压失败，应保留失败和输入供核对，而不是把异常吞掉后将结果命名成“解密成功的 pyc”。
 
-使用pyinstxtractor工具
+## pyc 头和内存中的 PyCodeObject 是两件事
 
-    # 无加密文件
-    python pyinstxtractor.py <filename.exe>
+Python 3.7 引入的头部布局是 16 字节：
 
-    # 有加密文件（需要先获取密钥）
-    # 打包命令示例：
-    pyinstaller.exe -F --key your_key --upx-dir "path/to/upx" your_script.py
-    # 提取命令：
-    python pyinstxtractor.py --key your_key <filename.exe>
+```text
+0..3    magic number
+4..7    flags（小端）
+8..15   时间戳 + 源文件大小，或 8 字节源文件 hash
+16..    marshal 序列化数据
+```
 
-提取后的文件结构
+flags 的最低位为 0 时走时间戳布局，为 1 时走 hash 布局；第二位涉及 hash 校验方式。旧版 Python 的头部长度另查对应版本。依据是 [PEP 552](https://peps.python.org/pep-0552/)，不是把 C 结构体直接当磁盘格式。
 
-    your_exe_extracted/
-    ├── struct.pyc          # 关键文件，包含PYC文件头
-    ├── main.pyc            # 主程序（可能加密）
-    └── other_files...
+下面只读头部，不反序列化或执行样本：
 
-#### 处理加密的PYC文件
+```python
+import struct
 
-原始流程：.py → 编译为.pyc → zlib压缩 → AES加密 → 嵌入EXE
+def inspect_pyc_header(data: bytes) -> dict:
+    if len(data) < 16:
+        raise ValueError("不足 16 字节，先确认 Python 版本和提取格式")
+    magic, flags = struct.unpack_from("<4sI", data)
+    if flags & ~3 or flags == 2:
+        raise ValueError("flags 不符合本文处理的 PEP 552 布局")
+    result = {"magic": magic.hex(), "flags": flags}
+    if flags & 1:
+        result.update(source_hash=data[8:16].hex(), check_source=bool(flags & 2))
+    else:
+        timestamp, source_size = struct.unpack_from("<II", data, 8)
+        result.update(timestamp=timestamp, source_size=source_size)
+    return result
+```
 
-    import tinyaes
-    import zlib
-    import os
+函数假定输入已经识别为 Python 3.7+ 的 pyc；它不验证 magic 对应的解释器，也不证明后面的代码对象有效。改 magic 只是改标签，不会把一种版本的字节码转换成另一种。
 
-    def decrypt_pyc(encrypted_file, output_file, key):
-        """解密AES加密的PYC文件"""
-        CRYPT_BLOCK_SIZE = 16  # AES块大小
+`PyCodeObject` 是解释器内部的内存对象，字段、字节码和序列化约定会变化。Python 官方还明确提醒 [marshal](https://docs.python.org/3/library/marshal.html) 的版本依赖和不可信输入风险。需要分析代码对象时，用匹配版本的隔离环境；这里的头部查看不需要 `marshal.loads()`。
 
-        with open(encrypted_file, 'rb') as inf:
-            iv = inf.read(CRYPT_BLOCK_SIZE)
-            ciphertext = inf.read()
+## 反汇编可靠，反编译仍要核对
 
-        # 处理不同密钥长度
-        key_bytes = key.encode('utf-8')
-        if len(key_bytes) < 16:
-            key_bytes = key_bytes.ljust(16, b'\0')
-        elif len(key_bytes) > 32:
-            key_bytes = key_bytes[:32]
+先确认工具是否支持样本的 Python 字节码版本，再看控制流和常量。`pycdc` 和 `pycdas` 属于 [Decompyle++ 项目](https://github.com/zrax/pycdc)，分别侧重反编译与反汇编；不是一个叫 Decompyle++ 的工具能补齐另一个工具的所有版本缺口。
 
-        cipher = tinyaes.AES(key_bytes, iv)
-        compressed_data = cipher.CTR_xcrypt_buffer(ciphertext)
+对可信的自建代码对象，可以用匹配版本的 [dis 模块](https://docs.python.org/3/library/dis.html) 观察指令。它展示的是解释器相关字节码，不是跨版本稳定的指令集。Python 3.11 起还需考虑内联缓存、跳转和异常表。
 
-        try:
-            plaintext = zlib.decompress(compressed_data)
-        except zlib.error:
-            # 可能是未压缩数据
-            plaintext = compressed_data
+反编译结果要按分支条件、异常路径、闭包变量、栈效果逐项对回字节码。工具输出了 Python 文本，不等于恢复出了原作者源码。
 
-        # 获取正确的PYC文件头（从struct.pyc）
-        with open('struct.pyc', 'rb') as hf:
-            pyc_header = hf.read(16)
+## “花指令”先证明无效，再考虑改
 
-        with open(output_file, 'wb') as outf:
-            outf.write(pyc_header)
-            outf.write(plaintext)
+原稿按字节模式删除 `LOAD_CONST`、`RETURN_VALUE`、`POP_TOP` 的做法会删掉合法指令，还可能破坏跳转、缓存与异常处理。那段清理代码已经撤下。
 
-    # 使用示例
-    decrypt_pyc('main.pyc.encrypted', 'main.pyc', 'your_secret_key')
-
-加密模式分析工具
-
-    import os
-
-    def analyze_encryption(file_path):
-        """分析加密模式"""
-        file_size = os.path.getsize(file_path)
-        iv_size = 16
-        data_size = file_size - iv_size
-
-        print(f"文件大小: {file_size} 字节")
-        print(f"IV大小: {iv_size} 字节")
-        print(f"数据部分大小: {data_size} 字节")
-
-        # 检查块大小对齐
-        if data_size % 16 == 0:
-            print("模式提示: 可能是CBC/ECB模式（数据长度是16的倍数）")
-        else:
-            print("模式提示: 可能是CTR/GCM模式（数据长度任意）")
-
-        # 检查GCM认证标签
-        if data_size > 16:
-            with open(file_path, 'rb') as f:
-                f.seek(-16, 2)  # 查看最后16字节
-                tag = f.read(16)
-                if not all(b == 0 for b in tag):
-                    print("模式提示: 可能是GCM模式（检测到非零认证标签）")
-
-        # 尝试识别IV位置
-        with open(file_path, 'rb') as f:
-            header = f.read(32)
-            print(f"文件头: {header[:16].hex()}...")
-
-    # 使用示例
-    analyze_encryption('encrypted.pyc')
-
-#### PYC文件分析与处理
-
-PYC文件结构
-
-    typedef struct {
-        uint32_t magic;                 // 4字节 魔数（Python版本标识）
-        uint32_t flags;                 // 4字节 标志位（Python 3.7+）
-        uint32_t source_size;           // 4字节 源文件大小（Python 3.7+）
-        PyCodeObject code_object;       // 序列化的代码对象
-    } PycFileHeader;
-
-    typedef struct {
-        // 对象头部（所有Python对象共有）
-        PyObject_HEAD
-
-        // 代码对象特有字段
-        int co_argcount;                // 位置参数数量
-        int co_posonlyargcount;         // 仅位置参数数量（Python 3.8+）
-        int co_kwonlyargcount;          // 仅关键字参数数量
-        int co_nlocals;                 // 局部变量数量
-        int co_stacksize;               // 执行所需栈空间
-        int co_flags;                   // 编译标志
-        int co_firstlineno;             // 首行行号
-        PyObject *co_code;              // 字节码指令序列
-        PyObject *co_consts;            // 常量元组
-        PyObject *co_names;             // 全局名称元组
-        PyObject *co_varnames;          // 局部变量名元组
-        PyObject *co_freevars;          // 闭包变量名元组
-        PyObject *co_cellvars;          // 被嵌套作用域引用的变量名
-        PyObject *co_filename;          // 源文件名
-        PyObject *co_name;              // 函数/类名
-        PyObject *co_linetable;         // 行号映射表（Python 3.11+）
-        PyObject *co_exceptiontable;    // 异常处理表（Python 3.11+）
-    } PyCodeObject;
-
-魔数对应关系：
-
-- Python 3.7: 0x42 0x0d 0x0d 0x0a
-
-- Python 3.8: 0x55 0x0d 0x0d 0x0a
-
-- Python 3.9: 0x61 0x0d 0x0d 0x0a
-
-有时候需要修复文件头
-
-    # 修复损坏的PYC文件头
-    def fix_pyc_header(input_file, output_file):
-        with open(input_file, 'rb') as f:
-            data = f.read()
-
-        # 添加标准文件头（Python 3.8示例）
-        fixed = b'\x55\x0d\x0d\x0a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' + data
-
-        with open(output_file, 'wb') as f:
-            f.write(fixed)
-
-字节码反汇编
-
-    import marshal
-    import dis
-
-    def disassemble_pyc(pyc_file):
-        """反汇编PYC文件"""
-        with open(pyc_file, 'rb') as f:
-            # 跳过文件头（16字节）
-            f.read(16)
-            code_obj = marshal.load(f)
-
-        print(f"函数名: {code_obj.co_name}")
-        print(f"文件名: {code_obj.co_filename}")
-        print(f"参数数量: {code_obj.co_argcount}")
-        print("\n=== 反汇编结果 ===\n")
-        dis.dis(code_obj)
-
-    # 使用示例
-    disassemble_pyc('main.pyc')
-
-#### 处理花指令
-
-    import types
-    import marshal
-
-    def remove_junk_bytecode(input_file, output_file):
-        """移除字节码中的花指令"""
-        with open(input_file, 'rb') as f:
-            header = f.read(16)
-            code_obj = marshal.load(f)
-
-        # 常见花指令模式
-        JUNK_PATTERNS = [
-            b'\x64\x00',  # LOAD_CONST(None)
-            b'\x01',      # POP_TOP
-            b'\x64\x01',  # LOAD_CONST(True)
-            b'\x53',      # RETURN_VALUE (非函数结尾处)
-        ]
-
-        cleaned = bytearray()
-        bytecode = code_obj.co_code
-        i = 0
-        n = len(bytecode)
-
-        while i < n:
-            matched = False
-            for pattern in JUNK_PATTERNS:
-                if bytecode.startswith(pattern, i):
-                    i += len(pattern)
-                    matched = True
-                    break
-
-            if not matched:
-                cleaned.append(bytecode[i])
-                i += 1
-
-        # 创建新代码对象
-        new_code = types.CodeType(
-            code_obj.co_argcount,
-            code_obj.co_posonlyargcount,
-            code_obj.co_kwonlyargcount,
-            code_obj.co_nlocals,
-            code_obj.co_stacksize,
-            code_obj.co_flags,
-            bytes(cleaned),
-            code_obj.co_consts,
-            code_obj.co_names,
-            code_obj.co_varnames,
-            code_obj.co_filename,
-            code_obj.co_name,
-            code_obj.co_firstlineno,
-            getattr(code_obj, 'co_linetable', b''),
-            getattr(code_obj, 'co_exceptiontable', b'')
-        )
-
-        # 保存修改后的PYC
-        with open(output_file, 'wb') as f:
-            f.write(header)
-            marshal.dump(new_code, f)
-
-    # 使用示例
-    remove_junk_bytecode('obfuscated.pyc', 'cleaned.pyc')
-
-    工具名称 适用Python版本  功能描述
-    uncompyle6    2.7-3.8 可靠的反编译为源码
-    pycdc    3.9+    支持新版Python的反编译器
-    pycdas 所有版本    将PYC转换为可读的字节码表示
-    Decompyle++    3.9+    基于pycdc的增强版
-
-注：
-但是在pyc文件存储的不是内存中的PyCodeObject结构体，而是它的序列化表示，通过Python的marshal模块实现，以序列化格式（Python 3.11+）：
-
-    [ 魔数 4字节 ]  // 标识Python版本
-    [ 标志位 4字节 ]  // Python 3.7+新增
-    [ 源文件大小 4字节 ] // Python 3.7+新增
-    [ 序列化的代码对象 ]
-
-    63                                   // 类型码: 'c'表示代码对象
-    [ co_argcount (4字节) ]
-    [ co_posonlyargcount (4字节) ]
-    [ co_kwonlyargcount (4字节) ]
-    [ co_nlocals (4字节) ]
-    [ co_stacksize (4字节) ]
-    [ co_flags (4字节) ]
-    [ co_firstlineno (4字节) ]
-    74                                   // 类型码: 't'表示字节串
-    [ co_code长度 (4字节) ]
-    [ co_code内容 (N字节) ]
-    [ 其他字段... ]
+更合适的顺序是保留原始字节码，标出基本块入口与异常边，计算指令的栈效果，再判断某个块是否真的不可达。若要修改，还得同步修正偏移和相关表，并在自建样例上验证分支与异常行为。不满足这些条件时，保留注释后的反汇编比一份看起来整齐、实际改变语义的“源码”更有用。

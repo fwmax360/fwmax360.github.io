@@ -1,0 +1,16 @@
+import { chromium } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+const out=new URL('../artifacts/navigation-glow/',import.meta.url);await mkdir(out,{recursive:true});
+const origin=process.env.PREVIEW_URL||'http://127.0.0.1:4322';
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const context=await browser.newContext({viewport:{width:1280,height:900},recordVideo:{dir:out.pathname,size:{width:1280,height:900}}});
+await context.addInitScript(()=>{window.__captureSwap=0;document.addEventListener('astro:before-swap',e=>e.viewTransition.ready.then(()=>window.__captureSwap++).catch(()=>{}));});
+const page=await context.newPage();await page.goto(origin);await page.waitForFunction(()=>document.documentElement.dataset.motion==='ready');await page.evaluate(()=>document.fonts.ready);
+const link=page.locator('.feature-copy h3 a').first();await link.scrollIntoViewIfNeeded();await page.waitForTimeout(900);
+await link.click();await page.waitForFunction(()=>window.__captureSwap>=1);await page.waitForFunction(()=>!document.documentElement.dataset.navigationGlow);await page.waitForTimeout(800);
+await page.goBack();await page.waitForFunction(()=>window.__captureSwap>=2);await page.waitForFunction(()=>!document.documentElement.dataset.navigationGlow);await page.waitForTimeout(900);
+const video=page.video();await context.close();const input=await video.path();await browser.close();
+const output=new URL('navigation-glow-v2.mp4',out).pathname;
+const result=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',input,'-an','-c:v','libx264','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',output],{stdio:'inherit'});
+if(result.status!==0)throw new Error('Video conversion failed');console.log(output);

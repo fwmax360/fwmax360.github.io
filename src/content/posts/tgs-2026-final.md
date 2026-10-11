@@ -2,11 +2,15 @@
 title: '腾讯游戏安全 2026 决赛：多 Part Flag、隐藏 Glue 与反调试状态机'
 description: '在初赛 Godot + GDC 思路上扩展：Part0–Part3 分属脚本 / Process / 引擎隐藏回调；并梳理 libsec2026 的 fork/ptrace/procfs 杀进程状态机与补丁思路。'
 pubDate: 2026-03-12
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['腾讯游戏安全', 'Godot', '反调试', 'Frida', 'CTF']
 series: '腾讯游戏安全2026'
 order: 2
 ---
+
+本文保留原题解中的地址、脚本片段和执行描述。当前仓库没有配套 APK、原始 trace 与完整工具集，本轮没有重新复现这些题目；偏移、哈希及 Godot 行为只对应原记录，迁移到其他构建需先核对样本哈希、架构与引擎版本。
+
 
 决赛包名换成 `com.tencent.ACE.gamesec2026.final`，骨架仍是 Godot + `libsec2026.so`。[初赛](/posts/tgs-2026-prelim/) 里验证过的 GDC dump 流程可以复用，但 flag 被拆成多段，且 Part3 不再走公开的 `Process` 绑定。Java 层跟初赛一样：先起引擎，再进扩展。
 

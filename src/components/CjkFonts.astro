@@ -1,0 +1,18 @@
+---
+import sansUrl from '../styles/fonts-cjk.css?url'
+import serifUrl from '../styles/editorial-font.css?url'
+interface Props { serif?: boolean }
+const { serif = false } = Astro.props
+const urls = serif ? [sansUrl, serifUrl] : [sansUrl]
+---
+{urls.map(href => <link rel="stylesheet" href={href} media="print" data-font-fallback />)}
+<noscript>{urls.map(href => <link rel="stylesheet" href={href} />)}</noscript>
+<script is:inline data-astro-rerun>
+  // Native CJK stacks paint immediately. Full local fallback faces are activated
+  // after their non-blocking stylesheet arrives, including after client navigation.
+  document.querySelectorAll('link[data-font-fallback]').forEach(link => {
+    const activate = () => { link.media = 'all'; };
+    if (link.sheet) activate();
+    else link.addEventListener('load', activate, { once: true });
+  });
+</script>

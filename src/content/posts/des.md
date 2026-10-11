@@ -2,12 +2,15 @@
 title: 'DES 详解'
 description: 'DES 对称加密算法结构、Feistel 网络与加解密流程整理。'
 pubDate: 2025-07-30
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['DES', '加密', '密码学']
 series: '密码学基础'
 order: 2
 ---
 ## DES
+
+这篇用于读旧程序与复现算法，不把 DES 当作新系统的加密选型。[NIST 已于 2005 年撤销 FIPS 46-3](https://csrc.nist.gov/pubs/fips/46-3/final)。算法结构以该历史标准为依据，是否能解密回来还要与已知答案比较。
 
 ### 定义
 
@@ -23,14 +26,14 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
 
 1.  **密钥生成**：从用户提供的56位密钥中生成16个48位的子密钥
 2.  **初始置换**：对64位明文进行初始置换
-3.  **分组加密**：将明文分为16轮，每轮使用一个48位的子密钥进行加密
+3.  **分组加密**：对明文进行16轮处理，每轮使用一个48位的子密钥进行加密
     - 每轮包括扩展置换、S盒替换、P盒置换
 4.  **逆初始置换**：对加密后的数据进行逆初始置换，得到最终的密文
 5.  **解密**：使用相同的密钥和相同的步骤进行解密，得到原始明文
 
 #### 初始置换（IP置换）
 
-目的：增加加密的混乱程度，使明文中的每一位都能够对后面的加密过程产生影响，提高加密强度
+IP 是固定的位重排，FP 是它的逆置换；它们本身不提供密码学安全性，不能把初始置换解释成非线性扩散。
 
 我们将把64位的顺序按下表中规定的顺序放置，图中的数字是在64位明文中每个比特的索引位置。注意，在DES中，这个置放规则是固定的
 
@@ -50,10 +53,10 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
 
 #### 密钥生成
 
-1.  **密钥压缩**：从56位密钥中去掉奇偶校验位，得到48位的密钥
-2.  **密钥分割**：将48位密钥分为两部分，每部分各24位
-3.  **循环左移**：对每部分进行循环左移操作，得到新的24位密钥
-4.  **密钥选择**：根据预定义的选择表，从24位密钥中选择48位的子密钥
+1.  **PC-1**：8 字节密钥含 64 位，其中 8 位用于奇偶校验；PC-1 选取并重排 56 位有效密钥位。
+2.  **密钥分割**：分为 C、D 两个 28 位半部。
+3.  **循环左移**：每轮分别在 28 位范围内循环左移 1 或 2 位。
+4.  **PC-2**：拼接两个半部，从 56 位中选取 48 位子密钥。
 5.  **重复**：重复上述步骤16次，得到16个48位的子密钥
 
 #### 分组加密
@@ -61,7 +64,7 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
 1.  **扩展置换**：将32位的右半部分扩展为48位
 2.  **S盒替换**：将48位的扩展结果与48位的子密钥进行异或操作，然后通过8个S盒进行替换，得到32位的结果
 3.  **P盒置换**：对32位的结果进行P盒置换
-4.  **合并**：将左半部分与右半部分进行合并，得到64位的结果
+4.  **Feistel 更新**：新左半部等于旧右半部，新右半部等于旧左半部与 F 输出的异或。
 5.  **轮次迭代**：重复上述步骤16次，每次使用不同的子密钥进行加密
 
 #### 解密
@@ -69,7 +72,7 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
 解密过程与加密过程类似，只是使用的子密钥顺序相反。具体步骤如下：
 
 1.  **初始置换**：对密文进行初始置换
-2.  **分组解密**：将密文分为16轮，每轮使用一个48位的子密钥进行解密
+2.  **分组解密**：对密文进行16轮处理，每轮使用一个48位的子密钥进行解密
     - 每轮包括扩展置换、S盒替换、P盒置换
 3.  **逆初始置换**：对解密后的数据进行逆初始置换，得到原始明文
 
@@ -100,46 +103,42 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
     - S盒是预定义的查找表，提供非线性变换
     - P置换：将32位输出重新排列
 5.  末置换（IP-1）
-    - 将32位的左半部分和右半部分合并后，进行逆初始置换
+    - 将最终的 R16 与 L16 按这个顺序合并，再进行逆初始置换
     - 通过IP-1表实现（第1位变第40位，第2位变第8位…）
 6.  解密过程
     - 解密过程与加密类似，但使用的子密钥顺序相反
 7.  填充
     - DES加密要求输入数据长度为64位的倍数
 
-### 参考资料
+### 标准与库示例
 
-- <a href="https://www.cnblogs.com/zhangyongzh/p/11387024.html" target="_blank" rel="noopener">DES算法详解</a>
-- <a href="https://www.runoob.com/w3cnote/des-encryption.html" target="_blank" rel="noopener">DES加密算法</a>
-- <a href="https://www.jianshu.com/p/3f8c0b1d4c2e" target="_blank" rel="noopener">DES加密算法原理</a>
-- <a href="https://blog.csdn.net/qq_41388547/article/details/105930688" target="_blank" rel="noopener">DES加密算法原理与实现</a>
-- <a href="https://www.cnblogs.com/zhangyongzh/p/11387024.html" target="_blank" rel="noopener">DES加密算法原理与实现</a>
-- <a href="https://www.cnblogs.com/zhangyongzh/p/11387024.html" target="_blank" rel="noopener">DES加密算法原理与实现</a>
-- <a href="https://www.cnblogs.com/zhangyongzh/p/11387024.html" target="_blank" rel="noopener">DES加密算法原理与实现</a>
+[FIPS 46-3 原文](https://csrc.nist.gov/files/pubs/fips/46-3/final/docs/fips46-3.pdf)附有完整 IP、FP、PC-1、PC-2 和八张 S 盒表。上面的 IP/FP 片段只展示前四行，下面的 C 实现使用完整表。
 
-### 示例代码
+Python 示例只演示历史 DES-ECB 与填充；ECB 会泄露重复块关系，这个封装没有消息认证。用 PKCS#7 保留明文末尾原有的零字节，别用 `rstrip(b'\0')` 猜真实长度。
 
-    from Crypto.Cipher import DES
-    def des_encrypt(key, data):
-        cipher = DES.new(key, DES.MODE_ECB)
-        padded_data = data + (b'\0' * (8 - len(data) % 8))  # 填充数据
-        return cipher.encrypt(padded_data)
-    def des_decrypt(key, data):
-        cipher = DES.new(key, DES.MODE_ECB)
-        decrypted_data = cipher.decrypt(data)
-        return decrypted_data.rstrip(b'\0')  # 去除填充数据
-    # 示例
-    key = b'abcdefgh'  # 8字节密钥
-    data = b'Hello, DES!'
-    encrypted_data = des_encrypt(key, data)
-    print("Encrypted:", encrypted_data)
-    decrypted_data = des_decrypt(key, encrypted_data)
-    print("Decrypted:", decrypted_data)
+```python
+from Crypto.Cipher import DES
+from Crypto.Util.Padding import pad, unpad
+
+def des_encrypt(key, data):
+    cipher = DES.new(key, DES.MODE_ECB)
+    return cipher.encrypt(pad(data, DES.block_size))
+
+def des_decrypt(key, data):
+    cipher = DES.new(key, DES.MODE_ECB)
+    return unpad(cipher.decrypt(data), DES.block_size)
+
+key = b'abcdefgh'
+data = b'Hello, DES!\0'
+assert des_decrypt(key, des_encrypt(key, data)) == data
+```
 
 详细用c语言写为(不用库)
 
     #include <stdio.h>
     #include <string.h>
+    #include <stdint.h>
+    #include <assert.h>
 
     // DES常量定义
     #define DES_BLOCK_SIZE 8  // 64位块大小
@@ -243,7 +242,11 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
         {{4, 11, 2, 14, 15, 0, 8, 13, 3, 12, 9, 7, 5, 10, 6, 1},
          {13, 0, 11, 7, 4, 9, 1, 10, 14, 3, 5, 12, 2, 15, 8, 6},
          {1, 4, 11, 13, 12, 3, 7, 14, 10, 15, 6, 8, 0, 5, 9, 2},
-         {6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12}}
+         {6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12}},
+        {{13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7},
+         {1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2},
+         {7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8},
+         {2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11}}
     };
 
     // 通用置换函数
@@ -258,34 +261,28 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
         }
     }
 
-    // 循环左移
-    void left_shift(unsigned char *key, int shifts) {
-        unsigned char temp = key[0] >> (8 - shifts);
-        for (int i = 0; i < 3; i++) {
-            key[i] = (key[i] << shifts) | (key[i+1] >> (8 - shifts));
-        }
-        key[3] = (key[3] << shifts) | temp;
+    // 28 位半部必须按位分割，不能用重叠 memcpy 当作两个 32 位数组。
+    uint32_t rotate28(uint32_t value, unsigned shift) {
+        return ((value << shift) | (value >> (28 - shift))) & 0x0fffffff;
     }
 
-    // 生成16个子密钥
     void generate_subkeys(const unsigned char *key, unsigned char subkeys[16][6]) {
-        unsigned char permuted_key[7] = {0};
-        permute(key, permuted_key, PC1, 56);
-
-        unsigned char C[4], D[4];
-        memcpy(C, permuted_key, 4);
-        memcpy(D, permuted_key + 3, 4);  // 注意：56位分成两部分28位
-
-        for (int i = 0; i < 16; i++) {
-            left_shift(C, shifts[i]);
-            left_shift(D, shifts[i]);
-
+        unsigned char selected[7] = {0};
+        permute(key, selected, PC1, 56);
+        uint64_t bits = 0;
+        for (int i = 0; i < 7; i++) bits = (bits << 8) | selected[i];
+        uint32_t C = (uint32_t)(bits >> 28);
+        uint32_t D = (uint32_t)(bits & 0x0fffffff);
+        for (int round = 0; round < 16; round++) {
+            C = rotate28(C, shifts[round]);
+            D = rotate28(D, shifts[round]);
+            bits = ((uint64_t)C << 28) | D;
             unsigned char combined[7];
-            memcpy(combined, C, 4);
-            memcpy(combined + 3, D, 4);  // 组合成56位
-
-            memset(subkeys[i], 0, 6);
-            permute(combined, subkeys[i], PC2, 48);
+            for (int i = 6; i >= 0; i--) {
+                combined[i] = (unsigned char)bits;
+                bits >>= 8;
+            }
+            permute(combined, subkeys[round], PC2, 48);
         }
     }
 
@@ -392,17 +389,15 @@ DES（Data Encryption Standard）是一种对称密钥加密算法，用于数�
         des_decrypt(key, ciphertext, decrypted);
         printf("\nDecrypted:  ");
         for (int i = 0; i < 8; i++) printf("%02X ", decrypted[i]);
-        getchar(); // 等待输入以查看结果
+        const unsigned char expected[8] = {0x85,0xE8,0x13,0x54,0x0F,0x0A,0xB4,0x05};
+        assert(memcmp(ciphertext, expected, 8) == 0);
+        assert(memcmp(decrypted, plaintext, 8) == 0);
         printf("\n");
         return 0;
     }
 
-如何判断是DES加密还是其他加密方式？
-可以通过以下几个方面来判断是否使用了DES加密：
+## 识别算法时，什么算证据
 
-1.  **密钥长度**：DES使用56位密钥（通常表示为8字节），如果密钥长度不是8字节，则不是DES。
-2.  **数据块大小**：DES加密的数据块大小为64位（8字节），如果数据块不是8字节，则不是DES。
-3.  **填充方式**：DES通常使用PKCS#5或PKCS#7填充方式，如果数据末尾有特定的填充模式，则可能是DES。
-4.  **加密模式**：DES可以使用多种加密模式（如ECB、CBC、CFB等），如果数据是以块为单位进行加密且每个块大小为8字节，则可能是DES。
-5.  **加密算法特征**：DES的加密过程包括初始置换、16轮加密、末置换等特征，如果数据经过类似的处理，则可能是DES。
-6.  **文件头信息**：某些文件格式可能包含特定的标识符或头信息，指示使用了DES加密。
+8 字节分组与 8 字节密钥只是线索，不能单独识别 DES；输入也可能经过编码、密钥派生或容器封装。更有用的是沿执行路径核对 PC-1/PC-2、八张 S 盒、16 轮 Feistel 更新及子密钥顺序，再用已知输入输出确认。
+
+上面固定向量的密文应为 `85E813540F0AB405`。只检查“加密后再解密得到原文”会漏掉错误但可逆的实现；子密钥分割错误时就可能出现这种情况。这个示例只处理一个 8 字节块，不是完整文件加密工具。

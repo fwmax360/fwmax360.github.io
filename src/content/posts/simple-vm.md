@@ -2,6 +2,7 @@
 title: '简单 VM 学习'
 description: '以 GWCTF2019 babyvm 为例，梳理虚拟机保护题的基本分析思路。'
 pubDate: 2025-08-05
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['VM', 'CTF', '虚拟机保护']
 ---
@@ -106,14 +107,14 @@ shift+F1，进入`Local types`，这里分ida版本，7.7和9.0不太一样
 
 因此就写成了
 
-    struct vm_cpu // sizeof=0x98
+    struct vm_cpu // 此布局在 64 位、默认对齐下为 0x98；不证明第 8 项已初始化
     {
         unsigned int R0;
         unsigned int R1;
         unsigned int R2;
         unsigned int R3;
         unsigned __int8 *rip;
-        vm_opcode op_list[8];
+        vm_opcode op_list[8]; // 类型暂留 8 项，片段中仅能确认 7 项被初始化
     };
 
 修复好了为
@@ -713,6 +714,8 @@ shift+F1，进入`Local types`，这里分ida版本，7.7和9.0不太一样
         for(int i=5;i>=0;i--){
             result[i] = result[i]^result[i+1];
         }
-        for(int i=0;i<32;i++){
+        for(size_t i=0;i<sizeof(result);i++){
             printf("%c",result[i]);
         }
+
+这里保留的是原题反编译片段和还原思路，文末片段不是独立程序：`swap` 等定义仍需补齐。`result` 含 20 个元素，打印按 `sizeof(result)` 限定；穷举的 30–126 范围只覆盖假定的可打印候选，不是所有字节。完整求解还需用原题比较函数核对。

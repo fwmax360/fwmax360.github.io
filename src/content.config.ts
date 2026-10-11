@@ -16,6 +16,8 @@ const posts = defineCollection({
     series: z.string().optional(),
     /** 系列内的顺序 */
     order: z.number().optional(),
+    /** Samples retain a direct preview route, but stay out of public discovery. */
+    status: z.enum(['published', 'sample', 'draft']).default('published'),
     draft: z.boolean().default(false),
     /** 置顶权重，数字越大越靠前 */
     pinned: z.number().default(0),

@@ -10,7 +10,7 @@ html[data-reading-transition='true']::view-transition-old(reading-content) {
   mix-blend-mode: normal;
 }
 html[data-reading-transition='true']::view-transition-new(reading-content) {
-  animation: reading-enter 560ms cubic-bezier(.16,1,.3,1) 60ms both;
+  animation: reading-enter 620ms cubic-bezier(.6,.04,.3,1) 40ms both;
   transform-origin: 50% 0;
   mix-blend-mode: normal;
 }
@@ -29,7 +29,7 @@ html[data-reading-transition='true']::view-transition { pointer-events: none; }
 @media (max-width: 640px) {
   html[data-reading-transition='true']::view-transition-new(reading-content) {
     animation-name: reading-enter-mobile;
-    animation-duration: 480ms;
+    animation-duration: 620ms;
   }
 }
 @keyframes reading-enter-mobile {
@@ -53,8 +53,8 @@ html[data-reading-loading='true'] .reading-load-line::after { animation: reading
 
 /* Continuous preview → reading header; animate its surface, never stretch glyphs. */
 html[data-reading-focus='true']::view-transition-group(reading-focus) {
-  animation-duration: 620ms;
-  animation-timing-function: cubic-bezier(.16,1,.3,1);
+  animation-duration: 700ms;
+  animation-timing-function: cubic-bezier(.6,.04,.3,1);
   overflow: clip;
   border-radius: 8px;
 }
@@ -70,13 +70,13 @@ html[data-reading-focus='true']::view-transition-old(reading-focus) {
   animation: reading-focus-out 180ms ease-out both;
 }
 html[data-reading-focus='true']::view-transition-new(reading-focus) {
-  animation: reading-focus-in 420ms cubic-bezier(.2,.65,.3,1) 110ms both;
+  animation: reading-focus-in 540ms cubic-bezier(.6,.04,.3,1) 110ms both;
 }
 html[data-reading-focus='true']::view-transition-old(page-content) {
   animation: reading-focus-out 220ms ease-out both;
 }
 html[data-reading-focus='true']::view-transition-new(reading-content) {
-  animation: reading-body-in 440ms cubic-bezier(.16,1,.3,1) 150ms both;
+  animation: reading-body-in 540ms cubic-bezier(.6,.04,.3,1) 110ms both;
 }
 @keyframes reading-focus-out { to { opacity: 0; } }
 @keyframes reading-focus-in { from { opacity: 0; } to { opacity: 1; } }

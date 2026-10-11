@@ -12,10 +12,17 @@ export function rehypeTableWrap() {
       if (parent.type === 'element' && (parent as Element).properties?.className?.toString().includes('table-wrap'))
         return
 
+      // Empty corner headers still need a name; preserve visible Markdown content.
+      let headerIndex = 0
+      visit(node, 'element', (cell: Element) => {
+        if (cell.tagName !== 'th') return
+        headerIndex++
+        if (cell.children.length === 0) cell.children.push({ type: 'element', tagName: 'span', properties: { className: ['sr-only'] }, children: [{ type: 'text', value: `第 ${headerIndex} 列` }] })
+      })
       parent.children[index] = {
         type: 'element',
         tagName: 'div',
-        properties: { class: 'table-wrap' },
+        properties: { class: 'table-wrap', tabIndex: 0, role: 'group', 'aria-label': '数据表格（可横向滚动）' },
         children: [node],
       }
     })

@@ -2,6 +2,7 @@
 title: '生物探针与行为神经网络风控'
 description: '从专利采集字段到神经网络行为表征，梳理客户端推理、服务端决策与模型逆向的分析边界，并区分商业落地证据和工程推断。'
 pubDate: 2026-10-05
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 ---
@@ -25,7 +26,7 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 商业、厂商与学术证据（证据强度分级见 [商业落地与证据分级](#商业落地与证据分级)）：
 
 - BioCatch：[Continuous Behavioral Sequencing](https://www.biocatch.com/biocatch-connect/continuous-behavioral-sequencing)｜[Advanced Behavioral Biometrics](https://www.biocatch.com/resources/solution-brief/advanced-behavioral-biometrics)｜[ATO 客户案例](https://www.biocatch.com/resources/case-study/top-5-us-ato)
-- Visa 收购 BioCatch：[Biometric Update，2026-08-03](https://www.biometricupdate.com/202608/visa-acquires-behavioral-biometrics-pioneer-biocatch-amid-fraud-prevention-build-up)
+- Visa 收购 BioCatch：[Visa 公告，2026-08-03](https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22626.html)
 - Zighra：[Decentralized AI through Bayesian Learning](https://zighra.com/blogs/decentralized-ai-through-bayesian-learning/)｜[ID Tech Wire 报道](https://idtechwire.com/zighra-details-ai-secrets-509185/)｜[Mobile ID World 报道](https://mobileidworld.com/zighra-decentralized-ai-protect-user-privacy-909204/)
 - 学术：[MotionID](https://www.sciencedirect.com/science/article/pii/S1574119224000488)｜[智能手机连续认证综述](https://doi.org/10.1109/JIOT.2020.3020076)｜[1D-CNN vs LSTM](https://www.techscience.com/JCS/v8n1/68478/html)｜[ConvLSTM 手机银行](https://www.sciencedirect.com/science/article/pii/S1877050923012735)
 - 技术方案与分层：[US20180068098A1 连续认证专利](https://patents.google.com/patent/US20180068098A1)｜[阿里云 App Protection](https://www.alibabacloud.com/help/en/waf/web-application-firewall-2-0/user-guide/overview-of-app-protection)｜[Device Risk Identification API](https://www.alibabacloud.com/help/en/fraud-detection/developer-reference/service-event-parameters-and-response-parameters-for-device-fraud-detection)
@@ -91,7 +92,7 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 
 整套链路可以概括为：神经网络学习行为表征，服务端据此判断当前行为与历史或群体分布的关系。逆向难点在于，判断依据换了位置：传统算法通常把判断写在控制流和常量里，神经网络的行为则由预处理、网络结构与训练参数 θ 共同决定。
 
-公开材料对这条链路的支撑程度并不相同：商业产品证实了链路形态，学术文献支撑了编码器的可实现性；具体 SDK 的算子、维度与上发字段没有公开依据，仍需从样本中确认。分级见 [商业落地与证据分级](#商业落地与证据分级)。
+公开材料对这条链路的支撑程度并不相同：厂商材料描述了产品路线，学术文献支撑了编码器的可实现性；具体 SDK 的算子、维度与上发字段没有公开依据，仍需从样本中确认。分级见 [商业落地与证据分级](#商业落地与证据分级)。
 
 ---
 
@@ -134,7 +135,7 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 
 因此，专利提出用生物探针准确采集移动端用户行为，为后续建模和机器欺诈防控提供数据。
 
-专利反复描述的是**采集、预处理以及为后续计算或建模准备数据**。客户端分类器直接输出 bot / human，并不属于这里的权利要求内容。
+专利反复描述的是**采集、预处理以及为后续计算或建模准备数据**。这段采集流程没有直接描述客户端分类器如何输出 bot / human；它不能替代真实 SDK 的推理路径证据，也不作为专利保护范围的判断。
 
 #### 方法主流程
 
@@ -161,7 +162,7 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 - 验证码输入速度
 - 验证码获取焦点时间
 
-**屏幕轨迹只见于说明书**：实施例 [0058] 写明「还包括**用户触摸屏幕的屏幕轨迹信息**」。它不在权利要求 1 的字段列表里，属于说明书记载的扩展实施例，不是权利要求要求保护的范围。分析真实 SDK 时不必受此限制——专利的采集范围与产品实际采集范围是两件事。
+**屏幕轨迹只见于说明书**：实施例 [0058] 写明「还包括**用户触摸屏幕的屏幕轨迹信息**」。它不在权利要求 1 的字段列表里，属于说明书记载的扩展实施例，仅据这一项字段列表，尚不足以判断整份专利的保护范围。分析真实 SDK 时不必受此限制——专利的采集范围与产品实际采集范围是两件事。
 
 这些字段的共同特点：它们描述的是“人怎么操作界面”，不是“这台设备叫什么”。
 
@@ -173,9 +174,11 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 | ----- | --------------- |
 | 线性加速度 | 加速度传感器          |
 | 重力加速度 | 重力传感器           |
-| 角加速度  | 陀螺仪传感器          |
+| 角加速度（专利用语） | 不等同于陀螺仪的原始输出；Android gyro 输出角速度 |
 | 方向状态  | 方向传感器           |
 | 地理位置  | 磁力传感器（专利原文如此表述） |
+
+这里保留专利列出的“角加速度”用语，并不将它等同于 Android API 的原始 gyro 字段。[Android 官方运动传感器说明](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion) 将陀螺仪输出定义为三轴角速度，单位 rad/s。
 
 这里的“设备信息”不是 IMEI、Android ID 那种静态标识，而是**操作当下的运动/姿态时间序列**。这一区别决定了后续模型的输入类型。
 
@@ -369,15 +372,15 @@ tags: ['风控', '生物探针', '神经网络', '行为建模', '模型逆向']
 
 #### 第一档：连续行为 + 深度学习已是商业系统
 
-BioCatch 是目前公开程度最高的一家，也是与本文主线最接近的商业对照。其公开口径可以拆成三段：
+BioCatch 提供了与本文主线相关的公开产品材料，但这里没有对各家披露程度做排名。其公开口径可以拆成三段：
 
 - **采集侧**：由统一埋点组件持续收集 application / behavioral / device / network / transaction 多类信号，一次会话内的行为被连续串行化；
 - **分析侧**：[Continuous Behavioral Sequencing](https://www.biocatch.com/biocatch-connect/continuous-behavioral-sequencing) 明确写有 `deep learning algorithms`，并以 **multiple machine learning engines in parallel** 的方式对信号做 parse / match / analyze / coalesce / score；
 - **输出侧**：给出 risk score 与 predictive intelligence 供 FRAML 响应，偏离判断落在 user / fraud / population 三个层级上。
 
-规模上，2026-08-03 Visa 宣布以 [24 亿美元现金收购 BioCatch](https://www.biometricupdate.com/202608/visa-acquires-behavioral-biometrics-pioneer-biocatch-amid-fraud-prevention-build-up)（预计 2027 财年第二季度完成，仍待监管批准）。同批报道给出的数字是：**350 家银行客户**（其中三家为美国资产规模前四的银行）、**7.6 亿用户**、2025 年 **1.85 亿美元 ARR**。BioCatch 自己的材料另称客户中包含全球前 100 大银行里的 30 多家（厂商口径）。
+2026-08-03，Visa 公告称已签署 [24 亿美元现金收购 BioCatch 的协议](https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22626.html)，预计于 2027 财年第二季度末前完成，仍有监管批准等交割条件；“宣布协议”不等于交易已经完成。公告还给出超过 350 家银行客户、7.6 亿用户的口径。这些是交易方公开数字，不是本文独立审计的结果；原稿的 ARR 数字与美国银行排名不再混入这份公告的证据范围。
 
-对本文的意义：**“连续行为时序 → 神经网络 → 风险表征 / 分数 → 服务端决策”这条链路在产品层面已经成立**，不是论文里的设想。
+对本文的意义：厂商材料支持“连续行为与机器学习用于产品风险分析”这一公开描述，但没有公开每个客户端算子、模型部署位置和服务端决策路径。它不是本文独立验证过的完整实现。
 
 **公开边界**：以上只说明能力与规模。BioCatch 没有公开生产网络的层类型、embedding 维度，也没有说明客户端上发的是原始序列、embedding 还是分数。**不能由它反推“用了 Conv1D”或“输出 128 维”。**
 
@@ -476,7 +479,7 @@ SensorManager
 
 这些观察就能将本文的 `X → f_θ → Z` 从“合理路线”落实为**该样本的可观测事实**，不再依赖厂商宣传。要落到这个粒度，需要确认的正是后文拆解清单中的第 3、5、7、8、11 步：张量形状、算子、离线复现、与 App 对齐、`Z` 怎么出门。
 
-三类证据的分工可以收成一句：**商业产品证明链路形态成立，学术论文证明编码器可实现，两者都不能替代样本证据。**
+三类证据的分工可以收成一句：**商业材料描述产品路线，学术论文证明编码器可实现，两者都不能替代样本证据。**
 
 ---
 
@@ -1390,7 +1393,7 @@ Z_u ~ N(μ_u, Σ_u)
 
 ### 工程实践中的三类脱敏对抗场景
 
-金融反欺诈、账户安全和电商反自动化中，公开技术材料已经反复出现以下几类问题：单独伪造某一路信号并不难，难的是同时满足多路信号之间的时序关系，以及满足某个账号长期形成的行为基线。下面的案例根据公开披露的攻防机制做了脱敏重构，并非某一家厂商单一项目的逐字复原。采样频率、窗口长度、模型层数和阈值属于具体产品参数，不能从这些典型场景直接反推。
+金融反欺诈、账户安全和电商反自动化中，公开技术材料已经反复出现以下几类问题：单独伪造某一路信号并不难，难的是同时满足多路信号之间的时序关系，以及满足某个账号长期形成的行为基线。下面是依据公开机制组织的假设场景，不是作者亲历项目，也没有逐项匹配的单一实测来源。采样频率、窗口长度、模型层数和阈值属于具体产品参数，不能从这些典型场景直接反推。
 
 #### 案例一：电商抢购中的群控识别
 
@@ -2331,7 +2334,7 @@ X_App
 13. **分类训练优化任务 Loss，不天然要求“同类聚紧”。** 直接约束距离的是度量学习。
 14. **采集、表征和决策应分层分析。** 理解客户端 embedding 不等于恢复服务器风控；拆解清单按这一顺序组织。
 15. **公开对抗实践反复体现同一规律。** 群控和重放主要破坏多路信号的联合结构，ATO 主要表现为当前行为偏离账户个体基线；客户端可负责实时编码，群体分布、个体历史和最终策略仍通常由服务端联合使用。
-16. **公开证据支持“路线成立”，不支持“算子级结论”。** 商业侧（BioCatch 公开的连续行为 + 深度学习 + 多引擎并行）与学术侧（1D-CNN / ConvLSTM / CNN-Transformer 类时序编码器）分别证明了链路形态和编码器可行性；但“某商业 Android SDK 使用 `Conv1D → 128D embedding → protobuf`”这类算子级主张，公开材料无法证实，只能由样本中的张量形状、算子、序列化字段和服务端边界确认。分级见前文 [商业落地与证据分级](#商业落地与证据分级)。
+16. **公开证据支持“路线成立”，不支持“算子级结论”。** 商业侧（BioCatch 公开的连续行为 + 深度学习 + 多引擎并行）与学术侧（1D-CNN / ConvLSTM / CNN-Transformer 类时序编码器）分别提供了产品路线描述和编码器实验依据；但“某商业 Android SDK 使用 `Conv1D → 128D embedding → protobuf`”这类算子级主张，公开材料无法证实，只能由样本中的张量形状、算子、序列化字段和服务端边界确认。分级见前文 [商业落地与证据分级](#商业落地与证据分级)。
 
 ---
 
@@ -2403,7 +2406,7 @@ X_App
 
 - 线性加速度 ← 加速度计
 - 重力加速度 ← 重力传感器
-- 角加速度 ← 陀螺仪
+- 陀螺仪原始输出是角速度（rad/s）；角加速度需由变化率等额外计算得到
 - 方向状态 ← 方向传感器
 - 地理位置 ← 专利写磁力传感器（更宜理解成地磁 / 航向，不是 GPS）
 
@@ -2499,7 +2502,7 @@ X_App
 | 来源 | 支撑的主张 | 核验 |
 | --- | --- | --- |
 | [BioCatch：Continuous Behavioral Sequencing](https://www.biocatch.com/biocatch-connect/continuous-behavioral-sequencing) | `deep learning algorithms`、`multiple machine learning engines in parallel`、user / fraud / population 三级偏离 | 已核 |
-| [Visa 收购 BioCatch 报道](https://www.biometricupdate.com/202608/visa-acquires-behavioral-biometrics-pioneer-biocatch-amid-fraud-prevention-build-up) | 24 亿美元现金、2026-08-03 宣布、350 家银行客户、7.6 亿用户、1.85 亿美元 ARR、预计 2027 财年 Q2 完成 | 已核 |
+| [Visa 收购 BioCatch 报道](https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22626.html) | 24 亿美元现金协议、2026-08-03 宣布、超过 350 家银行客户、7.6 亿用户、预计 2027 财年 Q2 末前完成（附条件） | 公告可核，交易未被本文确认已交割；非独立审计 |
 | [BioCatch ATO 客户案例](https://www.biocatch.com/resources/case-study/top-5-us-ato) | ATO 场景的产品佐证 | 已核。全文公开无需表单；标题指**一家**美国前五大银行，不是五家 |
 | [BioCatch：Advanced Behavioral Biometrics](https://www.biocatch.com/resources/solution-brief/advanced-behavioral-biometrics) | ATO 与连续分析的产品形态 | **受限**：落地页，solution brief 正文需填表单下载，不可当作公开可引用的 PDF |
 

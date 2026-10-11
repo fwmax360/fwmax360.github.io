@@ -31,10 +31,69 @@ jobs:
       - name: Type-check Astro and TypeScript
         run: npm run check
 
+      - name: Verify publication policy
+        run: |
+          npm run covers:check
+          npm run test:publication
+          npm run test:chip-quality
+          npm run test:archive-state
+          npm run test:map-reading-state
+          npm run test:cover-title
+          npm run test:build-inputs
+
       - name: Build site and search index
         run: npm run build
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
+
+      - name: Verify internal links and assets
+        run: |
+          npm run test:build-current
+          python3 scripts/check-internal-links.py
+
+      - name: Install quality-test browser
+        run: npx playwright install --with-deps chromium webkit firefox
+
+      - name: Verify product quality against production build
+        run: |
+          python3 -m http.server 4322 --bind 127.0.0.1 --directory dist > /tmp/blog-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:4322/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:quality
+          npm run test:archive
+          npm run test:archive-preview-loading
+          npm run test:cover-editorial
+          npm run test:index-type-scale
+          npm run test:type-hierarchy
+          npm run test:series
+          npm run test:map
+          npm run test:map-reading-return
+          npm run test:map-input-stress
+          npm run test:reader
+          npm run test:note-hover
+          npm run test:note-preview-loading
+          npm run test:note-color-coherence
+          npm run test:note-polish
+          npm run test:note-preview-placement
+          npm run test:navigation-glow
+          npm run test:cover-layout
+          npm run test:taxonomy
+          npm run test:about
+          npm run test:utility-open
+          npm run test:native-nav
+          npm run test:home-reading-return
+          npm run test:home-static-entry
+          npm run test:fonts
+          npm run test:article-font-budget
+          npm run test:style-boundaries
+          npm run test:cross-browser
+          npm run test:chip-startup
+          npm run test:silicon-static-reading
+          npm run test:chip-reading-anchor
 
       - uses: actions/configure-pages@v5
 

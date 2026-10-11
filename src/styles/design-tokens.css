@@ -1,0 +1,55 @@
+/* Authoritative editorial tokens. Static emission also serves non-utility components. */
+@theme static {
+  --color-bg: #111212;
+  --color-bg-soft: #191b1a;
+  --color-surface: #202321;
+  --color-surface-2: #272a28;
+  --color-line: #303432;
+  --color-line-bright: #4a514d;
+
+  --color-text: #d5d8d3;
+  --color-text-strong: #f1f2ef;
+  --color-dim: #acb3ad;
+  /* 小字号次要信息也保持足够对比度，避免在夜景背景上发灰 */
+  --color-faint: #a1a9a3;
+
+  --color-accent: #b5d6be;
+  --color-accent-soft: #7a9c83;
+  --color-link: #7dd3fc;
+  --color-warn: #f0b429;
+  --color-danger: #f87171;
+
+  --color-panel: #191b1a;
+  --color-panel-strong: #151716;
+  --shadow-panel: none;
+  --shadow-accent: none;
+
+  --font-display:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-reading:
+    'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', sans-serif;
+  --font-sans: var(--font-reading);
+  --font-note: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC Variable', sans-serif;
+  --font-editorial:
+    'Geist Variable', 'Songti SC', 'STSong', 'Noto Serif SC Variable', serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Small type has a meaning, not a per-page decorative size. */
+  --type-caption: 0.75rem;
+  --type-meta: 0.8125rem;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Restrained geometry shared by reading and index surfaces. */
+  --radius: 4px;
+  --radius-sm: 8px;
+  --container-content: 46rem;
+  --container-wide: 78rem;
+  --space-page: clamp(1.25rem, 4vw, 2.5rem);
+  --space-section: clamp(2rem, 5vw, 3.5rem);
+  --focus-offset: 4px;
+}

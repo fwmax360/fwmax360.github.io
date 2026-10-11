@@ -1,0 +1,16 @@
+---
+import SiliconFeature from './SiliconFeature.astro'
+interface Props { count: number }
+const { count } = Astro.props
+---
+<section class="research-opening" aria-labelledby="opening-title">
+  <div class="opening-index"><span>sleep4r / Independent research</span><span>Android · Binary · Systems</span></div>
+  <div class="home-hero">
+    <header class="masthead">
+      <h1 id="opening-title" class="wordmark" lang="en">Beneath<br />the <span>surface.</span></h1>
+      <nav class="intro-links" aria-label="开始探索"><a class="primary-entry" href="#notes">进入笔记 <span aria-hidden="true">↓</span></a><a href="/map/">探索知识图谱 <span aria-hidden="true">↗</span></a></nav>
+    </header>
+    <SiliconFeature stage />
+  </div>
+  <div class="opening-foot"><span><b>{String(count).padStart(2, '0')}</b> published notes</span><a href="/about/">认识作者 <span aria-hidden="true">↗</span></a></div>
+</section>

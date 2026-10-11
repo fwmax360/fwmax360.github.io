@@ -1,0 +1,77 @@
+/* A vocabulary is an index of real topics, not a dashboard of invented signals. */
+.taxonomy-open .shell.wide { padding-top:56px; }
+.taxonomy-open :is(a,button,input):focus-visible { outline:2px solid var(--color-accent); outline-offset:5px; }
+.taxonomy-open a { text-decoration:none; }
+.terms-intro { display:flex; justify-content:space-between; align-items:end; gap:40px; }
+.terms-intro h1 { font-family:var(--font-note); font-size:clamp(2.5rem,5vw,4.25rem); font-weight:500; line-height:1.2; color:var(--color-text-strong); overflow-wrap:anywhere; }
+.terms-intro > p { font-size:0.875rem; color:var(--color-dim); line-height:1.9; }
+.terms-intro > p span { display:block; margin-top:12px; font-size:0.75rem; color:var(--color-faint); }
+.terms-context { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:80px; margin-top:56px; }
+.terms-context h2,.topic-related h2 { font-size:0.75rem; font-weight:400; color:var(--color-dim); margin-bottom:12px; }
+.terms-context nav,.term-flow,.related-tags { display:flex; flex-wrap:wrap; gap:0 28px; }
+.terms-context a,.term-flow a,.related-tags a { max-width:100%; overflow-wrap:anywhere; display:inline-flex; align-items:baseline; gap:10px; min-height:44px; padding-block:8px; color:var(--color-text); font-family:var(--font-note); font-size:1.25rem; line-height:1.5; transition:color 180ms,transform 180ms; }
+.taxonomy-open small { color:var(--color-faint); font-size:0.6875rem; font-family:var(--font-sans); }
+.taxonomy-open a:hover { color:#65d9ed; }
+.vocabulary { margin-top:72px; }
+.terms-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:16px 36px; }
+.terms-toolbar h2 { font-size:1.5rem; font-family:var(--font-note); font-weight:500; color:var(--color-text-strong); }
+.tag-search { margin-left:auto; display:flex; align-items:center; gap:12px; }
+.tag-search label,.tag-search button,.tag-status { font-size:0.75rem; color:var(--color-dim); }
+.tag-search input { min-width:0; width:210px; min-height:44px; border:0; border-bottom:1px solid var(--color-line-bright); background:transparent; color:var(--color-text); font:.875rem var(--font-sans); padding:8px 0; border-radius:0; }
+.tag-search button { min-height:44px; border:0; padding:0 8px; background:transparent; cursor:pointer; }
+.tag-search button:disabled { opacity:.5; cursor:default; }
+.group-index { display:flex; flex-wrap:wrap; gap:0 24px; margin-top:24px; }
+.group-index a { display:inline-flex; align-items:center; min-height:44px; color:var(--color-dim); font-size:0.8125rem; }
+.group-stack { margin-top:32px; }
+.tag-group { display:grid; grid-template-columns:240px minmax(0,1fr); gap:64px; padding-block:24px 48px; scroll-margin-top:100px; }
+.tag-group h3 { font-size:1.375rem; font-weight:500; color:var(--color-text-strong); }
+.tag-group header p { font-size:0.75rem; line-height:1.9; color:var(--color-dim); margin-top:8px; }
+.tag-group header > span { display:block; font-size:0.6875rem; color:var(--color-faint); margin-top:12px; }
+.term-flow > a > span { min-width:0; }
+.term-flow { align-content:start; gap:8px 28px; }
+.term-flow a:hover { transform:translateY(-2px); }
+.vocabulary-empty { margin-block:40px; font-size:0.875rem; color:var(--color-dim); }
+.terms-back { display:inline-flex; align-items:center; min-height:44px; margin-bottom:32px; color:var(--color-dim); font-size:0.75rem; }
+.topic-reading { display:grid; grid-template-columns:minmax(0,1fr) 240px; gap:100px; margin-top:64px; align-items:start; }
+.topic-reading > section { min-width:0; }
+.topic-posts { list-style:none; margin:0; padding:0; }
+.topic-posts li { margin-bottom:48px; }
+.topic-posts time { color:var(--color-faint); font-size:0.75rem; }
+.topic-posts h2 { margin-top:12px; }
+.topic-posts h2 a { display:flex; gap:24px; align-items:baseline; justify-content:space-between; font-family:var(--font-note); font-size:1.5rem; font-weight:400; line-height:1.6; color:var(--color-text-strong); transition:color 180ms; overflow-wrap:anywhere; }
+.topic-posts h2 a:hover { color:var(--note-color); }
+.topic-posts h2 span { font-size:1.125rem; flex-shrink:0; color:var(--note-color); }
+.topic-posts article > p { font-family:var(--font-note); font-size:0.9375rem; line-height:1.9; color:var(--color-dim); margin-top:12px; }
+.topic-cover { display:block; margin-top:24px; max-width:420px; }
+.topic-cover img { display:block; width:100%; height:auto; transition:transform 240ms; }
+.topic-cover:hover img { transform:translateY(-3px); }
+.topic-posts article > nav { display:flex; flex-wrap:wrap; gap:0 18px; margin-top:12px; }
+.topic-posts article > nav a { display:inline-flex; align-items:center; min-height:44px; font-size:0.75rem; color:var(--note-color); }
+.topic-related { position:sticky; top:100px; }
+.topic-related section + section { margin-top:40px; }
+.topic-related nav:not(.related-tags) { display:flex; flex-direction:column; }
+.topic-related nav:not(.related-tags) a { min-height:44px; font-size:0.875rem; line-height:1.8; color:var(--color-text); padding-block:8px; }
+.related-tags { gap:0 18px; }
+.related-tags a { font-size:0.875rem; }
+.taxonomy-open [hidden] { display:none !important; }
+@media(max-width:1000px) { .topic-reading { gap:48px; grid-template-columns:minmax(0,1fr) 200px; } .tag-group { gap:40px; grid-template-columns:200px minmax(0,1fr); } }
+@media(max-width:700px) {
+ .taxonomy-open .shell.wide { padding-top:32px; }
+ .terms-intro { display:block; }
+ .terms-intro h1 { font-size:2.5rem; }
+ .terms-intro > p { margin-top:16px; font-size:0.9375rem; }
+ .terms-context { grid-template-columns:1fr; gap:28px; margin-top:40px; }
+ .terms-context a,.term-flow a { font-size:1.125rem; }
+ .vocabulary { margin-top:48px; }
+ .terms-toolbar { gap:12px 24px; }
+ .tag-search { margin:0; width:100%; flex-wrap:wrap; }
+ .tag-search input { flex:1; width:100px; }
+ .tag-status { width:100%; }
+ .group-index { gap:0 20px; }
+ .tag-group { display:block; padding-block:20px 36px; }
+ .term-flow { margin-top:16px; gap:4px 24px; }
+ .topic-reading { display:flex; flex-direction:column; align-items:stretch; gap:24px; margin-top:40px; }
+ .topic-related { position:static; width:100%; }
+ .topic-posts h2 a { font-size:1.25rem; gap:16px; }
+}
+@media(prefers-reduced-motion:reduce) { .taxonomy-open * { transition:none !important; } .taxonomy-open a:hover,.topic-cover:hover img { transform:none; } }

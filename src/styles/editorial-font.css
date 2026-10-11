@@ -1,2 +1,2 @@
-/* Loaded only by Article and About routes: narrative Chinese accents stay intentional. */
+/* Loaded only by routes explicitly requesting editorial serif: narrative Chinese accents stay intentional. */
 @import '@fontsource-variable/noto-serif-sc/wght.css';

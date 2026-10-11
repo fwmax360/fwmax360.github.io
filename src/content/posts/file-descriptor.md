@@ -2,64 +2,49 @@
 title: '文件描述符（File Descriptor）'
 description: 'Linux 里 FD 是打开文件、socket、管道等资源的抽象句柄；这篇整理概念与常见用法。'
 pubDate: 2025-07-18
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['Linux', 'FD', '系统']
 ---
-## File Descriptor
 
-在操作系统（如 Linux）中，一个“文件描述符（File Descriptor）”是对打开文件、socket、管道等资源的抽象引用，是内核用于跟踪文件 I/O 的机制
+FD 是进程用来引用已打开资源的非负整数。文件、socket、管道和设备都可以通过 FD 读写，但数字本身只在所属进程的描述符表里有意义：两个进程的 `fd=3` 不保证是同一资源。
 
-功能
+## 数字、打开状态与文件内容
 
-示例
+可以把普通文件的关系看成“FD 表项 → open file description → 文件”。`dup()` 和 `fork()` 产生的描述符可能共享同一个 open file description，因此共享文件偏移和文件状态标志；描述符自身的 `FD_CLOEXEC` 等标志是另一层。socket、管道等资源则不应都画成“最终指向磁盘 inode 内容”。依据见 [Linux open(2)](https://man7.org/linux/man-pages/man2/open.2.html) 和 [dup(2)](https://man7.org/linux/man-pages/man2/dup.2.html)。
 
-**打开文件** `open()` 返回一个 fd **读写文件** `read(fd, buf, size)` / `write(fd, buf, size)` **关闭文件** `close(fd)` **控制fd属性** `fcntl(fd, F_GETFL)` 查询状态，`dup()` 复制 fd **事件监听** `select()`、`poll()`、`epoll()` 都以 fd 为单位操作 **服务实现中使用 fd 表** 服务端程序会用数组/哈希表保存当前活跃的 fd，如 socket fd、log fd、pipe fd 等
+通常约定 `0` 为标准输入、`1` 为标准输出、`2` 为标准错误。它们可以接终端，也可以被 shell 重定向到文件或管道，甚至被关闭，不是内核保证每个进程都绑定键盘和屏幕。
 
-下面详细介绍一下：
+## 写入也可能只完成一部分
 
-文件描述符是操作系统内核中用于标识已打开文件的一个非负整数。不仅仅是文件，还可以是：
+这份 POSIX 示例会在当前目录创建或覆盖 `test.txt`。`write()` 成功返回的字节数仍可能小于请求长度；遇到 `EINTR` 重试，其他错误保留。这里是阻塞普通文件示例，不把处理方式直接套到非阻塞 socket。
 
-- 普通文件
+```c
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
-- 目录
-
-- 管道（pipe）
-
-- 套接字（socket）
-
-- 终端设备
-
-在 Unix/Linux/macOS 中，每个进程维护一个“文件描述符表”（File Descriptor Table），是一个数组，里面的每一项都是一个 FD，指向“打开文件表”的条目，这些条目最终指向 inode 结构
-
-操作系统默认给每个进程分配 3 个文件描述符：
-
-FD 值
-
-名称
-
-说明
-
-0 stdin 标准输入（键盘） 1 stdout 标准输出（屏幕） 2 stderr 标准错误（屏幕）
-
-进程的 FD 表： \[0\] → 打开文件表 → inode → 实际文件内容\[1\] → …\[2\] → …
-
-在Mac上打开文件并写入内容为
-
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include <stdio.h>
-    #include <string.h>
-
-    int main() {
-        int fd = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd == -1) {
-            perror("open failed");
+int main(void) {
+    int fd = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) { perror("open"); return 1; }
+    const char *msg = "Hello from File Descriptor!\n";
+    size_t length = strlen(msg), done = 0;
+    while (done < length) {
+        ssize_t n = write(fd, msg + done, length - done);
+        if (n < 0 && errno == EINTR) continue;
+        if (n <= 0) {
+            if (n == 0) errno = EIO;
+            perror("write");
+            close(fd);
             return 1;
         }
-
-        const char *msg = "Hello from File Descriptor!\n";
-        write(fd, msg, strlen(msg));
-
-        close(fd);
-        return 0;
+        done += (size_t)n;
     }
+    if (close(fd) == -1) { perror("close"); return 1; }
+    return 0;
+}
+```
+
+这是完整写入示例，不是持久化保证；需要保证落盘的程序还要考虑 `fsync()` 及目录更新。具体返回值与短写行为见 [Linux write(2)](https://man7.org/linux/man-pages/man2/write.2.html)。

@@ -1,0 +1,199 @@
+---
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import { SITE } from '../consts';
+import staticStyles from '../styles/silicon-static.css?url';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/jetbrains-mono';
+const { preview = false } = Astro.props;
+const title = preview ? 'Inside the Silicon · Motion Study' : 'Inside the Silicon · sleep4r';
+const description = 'An interactive journey from chip packaging to trusted execution. Explore the layers, then read the notes.';
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
+const shareImage = new URL('/images/silicon/layers.webp', canonical);
+const readingPaths = [
+  {slug:'chip-memory-isolation',label:'01 / MEMORY',title:'Who can reach it?',copy:'SRAM, DRAM, MMU and device DMA.'},
+  {slug:'xbl-boot-chain',label:'02 / EARLY BOOT',title:'Before the OS.',copy:'PBL, XBL and image authentication.'},
+  {slug:'abl-android-handoff',label:'03 / ANDROID',title:'Into the kernel.',copy:'ABL, boot images and the Android handoff.'},
+  {slug:'avb-slots-rollback',label:'04 / VERIFIED BOOT',title:'Which image is trusted?',copy:'AVB, A/B slots and rollback protection.'},
+  {slug:'secure-monitor-smc',label:'05 / EXECUTION',title:'Across the boundary.',copy:'Monitor, SMC, interrupts and RPC.'},
+  {slug:'tee-call-security',label:'06 / TRUSTED SERVICES',title:'What gets accepted?',copy:'Sessions, parameters and shared memory.'},
+  {slug:'tee-ta-storage',label:'07 / PERSISTENCE',title:'What stays protected?',copy:'TA loading, key use and trusted storage.'},
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <noscript><link rel="stylesheet" href={staticStyles} /></noscript>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="preload" as="font" type="font/woff2" href={geistLatin} crossorigin="anonymous" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="canonical" href={canonical} />
+  <meta name="theme-color" content="#050608" />
+  <meta name="color-scheme" content="dark" />
+  {preview && <meta name="robots" content="noindex" />}
+  <meta name="description" content={description} />
+  <title>{title}</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={shareImage} />
+  <meta property="og:image:alt" content="Exploded conceptual chip with separated package layers" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={shareImage} />
+</head>
+<body class:list={{"silicon-editorial":!preview}}>
+  <a class="skip" href="#topics">Skip Animation, Explore Topics</a>
+  <header class="topbar"><a href="/" class="brand">sleep4r<span>{preview ? " / LAB" : " / SILICON"}</span></a><span class="edition">{preview ? "SILICON / MOTION STUDY — 006" : "VISUAL FIELD NOTES / 001"}</span><a href="/" class="back">Back to Blog ↗</a></header>
+  <main>
+    <section class="journey" aria-label="Exploded chip animation">
+      <div class="stage">
+        <div class="viewport" aria-label="Interactive 3D chip study">
+          <img class="scene-poster" src="/images/silicon/layers.webp" width="840" height="580" alt="" fetchpriority="high" decoding="async" />
+          <div class="annotations" aria-label="Conceptual structure labels">
+            <svg class="annotation-lines" aria-hidden="true"></svg>
+            <dl class="annotation-list">
+              <div data-part="lid" hidden><dt>Package lid</dt><dd>Protects the die and helps transfer heat.</dd></div>
+              <div data-part="silicon" hidden><dt>Silicon die</dt><dd>The silicon where circuits are fabricated.</dd></div>
+              <div data-part="interposer" hidden><dt>Interconnect layer</dt><dd>Routes connections to the substrate.</dd></div>
+              <div data-part="substrate" hidden><dt>Package substrate</dt><dd>Supports the die and carries signals outward.</dd></div>
+              <div data-part="banks" hidden><dt>Circuit arrays</dt><dd>Concept: repeating circuit cells.</dd></div>
+              <div data-part="core" hidden><dt>Logic region</dt><dd>Concept: a distinct circuit region.</dd></div>
+            </dl>
+          </div>
+        </div>
+        <div class="fallback" role="status"><p>Explore the notes below. The interactive model is available when its scripts are ready.</p><button type="button" data-start-3d hidden>Start interactive model ↗</button></div>
+        <div class="copy"><p class="eyebrow">A WORLD WITHIN</p><h1>Small in scale.<br/><span>Deep by design.</span></h1><p class="description">A journey into the systems beneath.</p><noscript><p class="noscript-note">This is the static preview. Enable JavaScript for the interactive model, or explore the notes below.</p></noscript><div class="phase" aria-live="polite" aria-atomic="true"><span class="phase-number">01 / 04</span><h2>Beneath the surface.</h2><p class="phase-description">Explore the structures behind the systems.</p></div></div>
+        <div class="scene-note"><span class="dot"></span><span data-status>STATIC PREVIEW</span><span class="scene-hint">Scroll to explore · Select a topic below</span></div>
+        <div class="dual-captions" aria-hidden="true"><p class="domain-note">ONE CHIP · TWO EXECUTION CONTEXTS</p><div><span>01 / NORMAL WORLD</span><strong>The everyday world.</strong><small>Runs the regular OS and applications.</small></div><div><span>02 / SECURE WORLD</span><strong>A trusted boundary.</strong><small>Sensitive operations, isolated from the regular OS.</small></div></div>
+        <div class="controls"><div class="experience-actions">{!preview && <a class="read-notes" href="#topics">Explore the notes <span aria-hidden="true">↗</span></a>}</div><details class="scene-tools" open={preview}><summary>Playback &amp; layers</summary><div class="tool-panel"><div class="inspection-tools"><select id="structure-select" aria-label="Inspect a structure"><option value="-1">Inspect a layer</option><option value="4">Package lid</option><option value="3">Silicon die</option><option value="2">Interconnect layer</option><option value="1">Package substrate</option><option value="0">Package contacts</option></select><button id="labels-toggle" type="button" aria-pressed="true">Labels <span>On</span></button></div><div class="control-top"><button id="play" data-play-label={preview ? "Preview" : "journey"} type="button" disabled>{preview ? "Play Preview" : "Play journey"} <span aria-hidden="true">▷</span></button><label for="progress">Progress</label><output for="progress" id="percent">00%</output></div><input id="progress" type="range" min="0" max="1000" value="0" aria-label="Chip animation progress" disabled/></div></details><nav class="chapters" aria-label="Animation chapters"><button data-progress="0" aria-current="step">01 Reveal</button><button data-progress="0.36">02 Layers</button><button data-progress="0.7">03 Inside</button><button data-progress="1">04 Worlds</button></nav></div>
+        <p class="scroll-cue">SCROLL TO EXPLORE <span>↓</span></p>
+      </div>
+    </section>
+    {preview ? <section id="topics" class="topics" tabindex="-1"><div class="topics-heading"><p class="eyebrow">FROM HARDWARE TO UNDERSTANDING</p><h2>Start with structure.<br/><span>Go deeper into systems.</span></h2><p>These topics guide the visual study, not the physical chip layout.<br/>Articles will be connected once the content is ready.</p></div><div class="topic-grid"><button data-module="0"><span>01 / FOUNDATION</span><h3>Silicon & Connections</h3><p>Substrates, interconnects, and the physical foundations of a system.</p><b>Preview Topic</b></button><button data-module="1"><span>02 / BOOT</span><h3>XBL / ABL</h3><p>The boot chain · Articles coming later</p><b>Preview Topic</b></button><button data-module="2"><span>03 / EXECUTION</span><h3>Android Internals</h3><p>From system interfaces to execution and interaction.</p><b>Preview Topic</b></button><button data-module="3"><span>04 / TRUST</span><h3>TEE</h3><p>Trusted execution · Articles coming later</p><b>Preview Topic</b></button></div><p id="topic-status" role="status">Select a topic for its availability. Articles are not connected yet.</p><footer><span>Visual concept · Not a real chip architecture</span><a href="/archive">Browse Articles ↗</a></footer></section> : <section id="topics" class="topics" tabindex="-1">
+      <div class="topics-heading"><p class="eyebrow">VISUAL FIELD NOTES / 001</p><h2>From the layers.<br/><span>To the boundary.</span></h2><p>A visual introduction to the systems beneath.<br/>Follow the notes from physical structure to boot and trusted execution.</p></div>
+      <a class="silicon-reading" href="/posts/chip-package-interconnect/"><div><span class="reading-kicker">STRUCTURE · RESEARCH NOTES</span><h3>Beyond<br/>the package.</h3><p>Die, substrate and interconnects: what the physical layers actually represent.</p><b>Read the field note <span aria-hidden="true">↗</span></b></div><img src="/images/silicon/layers.webp" width="840" height="580" alt="Exploded conceptual chip with separated package layers" loading="lazy"/></a>
+      <div class="silicon-paths">{readingPaths.map(note => <a href={`/posts/${note.slug}/`}><span>{note.label}</span><h3>{note.title}</h3><p>{note.copy}</p><b>Read the note ↗</b></a>)}</div>
+      <p class="sample-note">Public-documentation notes · Sources and platform limits in each article.</p><footer><span>Conceptual model · Not a physical SoC floorplan</span><a href="/archive">Browse all articles ↗</a></footer>
+    </section> }
+  </main>
+  <script>import '../scripts/chip-entry';</script>
+</body>
+</html>
+<style is:global>
+:root{color-scheme:dark;--bg:#080b0e;--ink:#edf1f1;--muted:#9ba7ae;--accent:#b0e3d3}*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:auto}body{margin:0;color:var(--ink);font-family:'Geist Variable',sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button,input{font:inherit}button,a,input{touch-action:manipulation}button{color:inherit;cursor:pointer}button:disabled{cursor:wait}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:6px}.noscript-note{position:absolute;top:90px;left:24px;z-index:8;max-width:300px;font-size:12px;color:#b0e3d3}.skip{position:fixed;top:16px;transform:translateY(calc(-100% - 16px));left:20px;z-index:20;background:#263c36;padding:12px}.skip:focus{transform:none}.topbar{height:88px;position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 5.5vw;z-index:5;border-bottom:1px solid #ffffff0c}.brand{font-size:22px;font-weight:600;letter-spacing:-1px}.brand span{font:11px 'JetBrains Mono Variable',monospace;color:var(--muted);letter-spacing:1px;margin-left:12px}.edition,.eyebrow,.scene-note,.side-mark,.scroll-cue,.phase-number,.topic-grid button>span{font:10px 'JetBrains Mono Variable',monospace;letter-spacing:1.8px}.edition{color:var(--muted)}.back{font-size:12px;color:#c0c8cc;padding:12px 0}.journey{height:400svh}.stage{height:100svh;min-height:640px;position:sticky;top:0;overflow:hidden;background:radial-gradient(ellipse at 68% 51%,#17212a66,transparent 58%)}.viewport{position:absolute;inset:88px 0 180px}.viewport canvas{display:block;width:100%;height:100%;touch-action:pan-y}.copy{position:absolute;left:5.5vw;top:27%;width:37%;pointer-events:none}.eyebrow{color:var(--accent);font-size:10px;margin:0 0 24px}h1{font-size:clamp(30px,3.5vw,58px);font-weight:500;line-height:1.3;letter-spacing:-2px;margin:0}h1 span{color:#929da5}.description{color:var(--muted);font-size:14px;line-height:1.95;margin:24px 0 0}.phase{margin-top:clamp(32px,6vh,72px);border-left:1px solid #b0e3d34d;padding-left:20px}.phase-number{color:var(--accent)}.phase h2{font-size:18px;font-weight:450;margin:12px 0}.phase-description{font-size:12px;line-height:1.8;color:var(--muted);max-width:310px}.scene-note{position:absolute;left:5.5vw;bottom:34px;color:#abb8bf;display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:1px}.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px #b0e3d366}.scene-hint{margin-left:12px;color:#9ba7ae;letter-spacing:0}.side-mark{position:absolute;right:24px;top:41%;writing-mode:vertical-rl;color:#66757f;font-size:9px;letter-spacing:3px}.controls{position:absolute;bottom:76px;right:7vw;width:min(480px,40vw)}.control-top{display:flex;align-items:center;gap:20px;font-size:11px;color:#adb9c0}.control-top button{border:0;background:none;padding:12px 0;color:var(--ink);font-size:12px;min-height:44px}.control-top button span{margin-left:12px}.control-top label{margin-left:auto}output{font:10px 'JetBrains Mono Variable',monospace;min-width:34px;color:var(--accent)}input[type=range]{width:100%;height:24px;accent-color:var(--accent);cursor:ew-resize}.chapters{display:flex;justify-content:space-between;gap:8px}.chapters button{font-size:10px;color:#93a0a8;background:none;border:0;padding:10px 0;min-height:44px}.chapters button[aria-current]{color:var(--accent)}.scroll-cue{position:absolute;left:5.5vw;bottom:102px;color:#bac5ca;font-size:9px;letter-spacing:2px}.scroll-cue span{margin-left:24px;font-size:18px}.fallback{position:absolute;left:58%;top:42%;text-align:center;font-size:12px;color:var(--muted)}.fallback-chip{display:grid;place-items:center;width:160px;height:110px;border:1px solid #6d8b85;background:#111b21;box-shadow:12px 12px #0d1419,13px 13px #536c64;transform:rotate(-18deg);font:12px monospace}.fallback p{margin-top:40px}.ready .fallback{display:none}.topics{max-width:1440px;margin:auto;padding:120px 5.5vw 32px;border-top:1px solid #ffffff14}.topics-heading{display:grid;grid-template-columns:1fr 1fr;column-gap:80px}.topics-heading .eyebrow{grid-column:1/-1}.topics-heading h2{font-size:clamp(32px,4vw,52px);font-weight:450;line-height:1.4;letter-spacing:-1.5px;margin:0}.topics-heading h2 span{color:#929da5}.topics-heading>p:last-child{font-size:14px;line-height:2;color:var(--muted);align-self:end}.topic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin:88px 0 100px}.topic-grid button{background:none;text-align:left;border:0;border-top:1px solid #ffffff26;padding:28px 0 16px;transition:border-color .2s}.topic-grid button:hover{border-color:var(--accent)}.topic-grid button>span{font-size:9px;color:var(--muted);letter-spacing:1px}.topic-grid h3{font-size:22px;font-weight:450;margin:28px 0 12px}.topic-grid p{font-size:12px;line-height:1.8;color:var(--muted)}.topic-grid b{display:block;font-size:12px;font-weight:400;color:var(--accent);margin-top:28px}footer{display:flex;justify-content:space-between;border-top:1px solid #ffffff17;padding-top:24px;font-size:11px;color:var(--muted)}
+@media(max-width:760px){.topbar{height:72px;padding:0 24px}.edition{display:none}.brand{font-size:20px}.journey{height:360svh}.stage{min-height:760px}.viewport{inset:292px 0 302px}.copy{left:24px;top:104px;width:calc(100% - 48px)}h1{font-size:34px;letter-spacing:-1.5px}.eyebrow{font-size:8px;margin-bottom:16px}.description{font-size:12px;margin-top:16px}.phase{position:absolute;top:calc(max(100svh,760px) - 394px);margin:0;padding-left:14px;max-width:95%;background:transparent}.phase h2{font-size:14px;margin:8px 0}.phase-description{font-size:11px;margin:0}.phase-number{font-size:9px}.controls{left:24px;right:24px;bottom:54px;width:auto}.scene-note{left:24px;bottom:20px;font-size:8px}.scene-hint{font-size:9px}.scroll-cue,.side-mark{display:none}.topics{padding:72px 24px 24px}.topics-heading{display:block}.topics-heading h2{font-size:32px}.topics-heading>p:last-child{font-size:12px;margin-top:24px}.topic-grid{grid-template-columns:1fr 1fr;gap:28px;margin:48px 0 64px}.topic-grid h3{font-size:18px}.topic-grid button>span{font-size:8px}.topic-grid p{font-size:11px}footer{font-size:10px;gap:24px}.fallback{left:38%;top:45%}}
+@media(prefers-reduced-motion:reduce){.journey{height:max(100svh,760px)}.scroll-cue{display:none}}
+
+/* Revision 02: product-scale composition, not a side-column technical viewer. */
+.stage{--light:.2;background:#050608}
+.stage::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 32% 55%,#26334155,transparent 42%),radial-gradient(ellipse at 73% 48%,#2d304355,transparent 45%);opacity:var(--light)}
+.viewport{inset:88px 0 176px}
+.copy{inset:14% 0 0;width:100%;text-align:center;pointer-events:none}
+.copy>.eyebrow{font-size:10px;letter-spacing:3px;margin-bottom:18px}
+h1{font-size:clamp(52px,6vw,88px);font-weight:550;letter-spacing:-4px;line-height:1.1}
+h1 span{color:#a9b4c7}.description{font-size:15px;margin-top:24px}
+.phase{position:absolute;left:5.5vw;bottom:198px;text-align:left;margin:0;border-left:0;padding-left:0;max-width:360px;opacity:calc(1 - var(--intro))}
+.phase h2{font-size:clamp(22px,2.7vw,38px);font-weight:550;line-height:1.35;letter-spacing:-1px;margin:14px 0}.phase-description{font-size:12px;max-width:280px}
+.controls{width:340px;right:5.5vw;bottom:58px}.scroll-cue{bottom:86px}.scene-note{bottom:26px}.topbar{position:fixed;background:linear-gradient(#050608e0,transparent);border:0}
+.dual-captions{position:absolute;inset:auto 22% 240px;display:flex;justify-content:space-between;gap:48px;text-align:center;opacity:0;pointer-events:none}
+.dual-captions>div{width:45%}.dual-captions span{display:block;font:9px 'JetBrains Mono Variable',monospace;letter-spacing:2px;color:#9fb6cc;margin-bottom:12px}.dual-captions strong{font-size:24px;font-weight:500;letter-spacing:-.5px}
+.stage[data-shot="3"] .phase{bottom:190px;max-width:390px}.stage[data-shot="3"] .phase h2{font-size:24px}.stage[data-shot="3"] .phase-description{font-size:11px}
+@media(max-width:760px){.viewport{inset:88px 0 280px}.copy{inset:112px 24px auto;width:calc(100% - 48px)}h1{font-size:48px;letter-spacing:-2px}.description{font-size:12px;margin-top:16px}.copy>.eyebrow{font-size:8px}.phase{position:absolute;top:calc(max(100svh,760px) - 385px);left:0;bottom:auto;text-align:left;max-width:100%;opacity:1}.phase h2{font-size:22px;margin:8px 0}.phase-description{font-size:11px;max-width:100%}.phase-number{font-size:9px}.controls{left:24px;right:24px;width:auto;bottom:54px}.topbar{background:#050608cc}.scene-note{bottom:20px}.dual-captions{inset:auto 24px 300px;gap:16px}.dual-captions strong{font-size:15px}.dual-captions span{font-size:7px;letter-spacing:.5px}.stage[data-shot="3"] .phase{top:calc(max(100svh,760px) - 385px);bottom:auto}.stage[data-shot="3"] .phase h2{font-size:22px}}
+/* Projected callouts remain HTML; leaders follow the moving 3D anchors. */
+.annotations{position:absolute;inset:0;z-index:1;pointer-events:none}
+.annotation-lines{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+.annotation-lines path{fill:none;stroke:#c1d3df66;stroke-width:1}
+.annotation-lines circle{fill:#dce8ef}
+.annotation-list{margin:0}.annotation-list>div{position:absolute;width:175px;padding:8px 0;background:linear-gradient(90deg,#050608c9,transparent);text-align:left}
+.annotation-list dt{font-size:12px;font-weight:500;letter-spacing:.3px;color:#e0e8ee}
+.annotation-list dd{margin:7px 0 0;color:#9ba7ae;font-size:10px;line-height:1.6}
+.dual-captions small{display:block;color:#9ba7ae;font-size:10px;line-height:1.6;margin-top:10px}
+@media(max-width:760px){.annotation-list>div{width:102px;padding:6px 0}.annotation-list dt{font-size:10px}.annotation-list dd{display:none}.dual-captions small{font-size:8px;margin-top:6px}}
+h1,h2,h3{text-wrap:balance}#topics{scroll-margin-top:100px}.stage:not(.ready) .annotations{visibility:hidden}
+#labels-toggle{display:block;margin:0 0 2px auto;padding:8px 0 8px 12px;min-height:36px;border:0;background:transparent;color:#aebcc5;font-size:10px}
+#labels-toggle span{display:inline-block;margin-left:8px;min-width:18px;color:var(--accent)}
+#labels-toggle:hover,.control-top button:hover,.chapters button:hover{color:#fff}
+.phase h2{font-size:clamp(22px,2.4vw,34px);letter-spacing:-.7px}.phase-description{max-width:290px}
+.topics-heading h2{font-size:clamp(30px,3.4vw,48px)}
+@media(max-width:760px){h1{font-size:46px;letter-spacing:-2px}.phase h2{font-size:22px}.control-top{gap:12px}.scene-hint{font-size:8px;margin-left:0}.scene-note{gap:8px}.annotation-list dt{line-height:1.4}.dual-captions strong{font-size:14px}.dual-captions small{line-height:1.5}.phase,.stage[data-shot="3"] .phase{top:calc(max(100svh,760px) - 405px)}.stage[data-shot="3"] .phase h2{font-size:20px}.controls{bottom:calc(42px + env(safe-area-inset-bottom))}.scene-note{bottom:calc(14px + env(safe-area-inset-bottom))}.topics-heading h2{font-size:30px}}
+.inspection-tools{display:flex;align-items:center;justify-content:space-between;gap:16px}
+#structure-select{min-height:36px;max-width:210px;background:#11161b;color:#c1cdd6;border:1px solid #ffffff20;border-radius:6px;font-size:10px;padding:6px 9px;cursor:pointer}
+#structure-select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.domain-note{position:absolute;top:-40px;left:0;right:0;margin:0;font:9px 'JetBrains Mono Variable',monospace;letter-spacing:2px;color:#adbfce}
+#topic-status{font-size:12px;line-height:1.8;color:var(--muted);min-height:44px;margin:-60px 0 48px;max-width:640px}
+@media(max-width:760px){.domain-note{font-size:7px;letter-spacing:1px;top:-26px}#structure-select{max-width:190px}#topic-status{margin:-32px 0 32px}.stage[data-shot="3"] .phase h2{font-size:20px}}
+@media(max-width:760px){.stage[data-inspecting="true"] .phase{top:calc(max(100svh,760px) - 438px)}}
+</style>
+
+<style>
+.silicon-reading{display:grid;grid-template-columns:1fr 1.2fr;align-items:center;gap:32px;margin:64px 0 0;padding:48px;border:1px solid #ffffff20;border-radius:20px;background:#0b0e12;overflow:hidden}.reading-kicker{font-size:9px;letter-spacing:1.8px;color:#a8b5bc}.silicon-reading h3{font-size:clamp(40px,5vw,68px);line-height:1.08;letter-spacing:-2px;font-weight:500;margin:28px 0 24px}.silicon-reading p{font-size:14px;line-height:1.9;color:#a6b0b8;max-width:320px}.silicon-reading b,.silicon-paths b{display:block;font-size:12px;font-weight:450;margin-top:32px;color:#d7e5e1}.silicon-reading img{width:100%;height:auto;mix-blend-mode:lighten;mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(transparent,#000 6%,#000 94%,transparent);mask-composite:intersect;transition:transform .6s}.silicon-reading:hover img{transform:translateY(-6px)}.silicon-reading:hover{border-color:#ffffff45}.silicon-paths{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin:64px 0 48px}.silicon-paths>a{display:block;border-top:1px solid #ffffff26;padding-top:24px}.silicon-paths span{font-size:9px;letter-spacing:1.5px;color:#9ba7ae}.silicon-paths h3{font-size:22px;font-weight:450;margin:24px 0 12px}.silicon-paths p,.sample-note{font-size:12px;color:#9ba7ae;line-height:1.8}.sample-note{margin-bottom:40px}.silicon-paths>a:hover b{color:white}@media(max-width:760px){.silicon-reading{grid-template-columns:1fr;padding:28px;gap:8px;margin-top:40px}.silicon-reading img{grid-row:1}.silicon-reading h3{font-size:40px;margin:20px 0}.silicon-paths{grid-template-columns:1fr;gap:32px;margin-top:40px}.silicon-paths h3{margin-top:16px}.silicon-paths b{margin-top:16px}}@media(prefers-reduced-motion:reduce){.silicon-reading img{transition:none}.silicon-reading:hover img{transform:none}}
+</style>
+
+<style>
+/* Scroll is the primary interaction; advanced playback stays opt-in. */
+.experience-actions:empty{display:none}.experience-actions{margin-bottom:10px}.read-notes{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-size:12px;color:#e3e8eb;border-bottom:1px solid #ffffff24}
+.scene-tools>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:11px;color:#aeb9c2;list-style:none}.scene-tools>summary::-webkit-details-marker{display:none}.scene-tools>summary::after{content:'+';font-size:18px;font-weight:300}.scene-tools[open]>summary::after{content:'−'}.scene-tools>summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}.tool-panel{padding:12px 14px;margin-bottom:12px;background:#0c1117f5;border:1px solid #ffffff20;border-radius:10px}.scene-tools[open]>summary{color:#e3e8eb}.silicon-editorial .chapters{padding-top:6px;border-top:1px solid #ffffff16}.silicon-editorial .journey{height:320svh}.silicon-editorial .scroll-cue{bottom:82px}.silicon-editorial .scene-hint{display:none}
+/* Keep the motion study controls unchanged for its deterministic visual fixtures. */
+body:not(.silicon-editorial) .scene-tools>summary{display:none}body:not(.silicon-editorial) .tool-panel{padding:0;margin:0;background:none;border:0}
+@media(max-width:760px){
+ .silicon-editorial .journey{height:max(280svh,100rem)}
+ /* A tall/text-enlarged stage can scroll up to expose its controls, not stay pinned offscreen. */
+ .silicon-editorial .stage{height:max(100svh,50rem);min-height:50rem;top:min(0px,calc(100svh - 50rem));container-type:inline-size;container-name:silicon-stage}
+ .silicon-editorial .viewport{bottom:17.5rem}
+ .silicon-editorial h1{font-size:clamp(2rem,10vw,2.875rem)}
+ .silicon-editorial .description,.silicon-editorial .phase-description{font-size:.875rem;line-height:1.65}
+ .silicon-editorial .phase,.silicon-editorial .stage[data-shot="3"] .phase{top:calc(max(100svh,50rem) - 20rem - 112px)}
+ .silicon-editorial .phase-number{font-size:.6875rem;letter-spacing:.08em}
+ .silicon-editorial .phase h2,.silicon-editorial .stage[data-shot="3"] .phase h2{font-size:1.375rem;letter-spacing:-.02em}
+ .silicon-editorial .dual-captions{bottom:20.5rem}
+ .silicon-editorial .domain-note{top:-1.25rem;font-size:.6875rem;line-height:1.25;letter-spacing:.04em}
+ .silicon-editorial .dual-captions span{font-size:.625rem;letter-spacing:.04em}
+ .silicon-editorial .dual-captions strong{font-size:1.0625rem;line-height:1.3}
+ .silicon-editorial .dual-captions small{font-size:.75rem;line-height:1.5}
+ .silicon-editorial .annotation-list dt{font-size:.75rem;letter-spacing:0;overflow-wrap:anywhere}
+ .silicon-editorial .controls{bottom:calc(2.25rem + env(safe-area-inset-bottom))}
+ .silicon-editorial .read-notes,.silicon-editorial .scene-tools>summary{font-size:.875rem}
+ .silicon-editorial .chapters button{font-size:.75rem}
+ .silicon-editorial .scene-note{bottom:calc(.75rem + env(safe-area-inset-bottom));font-size:.625rem;letter-spacing:.08em}
+ .silicon-editorial .scene-tools .inspection-tools{gap:8px}
+ .silicon-editorial #structure-select{font-size:.875rem;min-width:0;min-height:44px;height:2.75rem;flex:1;appearance:none;padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23c1cdd6' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+ .silicon-editorial #labels-toggle,.silicon-editorial .control-top button{font-size:.875rem;min-height:44px}
+ .silicon-editorial .control-top label,.silicon-editorial output{font-size:.75rem}
+ .silicon-editorial .tool-panel{padding:10px}
+ .silicon-editorial .controls:has(.scene-tools[open]){background:#080b0e;border:1px solid #ffffff20;border-radius:12px;padding:8px 12px}
+ .silicon-editorial .controls:has(.scene-tools[open]) .experience-actions{display:none}
+ .silicon-editorial .stage:has(.scene-tools[open]) .dual-captions{visibility:hidden}
+ .silicon-editorial .stage:has(.scene-tools[open]) .phase{top:calc(max(100svh,50rem) - 29rem - 112px)}
+}
+/* At enlarged type, narrow controls stack instead of squeezing the native picker. */
+@container silicon-stage (max-width:14rem){
+ .silicon-editorial .stage:not([data-ready="true"]) .scene-poster{top:18rem;height:8rem}
+ .silicon-editorial .stage:not([data-ready="true"]) .fallback{top:30rem;bottom:auto}
+ .silicon-editorial .stage:not([data-ready="true"]) .fallback p{font-size:.875rem;line-height:1.5}
+ .silicon-editorial .inspection-tools,.silicon-editorial .control-top{flex-wrap:wrap}
+ .silicon-editorial #structure-select{flex-basis:100%;max-width:none}
+ .silicon-editorial #labels-toggle{margin-left:auto}
+ .silicon-editorial .control-top button{flex:1 0 100%}
+ .silicon-editorial .stage:has(.scene-tools[open]) .phase{top:calc(max(100svh,50rem) - 31rem - 112px)}
+ .silicon-editorial .stage:has(.scene-tools[open]) .phase h2{font-size:1.25rem}
+}
+@media(prefers-reduced-motion:reduce){.silicon-editorial .journey{height:max(100svh,50rem)}}
+</style>
+
+<style>
+.scene-poster{position:absolute;inset:52% auto auto 50%;width:min(52vw,580px);height:44%;transform:translateX(-50%);object-fit:contain;pointer-events:none;mix-blend-mode:lighten}
+.stage[data-ready=true] .scene-poster{display:none}
+.stage:not([data-ready=true]) .phase{visibility:hidden}
+.stage:not([data-ready=true]) :is(.scene-tools,.chapters){visibility:hidden}
+html[data-experience=static] .controls :disabled{cursor:default;opacity:.45}
+.fallback{inset:auto auto 140px 5.5vw;max-width:280px;text-align:left;z-index:4}
+.fallback p{margin:0;font-size:11px;line-height:1.7}
+.fallback button{margin-top:12px;border:1px solid #ffffff30;border-radius:6px;background:#151a1d;padding:10px 14px;min-height:44px;font-size:12px}
+html[data-experience=static] .journey:has(>.stage){height:max(100svh,50rem);min-height:50rem}
+html[data-experience=static] .scroll-cue{display:none}
+@media(min-width:761px) and (max-height:740px){.scene-poster{top:65%;height:30%}}
+@media(max-width:760px){h1{font-size:clamp(32px,10vw,46px)}.fallback{inset:auto 24px 220px;max-width:none}.scene-poster{inset:210px 20px auto;width:calc(100% - 40px);height:clamp(130px,calc(100svh - 640px),200px);transform:none;padding:0}}
+</style>

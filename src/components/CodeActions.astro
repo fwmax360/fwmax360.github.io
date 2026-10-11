@@ -3,6 +3,7 @@
 // 标题栏和行号在构建期由 Shiki transformer 生成，这里只挂交互。
 ---
 
+<noscript><style is:inline>.code-copy,.code-expand{display:none!important}</style></noscript>
 <style is:global>
   .code-block {
     position: relative;
@@ -120,7 +121,7 @@
     content: '!';
   }
 
-  .code-block[data-collapsible]:not([data-open='true']) .code-scroll::after {
+  .code-block[data-collapsible][data-code-ready]:not([data-open='true']) .code-scroll::after {
     content: '';
     position: absolute;
     right: 0;
@@ -205,6 +206,7 @@
 
   function setupCode() {
     document.querySelectorAll<HTMLElement>('.code-block').forEach((block) => {
+      block.dataset.codeReady = 'true'
       const lines = block.querySelectorAll('.line').length
       const lang = block.querySelector<HTMLElement>('.code-lang')
       if (lang && lines > 1) lang.dataset.lines = String(lines)
@@ -228,7 +230,7 @@
         btn.textContent = state === 'success' ? 'copied' : state === 'error' ? 'failed' : 'copy'
         btn.setAttribute(
           'aria-label',
-          state === 'success' ? '代码已复制' : state === 'error' ? '代码复制失败' : '复制代码',
+          state === 'success' ? 'copied（代码已复制）' : state === 'error' ? 'failed（代码复制失败）' : 'copy（复制代码）',
         )
       }
 
@@ -272,6 +274,7 @@
         block.dataset.open = String(!open)
         btn.textContent = open ? expandLabel : '收起代码'
         btn.setAttribute('aria-expanded', String(!open))
+        btn.setAttribute('aria-label', btn.textContent ?? '')
 
         if (open) block.scrollIntoView({ block: 'nearest' })
       })

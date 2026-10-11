@@ -25,3 +25,16 @@ pnpm-debug.log*
 # python
 __pycache__/
 *.pyc
+
+# Generated chip preview footage and browser evidence
+/artifacts/chip-preview/
+
+/artifacts/navigation-glow/
+
+/artifacts/silicon/
+
+# Local diagnostics, backups and editor configuration
+/artifacts/
+/.cursor/
+.env.*
+!.env.example

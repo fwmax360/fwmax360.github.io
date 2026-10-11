@@ -1,8 +1,15 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 
+import { isListed, isRoutable } from './publication'
+
 export type Post = CollectionEntry<'posts'>
 
-const isVisible = (p: Post) => import.meta.env.DEV || !p.data.draft
+const isVisible = (p: Post) => isListed(p.data, import.meta.env.DEV)
+
+/** Direct routes include samples; discovery lists intentionally do not. */
+export async function getRoutablePosts(): Promise<Post[]> {
+  return getCollection('posts', (p) => isRoutable(p.data, import.meta.env.DEV))
+}
 
 /** 全部可见文章，置顶优先，同一置顶权重内按发布时间降序 */
 export async function getPosts(): Promise<Post[]> {

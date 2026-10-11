@@ -1,0 +1,157 @@
+{
+  "direction": "Beneath the Surface / Research Atlas",
+  "intent": "把作者的技术研究组织成可探索、可阅读、可验证的产品，而非文章流加侧栏。",
+  "experienceModes": [
+    {
+      "mode": "Atlas",
+      "purpose": "发现问题、进入研究路径",
+      "routes": [
+        "/",
+        "/archive/",
+        "/series/",
+        "/map/"
+      ],
+      "state": "首页展台、开放归档、系列入口与全部系列详情、开放知识图谱已实现；全站视觉最终验收待完成"
+    },
+    {
+      "mode": "Reader",
+      "purpose": "沉浸长文与证据阅读",
+      "routes": [
+        "/posts/**"
+      ],
+      "state": "阅读页开放式目录/系列入口与标题层次已实现；修正CSS层顺序，恢复章节间距及表格排版；无JS长代码完整展示。最终验收与性能复核待完成"
+    },
+    {
+      "mode": "Lab",
+      "purpose": "芯片结构、分层与技术叙事",
+      "routes": [
+        "/silicon/"
+      ],
+      "state": "既有3D体验保留，新展台入口已实现"
+    }
+  ],
+  "architecture": {
+    "content": "发布状态与文章索引仍为统一数据源",
+    "rendering": "静态内容先行，昂贵3D只在专题加载",
+    "styleBoundary": "首页、归档、系列与图谱拥有独立样式边界；归档 archive.css、系列 series-open.css、图谱 map-open.css，不加载旧 site-editorial.css；阅读模式继续独立",
+    "motion": "首页无连续渲染循环；现有客户端转场保留；更深入共享元素转场待验证",
+    "frameworkDecision": "当前Astro足以交付第一纵切面；后续若复杂交互确有需要，再按岛屿引入UI运行时，而非全站迁移。",
+    "archiveState": "category/series/density 与当前 URL 同步；replaceState 保留路由历史元数据；刷新与文章前进后退恢复筛选；无 JS 展示完整正式索引",
+    "wideGrid": "首页与Atlas模式共用内容、导航、页脚宽度变量与响应式边距；实测左边界偏差小于1px。",
+    "readerStyleBoundary": "正文/代码基底reader-base.css仅文章路由加载；七个入口路由及文章→首页客户端导航边界已验证。"
+  },
+  "guardrails": [
+    "文章内容与正式URL不变",
+    "JS关闭仍可阅读",
+    "减少动画模式保留入口",
+    "不得以空状态卡或假交互伪造产品能力"
+  ],
+  "implementationScope": "探索、正文、标签、分类与关于页视觉整理已实现；跨页面最终验收、性能及真机复核仍未完成。",
+  "references": [
+    {
+      "title": "Astro View transitions",
+      "url": "https://docs.astro.build/en/guides/view-transitions/"
+    },
+    {
+      "title": "MDN CSS scroll-driven animations",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Scroll-driven_animations"
+    }
+  ],
+  "evidence": [
+    "artifacts/research-redesign/verification.json",
+    "artifacts/archive-redesign/verification.json",
+    "artifacts/archive-index/verification.json"
+  ],
+  "seriesRevision": {
+    "direction": "开放编辑式系列与顺序章节，无卡片和装饰进度",
+    "routes": "/series/ 与全部四个公开系列",
+    "evidence": "artifacts/series-open/verification.json",
+    "remaining": "用户视觉验收、真机和其他浏览器、远程CI"
+  },
+  "mapRevision": {
+    "scope": "真实SVG关系图、移动端阅读树、分类与关键词筛选、节点预览、无JS阅读",
+    "direction": "开放画布与无框预览，移除装饰旋转和扫描面板",
+    "evidence": "artifacts/map-open/",
+    "remaining": [
+      "用户视觉验收",
+      "真机和其他浏览器",
+      "远程CI未运行"
+    ]
+  },
+  "readerRevision": {
+    "scope": [
+      "全部22篇公开文章共享阅读UI",
+      "CSS层顺序首次声明",
+      "静态完整代码、增强折叠",
+      "语义目录、真实阅读位置",
+      "滚动表格键盘访问"
+    ],
+    "evidence": "artifacts/reader-open/",
+    "remaining": [
+      "最新代码构建后性能复核",
+      "用户视觉反馈",
+      "真机和其他浏览器"
+    ]
+  },
+  "taxonomyRevision": {
+    "scope": "标签目录、60个标签详情、2个分类详情",
+    "evidence": "artifacts/taxonomy-open/",
+    "remaining": [
+      "视觉验收",
+      "真机和其他浏览器",
+      "远程CI"
+    ]
+  },
+  "aboutRevision": {
+    "scope": "个人介绍、工具与FAQ、按需终端和模拟调试",
+    "evidence": "artifacts/about-open/",
+    "remaining": [
+      "用户视觉验收",
+      "性能及其他浏览器、真机",
+      "远程CI"
+    ]
+  },
+  "performanceRevision": {
+    "evidence": "artifacts/performance-current/",
+    "result": "入口同步CSS减少，Lighthouse前后分数未提升；无真机/线上速度结论",
+    "remaining": [
+      "首屏关键路径优化",
+      "真机和其他浏览器",
+      "专题初始化性能"
+    ]
+  },
+  "crossBrowserRevision": {
+    "evidence": "artifacts/cross-browser/",
+    "verified": "WebKit/Firefox核心路由布局及导航、筛选、阅读交互",
+    "fix": "原生summary不注入无法可靠裁切的绝对定位涟漪",
+    "remaining": [
+      "实际Safari/iPhone",
+      "3D和剪贴板跨引擎",
+      "用户视觉反馈",
+      "远程CI"
+    ]
+  },
+  "chipRecoveryRevision": {
+    "evidence": "artifacts/chip-cross-browser/",
+    "result": "三种本地浏览器引擎的三档实际渲染及连续上下文丢失/原地重试通过；异步启动中断不会被旧任务覆盖",
+    "remaining": [
+      "移动档抗锯齿细节",
+      "初始化性能",
+      "真实设备与最终视觉验收"
+    ]
+  },
+  "chipAntialiasRevision": {
+    "evidence": "artifacts/chip-aa/",
+    "result": "低DPR档FXAA与精确缓冲尺寸同步已实现；固定帧与三引擎交互/恢复通过",
+    "remaining": [
+      "初始化性能",
+      "真机视觉/功耗/帧时间",
+      "最终用户验收"
+    ]
+  },
+  "documentationAudit20261011": {
+    "scope": "结构和历史证据边界检查；不是重跑该记录的完整发布验收",
+    "notice": "旧篇数、测试数、状态与快照对应各自记录时点。当前内容为30篇正式文章和1篇sample；本轮文档修订后的证据以docs/document-audit-2026-10-11.md为准。",
+    "remaining": "历史artifact的每项完整性、远程部署与真机结论仍需要独立复核"
+  }
+}

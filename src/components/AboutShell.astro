@@ -68,7 +68,7 @@ const cmds = [
     <span class="shell-mode mono" aria-hidden="true">interactive</span>
   </div>
 
-  <div class="shell-chips">
+  <div class="shell-chips" data-shell-controls hidden>
     {
       cmds.map((c) => (
         <button type="button" class="chip mono" data-cmd={c.id}>
@@ -78,19 +78,19 @@ const cmds = [
     }
   </div>
 
-  <div class="shell-body mono" data-shell-out aria-live="polite">
+  <div class="shell-body mono" data-shell-out role="log" aria-live="polite" tabindex="0" aria-label="终端模拟输出">
     <div class="line">
       <span class="p">sleep4r@about:~$</span>
       <span class="t"> ./intro.sh</span>
     </div>
     <div class="out">
-      欢迎。点上面的命令，或者在下面输入 <span class="k">help</span>。
+      欢迎。这是一段关于逆向日常的终端模拟。
       <br />
       警告：本终端无后端，所有输出都是我提前写好的玩笑。
     </div>
   </div>
 
-  <form class="shell-form" data-shell-form autocomplete="off">
+  <form class="shell-form" data-shell-form data-shell-controls hidden autocomplete="off">
     <label class="shell-prompt mono" for="about-cmd">
       <span class="p">$</span>
     </label>
@@ -144,14 +144,18 @@ const cmds = [
   ]
 
   let jokeIdx = 0
+  let shellCleanup: (() => void) | undefined
 
   function setup() {
+    shellCleanup?.()
     const root = document.querySelector<HTMLElement>('[data-about-shell]')
     const out = document.querySelector<HTMLElement>('[data-shell-out]')
     const form = document.querySelector<HTMLFormElement>('[data-shell-form]')
     const input = document.querySelector<HTMLInputElement>('[data-shell-input]')
-    if (!root || !out || !form || !input || root.dataset.bound) return
-    root.dataset.bound = '1'
+    if (!root || !out || !form || !input) return
+    const abort = new AbortController()
+    shellCleanup = () => abort.abort()
+    root.querySelectorAll<HTMLElement>('[data-shell-controls]').forEach(el => { el.hidden = false })
 
     const print = (cmd: string, lines: string[]) => {
       const block = document.createElement('div')
@@ -161,6 +165,7 @@ const cmds = [
         <div class="out">${lines.map((l) => escapeHtml(l)).join('<br>')}</div>
       `
       out.appendChild(block)
+      if (out.children.length > 100) out.firstElementChild?.remove()
       out.scrollTop = out.scrollHeight
     }
 
@@ -203,21 +208,20 @@ const cmds = [
     root.querySelectorAll<HTMLButtonElement>('[data-cmd]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.cmd!
-        btn.classList.add('pulse')
-        setTimeout(() => btn.classList.remove('pulse'), 280)
         run(CHIP_LABEL[id] ?? id)
-      })
+      }, { signal: abort.signal })
     })
 
     form.addEventListener('submit', (e) => {
       e.preventDefault()
       run(input.value)
       input.value = ''
-    })
+    }, { signal: abort.signal })
   }
 
   setup()
-  document.addEventListener('astro:after-swap', setup)
+  document.addEventListener('astro:page-load', setup)
+  document.addEventListener('astro:before-swap', () => { shellCleanup?.(); shellCleanup = undefined })
 </script>
 
 <style>
@@ -225,8 +229,6 @@ const cmds = [
     border: 1px solid var(--color-line-bright);
     border-radius: var(--radius);
     background: var(--color-bg-soft);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
     overflow: hidden;
     margin-bottom: 2.75rem;
   }
@@ -341,11 +343,14 @@ const cmds = [
     font-size: 0.9rem;
   }
 
+  [hidden] { display:none !important; }
+  .shell :is(input,button,[tabindex]):focus-visible { outline:2px solid #65d9ed; outline-offset:3px; }
+  .shell-chips button,.shell-run { min-height:44px; }
   .shell-input {
+    min-width:0;
     flex: 1;
     background: transparent;
     border: 0;
-    outline: 0;
     color: var(--color-text-strong);
     font-size: 1rem; /* iOS 防聚焦缩放 */
     -webkit-appearance: none;

@@ -5,6 +5,7 @@
  * 用法：npm run covers；只读校验：npm run covers:check
  */
 import { createHash } from 'node:crypto'
+import { wrapTitle, textWeight } from './cover-title.mjs'
 import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -31,15 +32,7 @@ const COLORS = {
 
 const SERIES_THEMES = await loadSeriesThemes()
 
-const HASH_ACCENTS = [
-  ...SERIES_THEMES.toneOrder.map((tone) => SERIES_THEMES.palettes[tone].accent),
-  '#69a7ff',
-  '#ef7eb8',
-  '#45d3c4',
-  '#fb9562',
-]
-
-const SANS = `'Hiragino Sans GB', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif`
+const SANS = `'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif`
 const MONO = `'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace`
 
 function isRecord(value) {
@@ -48,7 +41,7 @@ function isRecord(value) {
 
 function validateSeriesThemes(value) {
   if (!isRecord(value)) throw new Error('seriesThemes.json 顶层必须为对象')
-  const { toneOrder, signatureOrder, palettes, signatureMarks, known } = value
+  const { toneOrder, signatureOrder, palettes, signatureMarks, known, categoryTones, defaultCategoryTone } = value
   if (!Array.isArray(toneOrder) || toneOrder.length === 0) {
     throw new Error('seriesThemes.json 缺少 toneOrder')
   }
@@ -86,6 +79,10 @@ function validateSeriesThemes(value) {
       throw new Error(`seriesThemes.json 的已知系列“${name}”配置错误`)
     }
   }
+  if (!isRecord(categoryTones) || !toneOrder.includes(defaultCategoryTone) ||
+      Object.values(categoryTones).some(tone => !toneOrder.includes(tone))) {
+    throw new Error('seriesThemes.json 的分类色彩配置错误')
+  }
   return value
 }
 
@@ -115,10 +112,6 @@ function hash32(value) {
     hash = Math.imul(hash, 0x01000193)
   }
   return hash >>> 0
-}
-
-function hex32(value) {
-  return (value >>> 0).toString(16).padStart(8, '0').toUpperCase()
 }
 
 function seriesAccent(name) {
@@ -242,87 +235,6 @@ async function loadPosts() {
   )
 }
 
-function charWeight(char) {
-  if (/\s/u.test(char)) return 0.32
-  if (/^[\x00-\xff]$/u.test(char)) return 0.55
-  return 1
-}
-
-function textWeight(value) {
-  return [...value].reduce((sum, char) => sum + charWeight(char), 0)
-}
-
-function splitLongToken(token, maxWeight) {
-  const chunks = []
-  let current = ''
-  let weight = 0
-  for (const char of token) {
-    const next = charWeight(char)
-    if (current && weight + next > maxWeight) {
-      chunks.push(current)
-      current = ''
-      weight = 0
-    }
-    current += char
-    weight += next
-  }
-  if (current) chunks.push(current)
-  return chunks
-}
-
-function balancePunctuation(lines) {
-  const balanced = [...lines]
-  const lineStartPunctuation = /^[，。！？、；：）》】」』]+/u
-  const lineEndOpening = /[（《【「『]+$/u
-
-  for (let index = 1; index < balanced.length; index += 1) {
-    const leading = balanced[index].match(lineStartPunctuation)?.[0]
-    if (leading) {
-      balanced[index - 1] += leading
-      balanced[index] = balanced[index].slice(leading.length).trimStart()
-    }
-
-    const opening = balanced[index - 1].match(lineEndOpening)?.[0]
-    if (opening) {
-      balanced[index - 1] = balanced[index - 1].slice(0, -opening.length).trimEnd()
-      balanced[index] = `${opening}${balanced[index]}`
-    }
-  }
-  return balanced.filter(Boolean)
-}
-
-function wrapTitle(title) {
-  const total = textWeight(title)
-  const fontSize = total <= 8 ? 64 : total <= 16 ? 58 : total <= 25 ? 52 : total <= 33 ? 47 : 43
-  const maxWeight = 690 / fontSize
-  const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' })
-  const rawTokens = [...segmenter.segment(title)].map(({ segment }) => segment)
-  const tokens = rawTokens.flatMap((token) =>
-    textWeight(token) > maxWeight ? splitLongToken(token, maxWeight) : [token],
-  )
-  const lines = []
-  let current = ''
-
-  for (const token of tokens) {
-    const candidate = current + token
-    if (current.trim() && textWeight(candidate) > maxWeight) {
-      lines.push(current.trimEnd())
-      current = token.trimStart()
-    } else {
-      current = candidate
-    }
-  }
-  if (current.trim()) lines.push(current.trim())
-
-  // 极端长标题兜底：最后一行继续收纳，不丢失原始标题。
-  if (lines.length > 3) {
-    const kept = lines.slice(0, 2)
-    kept.push(lines.slice(2).join(''))
-    return { lines: balancePunctuation(kept), fontSize: Math.min(fontSize, 40), lineHeight: 55 }
-  }
-  return { lines: balancePunctuation(lines), fontSize, lineHeight: fontSize + 14 }
-}
-
 function topicDiagram(post) {
   const topic = `${post.title} ${post.tags.join(' ')}`.toLowerCase()
   if (
@@ -340,19 +252,16 @@ function metadataFor(post) {
   const hash = hash32(seed)
   const accent = post.series
     ? seriesAccent(post.series)
-    : HASH_ACCENTS[hash % HASH_ACCENTS.length]
+    : SERIES_THEMES.palettes[SERIES_THEMES.categoryTones[post.category] ?? SERIES_THEMES.defaultCategoryTone].accent
   return { hash, accent, diagram: topicDiagram(post) }
 }
 
 function addressDiagram(hash, accent) {
   const rowWidths = [0, 1, 2, 3].map((index) => 112 + ((hash >>> (index * 4)) & 0x3f))
-  const base = hash & 0xfffff000
   const rows = rowWidths
     .map((width, index) => {
       const y = 207 + index * 57
-      const address = hex32(base + index * (0x40 + ((hash >>> (index + 5)) & 0x7f)))
       return `
-        <text x="858" y="${y - 8}" class="micro" fill="${COLORS.faint}">0x${address.slice(-6)}</text>
         <rect x="858" y="${y}" width="${width}" height="22" rx="3" fill="${accent}" opacity="${0.12 + index * 0.035}"/>
         <rect x="858" y="${y}" width="${Math.max(24, width * (0.2 + ((hash >>> index) & 3) * 0.12))}" height="22" rx="3" fill="${accent}" opacity="0.72"/>
         <line x1="${858 + width}" y1="${y + 11}" x2="1115" y2="${y + 11}" stroke="${COLORS.lineBright}" stroke-width="1" stroke-dasharray="3 5"/>
@@ -363,21 +272,19 @@ function addressDiagram(hash, accent) {
 
   return `
     <text x="858" y="167" class="diagram-label" fill="${accent}">MEMORY / ADDRESS MAP</text>
-    <text x="1118" y="167" class="micro" text-anchor="end" fill="${COLORS.faint}">BASE_${hex32(hash).slice(0, 4)}</text>
     ${rows}
     <line x1="841" y1="190" x2="841" y2="409" stroke="${accent}" stroke-width="2" opacity="0.8"/>
     <path d="M 858 406 H 1084 L 1118 372" fill="none" stroke="${accent}" stroke-width="1.5" opacity="0.7"/>
-    <text x="858" y="431" class="micro" fill="${COLORS.dim}">7F 45 4C 46 · ${hex32(hash).match(/../g).join(' ')}</text>
   `
 }
 
 function callDiagram(hash, accent) {
   const shifts = [0, 1, 2, 3].map((index) => ((hash >>> (index * 5)) & 0x1f) - 15)
   const nodes = [
-    { x: 875 + shifts[0], y: 208, label: 'ENTRY', suffix: hex32(hash).slice(0, 4) },
-    { x: 1052 + shifts[1], y: 256, label: 'CALL_01', suffix: hex32(hash).slice(4) },
-    { x: 900 + shifts[2], y: 329, label: 'HOOK', suffix: hex32(hash ^ 0xa5a5a5a5).slice(0, 4) },
-    { x: 1062 + shifts[3], y: 386, label: 'RETURN', suffix: hex32(hash ^ 0x5a5a5a5a).slice(4) },
+    { x: 875 + shifts[0], y: 208, label: 'ENTRY' },
+    { x: 1052 + shifts[1], y: 256, label: 'CALL' },
+    { x: 900 + shifts[2], y: 329, label: 'HOOK' },
+    { x: 1062 + shifts[3], y: 386, label: 'RETURN' },
   ]
   const paths = nodes
     .slice(0, -1)
@@ -393,14 +300,12 @@ function callDiagram(hash, accent) {
         <circle cx="${node.x}" cy="${node.y}" r="${index === 2 ? 20 : 16}" fill="${COLORS.surfaceRaised}" stroke="${index === 2 ? accent : COLORS.lineBright}" stroke-width="${index === 2 ? 2 : 1}"/>
         <circle cx="${node.x}" cy="${node.y}" r="4" fill="${accent}" opacity="${0.5 + index * 0.12}"/>
         <text x="${node.x + (index % 2 ? -24 : 24)}" y="${node.y - 7}" class="micro" text-anchor="${index % 2 ? 'end' : 'start'}" fill="${COLORS.dim}">${node.label}</text>
-        <text x="${node.x + (index % 2 ? -24 : 24)}" y="${node.y + 10}" class="micro" text-anchor="${index % 2 ? 'end' : 'start'}" fill="${COLORS.faint}">0x${node.suffix}</text>
       `,
     )
     .join('')
 
   return `
     <text x="858" y="167" class="diagram-label" fill="${accent}">CALL CHAIN / TRACE</text>
-    <text x="1118" y="167" class="micro" text-anchor="end" fill="${COLORS.faint}">TID ${String(hash % 999).padStart(3, '0')}</text>
     ${paths}
     ${nodeSvg}
     <path d="M 858 430 h 35 l 7 -10 10 20 10 -16 9 6 h 189" fill="none" stroke="${accent}" stroke-width="1.5" opacity="0.72"/>
@@ -429,12 +334,9 @@ function flowDiagram(post, hash, accent) {
   const packetY = 393 + (hash & 7)
   return `
     <text x="858" y="167" class="diagram-label" fill="${accent}">DATA FLOW / PIPELINE</text>
-    <text x="1118" y="167" class="micro" text-anchor="end" fill="${COLORS.faint}">SEQ ${hex32(hash).slice(0, 6)}</text>
     ${columns}
     <line x1="858" y1="380" x2="1118" y2="380" stroke="${COLORS.line}" stroke-width="1"/>
     <path d="M 858 ${packetY} l 16 0 8 -13 13 27 12 -22 10 13 11 -8 12 0 8 8 18 0 7 -16 15 28 12 -20 12 8 h 106" fill="none" stroke="${accent}" stroke-width="1.6" opacity="0.78"/>
-    <text x="858" y="434" class="micro" fill="${COLORS.dim}">RX ${String(1200 + (hash % 8192)).padStart(5, '0')} B</text>
-    <text x="1118" y="434" class="micro" text-anchor="end" fill="${COLORS.faint}">CRC ${hex32(hash).slice(-4)}</text>
   `
 }
 
@@ -448,7 +350,7 @@ function chipSvg(tags, accent) {
   let x = 72
   const elements = []
   for (const tag of tags.slice(0, 4)) {
-    const width = Math.min(152, Math.max(62, 30 + textWeight(tag) * 9.5))
+    const width = Math.ceil(Math.max(62, 36 + textWeight(tag) * 12.5))
     if (x + width > 790) break
     elements.push(`
       <rect x="${x}" y="480" width="${width}" height="31" rx="4" fill="${COLORS.surfaceRaised}" stroke="${COLORS.line}"/>
@@ -460,7 +362,7 @@ function chipSvg(tags, accent) {
   return elements.join('')
 }
 
-function renderSvg(post, index, total) {
+function renderSvg(post) {
   const meta = metadataFor(post)
   const title = wrapTitle(post.title)
   const titleStart = title.lines.length === 1 ? 235 : title.lines.length === 2 ? 207 : 202
@@ -472,10 +374,9 @@ function renderSvg(post, index, total) {
     .join('')
   const titleBottom = titleStart + (title.lines.length - 1) * title.lineHeight
   const metaY = Math.min(431, titleBottom + 50)
-  const series = post.series ?? 'STANDALONE'
-  const chapter = post.order ? String(post.order).padStart(2, '0') : '--'
+  const series = post.series ?? '独立笔记'
+  const chapter = post.series && post.order ? ` · 第 ${post.order} 篇` : ''
   const categoryLabel = post.category.toUpperCase()
-  const hashLabel = hex32(meta.hash)
   const diagram = diagramSvg(post, meta)
   const chips = chipSvg(post.tags, meta.accent)
 
@@ -487,11 +388,16 @@ function renderSvg(post, index, total) {
       <path d="M 48 0 L 0 0 0 48" fill="none" stroke="${COLORS.line}" stroke-width="1" opacity="0.42"/>
       <circle cx="0" cy="0" r="1.25" fill="${COLORS.lineBright}" opacity="0.58"/>
     </pattern>
-    <radialGradient id="glow" cx="84%" cy="30%" r="66%">
-      <stop offset="0" stop-color="${meta.accent}" stop-opacity="0.16"/>
-      <stop offset="0.52" stop-color="${meta.accent}" stop-opacity="0.045"/>
+    <radialGradient id="glow" cx="88%" cy="35%" r="88%">
+      <stop offset="0" stop-color="${meta.accent}" stop-opacity="0.64"/>
+      <stop offset="0.52" stop-color="${meta.accent}" stop-opacity="0.24"/>
       <stop offset="1" stop-color="${meta.accent}" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="wash" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="${meta.accent}" stop-opacity="0.32"/>
+      <stop offset="0.6" stop-color="${meta.accent}" stop-opacity="0.025"/>
+      <stop offset="1" stop-color="${meta.accent}" stop-opacity="0"/>
+    </linearGradient>
     <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="${meta.accent}" stop-opacity="0.95"/>
       <stop offset="0.58" stop-color="${meta.accent}" stop-opacity="0.14"/>
@@ -510,41 +416,33 @@ function renderSvg(post, index, total) {
   </defs>
 
   <rect width="1200" height="630" fill="${COLORS.bg}"/>
-  <rect width="1200" height="630" fill="url(#grid)" opacity="0.7"/>
+  <rect width="1200" height="630" fill="url(#wash)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.25"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
-  <path d="M 0 0 H 1200 V 630 H 0 Z M 15 15 V 615 H 1185 V 15 Z" fill="${COLORS.surface}" fill-rule="evenodd" opacity="0.54"/>
-  <rect x="15" y="15" width="1170" height="600" fill="none" stroke="${COLORS.lineBright}" stroke-width="1" opacity="0.64"/>
   <rect x="15" y="15" width="380" height="2" fill="url(#rail)"/>
 
   <circle cx="72" cy="63" r="4" fill="${meta.accent}"/>
-  <text x="88" y="68" class="mono" font-size="13" font-weight="700" letter-spacing="1.1" fill="${COLORS.text}">FWMAX360 / ARTICLE_COVER</text>
-  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="${COLORS.faint}">${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')} · ${hashLabel.slice(0, 6)}</text>
+  <text x="88" y="68" class="mono" font-size="18" font-weight="500" letter-spacing="0" fill="${COLORS.text}">sleep4r / Notes</text>
+  <text x="1128" y="68" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="${COLORS.faint}">${xml(post.pubDate)}</text>
   <line x1="72" y1="91" x2="1128" y2="91" stroke="${COLORS.line}"/>
 
   <rect x="72" y="119" width="${Math.max(92, 44 + categoryLabel.length * 9)}" height="28" rx="3" fill="${meta.accent}" opacity="0.12" stroke="${meta.accent}"/>
   <text x="87" y="138" class="mono" font-size="11" font-weight="700" letter-spacing="1.2" fill="${meta.accent}">${xml(categoryLabel)}</text>
-  <text x="${Math.max(182, 120 + categoryLabel.length * 9)}" y="138" class="mono" font-size="12" fill="${COLORS.dim}">${xml(post.pubDate)}</text>
-  <text x="780" y="138" class="mono" font-size="10" text-anchor="end" letter-spacing=".8" fill="${COLORS.faint}">/${xml(post.slug)}</text>
 
-  <text class="sans" font-size="${title.fontSize}" font-weight="760" letter-spacing="-1.1" fill="${COLORS.text}">${titleSvg}</text>
-  <rect x="72" y="${metaY - 18}" width="4" height="37" rx="2" fill="${meta.accent}"/>
-  <text x="91" y="${metaY - 3}" class="mono" font-size="10" letter-spacing="1.1" fill="${COLORS.faint}">SERIES</text>
-  <text x="91" y="${metaY + 15}" class="sans" font-size="15" font-weight="700" fill="${COLORS.dim}">${xml(series)}</text>
-  <line x1="${post.series ? 300 : 272}" y1="${metaY - 14}" x2="${post.series ? 300 : 272}" y2="${metaY + 18}" stroke="${COLORS.lineBright}"/>
-  <text x="${post.series ? 319 : 291}" y="${metaY - 3}" class="mono" font-size="10" letter-spacing="1.1" fill="${COLORS.faint}">CHAPTER</text>
-  <text x="${post.series ? 319 : 291}" y="${metaY + 15}" class="mono" font-size="15" font-weight="700" fill="${meta.accent}">${chapter}</text>
+  <text class="sans" font-size="${title.fontSize}" font-weight="400" letter-spacing="0" fill="${COLORS.text}">${titleSvg}</text>
+  <text x="72" y="${metaY + 10}" class="sans" font-size="20" font-weight="400" fill="${COLORS.dim}">${xml(series)}${xml(chapter)}</text>
 
-  <rect x="824" y="119" width="304" height="340" rx="7" fill="${COLORS.surface}" fill-opacity="0.78" stroke="${COLORS.line}"/>
+  <rect x="824" y="119" width="304" height="340" rx="7" fill="${COLORS.surface}" fill-opacity="0.35" stroke="${meta.accent}" stroke-opacity="0.35"/>
   <path d="M 824 156 V 126 Q 824 119 831 119 H 861" fill="none" stroke="${meta.accent}" stroke-width="2"/>
   <circle cx="1112" cy="135" r="2" fill="${meta.accent}" opacity="0.8"/>
   ${diagram}
 
   ${chips}
   <line x1="72" y1="545" x2="1128" y2="545" stroke="${COLORS.line}"/>
-  <text x="72" y="584" class="mono" font-size="14" font-weight="700" letter-spacing=".55" fill="${COLORS.dim}">fwmax360.github.io</text>
-  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="${COLORS.faint}">${meta.diagram.toUpperCase()} / 0x${hashLabel}</text>
+  <text x="72" y="584" class="mono" font-size="14" font-weight="400" letter-spacing="0" fill="${COLORS.dim}">fwmax360.github.io</text>
+  <text x="1128" y="584" class="mono" font-size="11" text-anchor="end" letter-spacing="1" fill="${COLORS.faint}">Concept sketch</text>
   <rect x="72" y="601" width="88" height="2" fill="${meta.accent}"/>
-</svg>`
+</svg>`.split('\n').map(line => line.trimEnd()).join('\n')
 }
 
 function pngDimensions(buffer) {
@@ -583,7 +481,7 @@ async function checkCovers(posts) {
 
     if (actualNames.has(svgName)) {
       const storedSvg = await readFile(join(OUTPUT_DIR, ...svgName.split('/')), 'utf8')
-      const expectedSvg = `${renderSvg(post, index, posts.length)}\n`
+      const expectedSvg = `${renderSvg(post)}\n`
       if (storedSvg !== expectedSvg) {
         errors.push(`${svgName} 与当前文章 frontmatter/共享主题配置不一致`)
       }
@@ -614,8 +512,8 @@ async function checkCovers(posts) {
   )
 }
 
-async function writeCover(post, index, total, Resvg) {
-  const svg = renderSvg(post, index, total)
+async function writeCover(post, Resvg) {
+  const svg = renderSvg(post)
   const basePath = join(OUTPUT_DIR, ...post.slug.split('/'))
   await mkdir(dirname(basePath), { recursive: true })
   await writeFile(`${basePath}.svg`, `${svg}\n`)
@@ -645,7 +543,7 @@ async function generateCovers(posts) {
   await mkdir(OUTPUT_DIR, { recursive: true })
   const results = []
   for (let index = 0; index < posts.length; index += 1) {
-    results.push(await writeCover(posts[index], index, posts.length, Resvg))
+    results.push(await writeCover(posts[index], Resvg))
   }
 
   console.log(`已生成 ${results.length} 篇文章封面（${WIDTH}×${HEIGHT}，SVG + PNG）`)

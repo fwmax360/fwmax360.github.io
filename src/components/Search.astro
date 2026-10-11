@@ -33,19 +33,26 @@
     </div>
 
     <p class="sr-only" data-search-status aria-live="polite"></p>
-    <div class="search-body" id="search-results" data-search-results role="listbox" aria-label="搜索结果">
-      <p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>
+    <div class="search-body">
+      <div data-search-message><p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p></div>
+      <div id="search-results" data-search-results role="listbox" aria-label="搜索结果" hidden></div>
     </div>
 
     <div class="search-foot mono">
       <span class="search-shortcut"><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
       <span class="search-shortcut"><kbd>↵</kbd> 打开</span>
+      <button type="button" class="search-retry" data-search-retry hidden>重试搜索 ↗</button>
       <span class="search-brand">pagefind</span>
     </div>
   </div>
 </dialog>
 
 <style>
+  .search-retry { border: 0; background: transparent; color: var(--color-text); cursor: pointer; min-height: 36px; font: inherit; }
+  .search-retry:hover { color: var(--color-accent); }
+  .search-retry:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+  .search-retry:disabled { opacity: .6; cursor: wait; }
+
   .search {
     padding: 0;
     border: 0;
@@ -125,6 +132,12 @@
     -webkit-appearance: none;
     appearance: none;
     border-radius: 0;
+  }
+
+  .search-input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius);
   }
 
   .search-input::placeholder {
@@ -214,7 +227,7 @@
 
   .search-brand {
     margin-left: auto;
-    opacity: 0.5;
+    color: var(--color-faint);
   }
 
   @media (max-width: 640px), (pointer: coarse) {
@@ -233,9 +246,10 @@
     }
 
     .search-action {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
     }
+    .search-retry { min-height: 44px; }
   }
 </style>
 
@@ -299,6 +313,7 @@
   type Pagefind = {
     debouncedSearch: (q: string, opts?: unknown, ms?: number) => Promise<{ results: PagefindResult[] } | null>
     init?: () => Promise<void>
+    destroy?: () => Promise<void>
   }
 
   let pagefind: Pagefind | null = null
@@ -338,10 +353,12 @@
     const dialog = document.querySelector<HTMLDialogElement>('dialog[data-search]')
     const input = document.querySelector<HTMLInputElement>('[data-search-input]')
     const list = document.querySelector<HTMLElement>('[data-search-results]')
+    const message = document.querySelector<HTMLElement>('[data-search-message]')
     const status = document.querySelector<HTMLElement>('[data-search-status]')
     const clearButton = document.querySelector<HTMLButtonElement>('[data-search-clear]')
     const closeButton = document.querySelector<HTMLButtonElement>('[data-search-close]')
-    if (!dialog || !input || !list || !status || !clearButton || !closeButton) return
+    const retryButton = document.querySelector<HTMLButtonElement>('[data-search-retry]')
+    if (!dialog || !input || !list || !message || !status || !clearButton || !closeButton || !retryButton) return
 
     // 弹窗开着时发生客户端跳转，close 事件不会触发，滚动会被永久锁住
     if (!dialog.open) document.body.style.overflow = ''
@@ -379,11 +396,13 @@
       setActive((cursor + delta + all.length) % all.length)
     }
 
-    const open = () => {
+    let opener: HTMLElement | null = null
+    const open = (event?: Event) => {
       if (dialog.open) return
+      opener = event?.currentTarget instanceof HTMLElement ? event.currentTarget : document.activeElement instanceof HTMLElement ? document.activeElement : null
       dialog.showModal()
       document.body.style.overflow = 'hidden'
-      input.setAttribute('aria-expanded', 'true')
+      input.setAttribute('aria-expanded', String(!list.hidden))
       input.focus()
       void loadPagefind()
     }
@@ -392,53 +411,72 @@
       dialog.close()
       document.body.style.overflow = ''
       input.setAttribute('aria-expanded', 'false')
+      if (opener?.isConnected) opener.focus()
     }
 
-    const render = (html: string) => {
-      list.innerHTML = html
+    const render = (html: string, hasResults = false) => {
+      // A listbox owns only options. Hints, empty states and failures are regular
+      // content beside the popup, announced by the dedicated live status.
+      list.innerHTML = hasResults ? html : ''
+      list.hidden = !hasResults
+      message.innerHTML = hasResults ? '' : html
+      message.hidden = hasResults
+      input.setAttribute('aria-expanded', String(hasResults && dialog.open))
       setActive(-1)
     }
 
     const run = async (query: string) => {
       const currentRequest = ++requestId
       clearButton.hidden = !query
+      retryButton.hidden = true
       if (!query.trim()) {
+        list.removeAttribute('aria-busy')
         render('<p class="search-hint">输入关键词开始搜索，支持正文全文匹配。</p>')
         announce('等待输入搜索关键词')
         return
       }
 
-      await loadPagefind()
-      if (currentRequest !== requestId) return
-      if (!pagefind) {
-        render('<p class="search-empty">搜索索引尚未生成。执行 <code>npm run build</code> 后可用。</p>')
-        announce('搜索索引加载失败')
-        return
+      list.setAttribute('aria-busy', 'true')
+      announce('正在搜索…')
+      try {
+        await loadPagefind()
+        if (currentRequest !== requestId) return
+        if (!pagefind) {
+          throw new Error('Search index unavailable')
+        }
+
+        const search = await pagefind.debouncedSearch(query, undefined, 200)
+        if (currentRequest !== requestId) return
+        if (!search) return
+
+        if (!search.results.length) {
+          render(`<p class="search-empty">没有匹配 “${escapeHtml(query)}” 的内容。</p>`)
+          announce('没有搜索结果')
+          return
+        }
+
+        const top = await Promise.all(search.results.slice(0, 8).map((r) => r.data()))
+        if (currentRequest !== requestId) return
+        render(
+          top
+            .map(
+              (d, i) => `<a class="search-item" id="search-result-${i}" role="option" aria-selected="false" href="${d.url}">
+                <span class="search-item-title">${escapeHtml(d.meta.title ?? '未命名')}</span>
+                <span class="search-item-excerpt">${d.excerpt}</span>
+              </a>`,
+            )
+            .join(''),
+          true,
+        )
+        announce(`找到 ${top.length} 条结果`)
+      } catch {
+        if (currentRequest !== requestId || signal.aborted) return
+        render('<p class="search-empty">搜索暂时中断。请检查网络，然后重试。</p>')
+        announce('搜索暂时中断，可以重试')
+        retryButton.hidden = false
+      } finally {
+        if (currentRequest === requestId) list.removeAttribute('aria-busy')
       }
-
-      const search = await pagefind.debouncedSearch(query, undefined, 200)
-      if (currentRequest !== requestId) return
-      if (!search) return
-
-      if (!search.results.length) {
-        render(`<p class="search-empty">没有匹配 “${escapeHtml(query)}” 的内容。</p>`)
-        announce('没有搜索结果')
-        return
-      }
-
-      const top = await Promise.all(search.results.slice(0, 8).map((r) => r.data()))
-      if (currentRequest !== requestId) return
-      render(
-        top
-          .map(
-            (d, i) => `<a class="search-item" id="search-result-${i}" role="option" aria-selected="false" href="${d.url}">
-              <span class="search-item-title">${escapeHtml(d.meta.title ?? '未命名')}</span>
-              <span class="search-item-excerpt">${d.excerpt}</span>
-            </a>`,
-          )
-          .join(''),
-      )
-      announce(`找到 ${top.length} 条结果`)
     }
 
     const escapeHtml = (s: string) =>
@@ -455,10 +493,21 @@
       { signal },
     )
     closeButton.addEventListener('click', close, { signal })
+    retryButton.addEventListener('click', async () => {
+      retryButton.disabled = true
+      try {
+        // Pagefind caches fragment promises; recreate the index after a failed fetch.
+        await pagefind?.destroy?.()
+        pagefind = null
+        if (!signal.aborted) await run(input.value)
+      } finally {
+        retryButton.disabled = false
+      }
+    }, { signal })
 
     document
-      .querySelectorAll('[data-search-open]')
-      .forEach((btn) => btn.addEventListener('click', open, { signal }))
+      .querySelectorAll<HTMLButtonElement>('[data-search-open]')
+      .forEach((btn) => { btn.addEventListener('click', open, { signal }); btn.hidden = false })
 
     dialog.addEventListener(
       'click',
@@ -474,6 +523,7 @@
         document.body.style.overflow = ''
         input.setAttribute('aria-expanded', 'false')
         input.removeAttribute('aria-activedescendant')
+        if (opener?.isConnected) opener.focus()
       },
       { signal },
     )
@@ -481,7 +531,10 @@
     dialog.addEventListener(
       'keydown',
       (e) => {
-        if (e.key === 'ArrowDown') {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          close()
+        } else if (e.key === 'ArrowDown') {
           e.preventDefault()
           move(1)
         } else if (e.key === 'ArrowUp') {

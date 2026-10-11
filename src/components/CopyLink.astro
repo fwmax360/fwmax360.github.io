@@ -2,12 +2,13 @@
 /** 一键复制当前文章链接 */
 ---
 
+<noscript><style is:inline>.copy-link{display:none!important}</style></noscript>
 <button
   type="button"
   class="copy-link mono"
   data-copy-link
   data-state="idle"
-  aria-label="复制本文链接"
+  aria-label="复制链接（本文）"
 >
   <span class="copy-icon" aria-hidden="true">
     <svg class="icon-link" viewBox="0 0 16 16" fill="none">
@@ -143,7 +144,7 @@
         btn.dataset.state = state
         btn.setAttribute(
           'aria-label',
-          state === 'success' ? '文章链接已复制' : state === 'error' ? '文章链接复制失败' : '复制本文链接',
+          state === 'success' ? '文章链接已复制' : state === 'error' ? '文章链接复制失败' : '复制链接（本文）',
         )
         if (label) label.textContent = state === 'success' ? '已复制' : state === 'error' ? '复制失败' : original
       }

@@ -2,6 +2,7 @@
 title: 'PEB / TEB 与 IsDebuggerPresent 反调试'
 description: '从 Windows 进程加载与 PE 映射切入，看 PEB/TEB 结构以及常见反调试检测点。'
 pubDate: 2025-07-24
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['Windows', '反调试', 'PEB', 'TEB']
 ---
@@ -70,7 +71,7 @@ PEB 是 Windows 加载器在启动进程时创建的结构体，它的地址可�
 
 含义
 
-`ThreadLocalStoragePointer` TLS 的地址 `ProcessEnvironmentBlock` 指向所属进程的 PEB `ClientId.UniqueThread` 线程 ID `NtTib.ExceptionList` 异常处理链（SEH） `NtTib.StackBase` / `StackLimit` 栈上限与下限 这也是tls为什么在程序主程序执行前执行
+`ThreadLocalStoragePointer` TLS 的地址 `ProcessEnvironmentBlock` 指向所属进程的 PEB `ClientId.UniqueThread` 线程 ID `NtTib.ExceptionList` 异常处理链（SEH） `NtTib.StackBase` / `StackLimit` 栈上限与下限 TLS 数据存储与 TLS callback 不是同一件事；callback 的入口来自 PE TLS Directory，由加载器在相应初始化阶段调用，不能由 TEB 字段本身推出执行时序
 
     [TEB (gs:[0x30])]
      ├──> [PEB]
@@ -123,7 +124,7 @@ IsDebuggerPresent函数通过获取进程环境块（PEB）中的BeingDebugged�
 
 2.  CheckRemoteDebuggerPresent
 
-`CheckRemoteDebuggerPresent`为很特别的一个系统调用，因为它并不是通过`BeingDebugged`来反调试的
+`CheckRemoteDebuggerPresent` 是 Win32 API，不是一个直接暴露的内核系统调用。它的返回 BOOL 表示查询是否成功，调试状态写入 `pbDebuggerPresent`；只改返回值会把这两个结果混为一谈。内部调用路径属于系统版本实现细节，见 [公开接口契约](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-checkremotedebuggerpresent)。
 
 我们都知道运行任何程序，都会加载一些动态库如dll，在前面我们了解PEB时里面存在一个Ldr，而dll也是在这加载的
 
@@ -155,15 +156,6 @@ PEB -\> Ldr -\> InMemoryOrderModuleList // 链表记录所有加载模块
 
 系统调用 `ptrace` 检查是否被调试 ✅ 非常常见 文件检测 `/proc/self/status` 检查 `TracerPid` 字段 ✅ syscall 检测 直接调用 syscall 传递调试控制码 类似 ptrace 底层版本 ✅ 信号检测 `raise(SIGTRAP)` / 捕获信号 观察信号是否被调试器截获 ✅
 
-    #include <sys/ptrace.h>
+`PTRACE_TRACEME` 会改变进程的跟踪状态，不是一项无副作用的只读检查。失败还可能来自权限或安全策略，不能把所有失败都判断为“已被调试”。若记录这个调用，应同时保留返回值、errno 和运行环境，依据见 [ptrace(2)](https://man7.org/linux/man-pages/man2/ptrace.2.html)。
 
-    int is_debugged_by_ptrace() {
-        errno = 0;
-        ptrace(PTRACE_TRACEME, 0, NULL, 0);
-        if (errno != 0) {
-            return 1; // 被调试
-        }
-        return 0; // 没被调试
-    }
-
-其实无论是哪种反调试函数，都只是读取数的过程，然后通过eax返回，程序据此判断是否被调试，然后执行如 `ExitProcess` 或崩溃逻辑，阻止被调试者逆向分析，所以逆向时下断点，改eax值即可
+反调试还可能涉及异常、线程、时序和内核状态，远不止“读取一个值，通过 eax 返回”。具体修改必须先确认调用约定、返回值与输出参数；x86 的寄存器示意不应直接套到 x64 或 ARM。

@@ -1,14 +1,15 @@
 ---
 title: '魔改 Launcher 做启动追踪：从触摸到 Frida attach'
-description: '厂商 Launcher 各不相同，业务 App 很少检测桌面进程。基于 KISS 在触摸与 doLaunch 打点，用 FRIDA_TARGET logcat 信号自动 attach，并整理脚本与局限。'
+description: '基于 KISS 在触摸与 doLaunch 打点，用 FRIDA_TARGET logcat 信号关联启动动作与 Frida attach；说明版本依赖、私有脚本缺口和早期调用的竞态。'
 pubDate: 2026-02-20
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['Launcher', 'Frida', '动态调试', 'Android Framework']
 ---
 
 学过 Launcher、SystemServer、Framework 启动流程之后，会冒出一个想法：能不能基于 Launcher 做程序追踪？
 
-搜下来的结论是：每家手机桌面都不一样，业务 App 基本上不会专门检测「当前 Launcher 是谁」。那在 Launcher 里读启动信息、打点、再自动挂 Frida，就能少踩一层「目标进程自检」的坑。下面基于开源 [KISS Launcher](https://github.com/Neamar/KISS) 的魔改思路整理，保留能落地的细节，不贴整仓代码。
+Launcher 可以提供包名与用户启动动作的关联，但并无这里的证据证明业务 App 普遍不会检测 Launcher，或这一方式必然更隐蔽。下面基于开源 [KISS Launcher](https://github.com/Neamar/KISS) 的魔改思路整理，保留能落地的细节，不贴整仓代码。
 
 ## 动机
 
@@ -20,7 +21,9 @@ tags: ['Launcher', 'Frida', '动态调试', 'Android Framework']
   → 目标进程 ActivityThread
 ```
 
-这是合法、稳定的启动入口。在「即将 startActivity」处拿包名，比事后扫进程列表更准时，也比一上来就 attach 目标进程更不容易被业务启动代码盯梢。
+这是常见的桌面启动入口。在「即将 startActivity」处记录包名，能把用户动作与启动请求关联起来；但进程出现、logcat传输和宿主机attach仍是异步步骤，不能保证覆盖最早的业务调用，也没有这里的证据证明它更隐蔽。
+
+原笔记未锁定 KISS 提交号，脚本还有未随仓库提供的依赖；下面的类名与路径需要按实际检出的版本核对，不是一份独立可复现的工程交付。
 
 ## 工程骨架
 
@@ -343,7 +346,7 @@ done
 
 把脚本放在工程旁，或用环境变量 `FRIDA_DIR` 指向脚本目录。不要写死本机绝对路径。
 
-### 实测现象
+### 原笔记记录的现象（本轮未复测）
 
 - 有的包（如部分 Google 组件）冷启动很快结束或进程名与包名不一致 → `pidof` 失败，需要改成 `ps` 模糊匹配或延时加长
 - 普通 App（如桌面时钟）1.5s 后能拿到 PID，attach 正常
@@ -368,4 +371,4 @@ done
 | 启动 | `AppResult.doLaunch` | 包名 / Component / 耗时 |
 | 注入 | `FRIDA_TARGET` + `auto_frida_attach.sh` | 自动挂脚本 |
 
-把「用户点了哪个包」固定在 Launcher 启动路径上，再把包名甩给 Frida，比在目标进程里找 `Application.onCreate` 更早。后续可加深：`Instrumentation` 旁路 Activity 生命周期，或把网络面接到本系列的透明代理方案上。
+把「用户点了哪个包」固定在 Launcher 启动路径上，再把包名甩给 Frida，日志可以更早出现，但宿主机发现 PID 后再 attach 存在竞态，可能错过 `Application.onCreate`，不能据此保证 Hook 更早生效。后续可加深：`Instrumentation` 旁路 Activity 生命周期，或把网络面接到本系列的透明代理方案上。

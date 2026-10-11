@@ -1,0 +1,52 @@
+---
+import '../styles/navigation-glow.css'
+---
+<div class="navigation-glow" data-navigation-glow transition:persist="navigation-glow" aria-hidden="true">
+  <div class="navigation-glow__halo"><div class="navigation-glow__spectrum"></div></div>
+  <div class="navigation-glow__rim"><div class="navigation-glow__spectrum"></div></div>
+</div>
+<script>
+  // Enhance router events, not link clicks: no preventDefault, fetch replacement, or artificial wait.
+  let generation = 0
+  let active = false
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+  const overlay = () => document.querySelector<HTMLElement>('.navigation-glow')
+  const clear = () => {
+    active = false
+    delete document.documentElement.dataset.navigationGlow
+    const el = overlay()
+    if (el) { el.style.opacity = '0'; el.getAnimations({ subtree: true }).forEach(a => a.cancel()) }
+  }
+  document.addEventListener('astro:before-preparation', event => {
+    const token = ++generation
+    clear()
+    active = typeof document.startViewTransition === 'function' && event.to.origin === event.from.origin && event.to.pathname !== event.from.pathname &&
+      document.documentElement.dataset.motion === 'ready' && !reduce.matches
+    if (!active) return
+    document.documentElement.dataset.navigationGlow = event.direction === 'back' ? 'return' : 'open'
+    const el = overlay()
+    if (el) {
+      el.style.opacity = '1'
+      el.animate([{ opacity: 0 }, { opacity: .85 }], { duration: 260, easing: 'cubic-bezier(.55,.03,.8,.45)' })
+    }
+    event.signal.addEventListener('abort', () => { if (generation === token) clear() }, { once: true })
+  })
+  document.addEventListener('astro:before-swap', event => {
+    // Superseded native transitions reject ready with AbortError; navigation may still complete.
+    void event.viewTransition.ready.catch((error: unknown) => {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) throw error
+    })
+    if (!active) return
+    if (!event.newDocument.querySelector('.navigation-glow')) { clear(); return }
+    const token = generation
+    event.newDocument.documentElement.dataset.navigationGlow = document.documentElement.dataset.navigationGlow
+    // The persisted layer is snapshotted separately, above the content transition.
+    const el = overlay()
+    if (el) { el.getAnimations().forEach(a => a.cancel()); el.style.opacity = '1' }
+    event.viewTransition.finished.catch(() => {}).finally(() => { if (generation === token) clear() })
+  })
+  reduce.addEventListener('change', () => { if (reduce.matches) clear() })
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clear() })
+  window.addEventListener('pagehide', clear)
+  window.addEventListener('pageshow', () => { if (!active) clear() })
+</script>

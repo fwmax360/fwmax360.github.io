@@ -7,11 +7,11 @@ import Search from '../components/Search.astro'
 import Interactions from '../components/Interactions.astro'
 import ImageViewer from '../components/ImageViewer.astro'
 import Motion from '../components/Motion.astro'
+import NavigationGlow from '../components/NavigationGlow.astro'
 import ReadingTransition from '../components/ReadingTransition.astro'
 import AmbientMotion from '../components/AmbientMotion.astro'
 import { SITE } from '../consts'
 import '../styles/editorial-theme.css'
-import '../styles/site-editorial.css'
 
 interface Props {
   title: string
@@ -25,6 +25,7 @@ interface Props {
   /** 宽版用于首页/归档，窄版用于文章正文 */
   width?: 'wide' | 'content'
   hasMath?: boolean
+  editorialFont?: boolean
   bodyClass?: string
 }
 
@@ -39,12 +40,13 @@ const {
   imageAlt,
   width = 'wide',
   hasMath = false,
+  editorialFont = false,
   bodyClass,
 } = Astro.props
 ---
 
 <!doctype html>
-<html lang={SITE.lang}>
+<html lang={SITE.lang} data-pagefind-ignore={noindex ? 'all' : undefined}>
   <head>
     <BaseHead
       title={title}
@@ -56,13 +58,15 @@ const {
       image={image}
       imageAlt={imageAlt}
       hasMath={hasMath}
+      editorialFont={editorialFont}
     />
     <Motion />
     <ClientRouter />
   </head>
 
-  <body class={bodyClass ?? 'site-editorial'}>
+  <body class={bodyClass}>
     <AmbientMotion />
+    <NavigationGlow />
 
     <a href="#main" class="skip">跳到正文</a>
 

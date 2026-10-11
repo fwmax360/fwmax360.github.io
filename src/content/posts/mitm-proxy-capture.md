@@ -2,6 +2,7 @@
 title: 'MITM 代理抓包：原理、Reqable 配置与代理检测对抗'
 description: '从网络分层与 TLS 握手讲清应用层 MITM 如何解密 HTTPS，配合 Reqable 做 Android 抓包，并整理 App 常见代理检测与 Hook 绕过。'
 pubDate: 2026-02-03
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['抓包', 'MITM', 'HTTPS', 'Reqable', 'Frida']
 series: '抓包实战'
@@ -57,7 +58,7 @@ MITM 可以落在不同层：
 - Key Usage
 - CA 对证书内容的签名
 
-更细一点的握手步骤：
+下面是 TLS 1.2 的一种握手示意，依套件可能省略部分消息，不是 TLS 1.3 的消息顺序：
 
 1. ClientHello
 2. ServerHello + Certificate
@@ -65,13 +66,15 @@ MITM 可以落在不同层：
 4. ClientKeyExchange → 双方推导共享密钥
 5. ChangeCipherSpec / Finished → 切到对称加密通道
 
-要拿到明文，中间人必须在握手阶段**伪造证书**，并完成**两次**密钥协商（client↔MITM、MITM↔真实服务器）。
+TLS 1.3 没有 ServerKeyExchange / ClientKeyExchange，ServerHello 后的多数握手消息也已加密；CertificateVerify 与 Finished 的职责应分别理解。HTTP/3 还运行在 QUIC 上，不是所有 HTTPS 都是 TCP。版本依据见 [RFC 8446](https://www.rfc-editor.org/rfc/rfc8446)。
+
+在这里的证书代理模型中，要拿到明文，中间人必须在握手阶段**伪造证书**，并完成**两次**密钥协商（client↔MITM、MITM↔真实服务器）。
 
 ## 二、MITM 工作流程
 
 1. 客户端访问目标域名，发出带 SNI 的 ClientHello
 2. MITM 截获：显式代理直接收；透明代理靠路由 / iptables 转发
-3. MITM 伪装成服务器：用自签证书；客户端须信任 MITM 根 CA → 完成 client↔MITM TLS（Key_C↔M）
+3. MITM 伪装成服务器：用代理 CA 签发目标域名的叶证书；根 CA 可以是自签的，但叶证书并不因此也是自签证书。客户端须信任这条链 → 完成 client↔MITM TLS（Key_C↔M）
 4. MITM 再与真实服务器建第二条 TLS（Key_M↔S），按需透传或改请求
 5. 响应回来时：先用 Key_M↔S 解密，再用 Key_C↔M 加密回客户端 → 明文可视化
 
@@ -100,7 +103,7 @@ MITM 可以落在不同层：
 
 ### 验证是否解密成功
 
-随便打一条 HTTPS。例如微信安全相关：
+下面是请求形态示意，不是本文重新执行的抓包记录：
 
 ```text
 https://weixin110.qq.com/security/newreadtemplate?t=findpasswd/index&wechat_real_lang=en
@@ -117,13 +120,9 @@ https://weixin110.qq.com/security/newreadtemplate?t=findpasswd/index&wechat_real
 
 ### Android 7+ 证书注意
 
-用户安装的证书**默认不被 App 信任**。要解密系统级 / 多数 App 流量，CA 最好装到：
+关键条件是应用的 target SDK，不只是手机运行 Android 7+：target SDK 24+ 默认不信任用户 CA，但应用可通过 Network Security Configuration 显式配置。自建 TLS 栈、证书绑定和不同版本的系统 CA 管理方式还需另查。[Android 官方信任配置](https://developer.android.com/privacy-and-security/security-config) 给出了默认规则。
 
-```text
-/system/etc/security/cacerts/
-```
-
-需要 root（模拟器常用 `writable-system`）。仅装用户证书时，浏览器可能能抓，目标 App 经常抓不到。
+旧版可写模拟器常见 `/system/etc/security/cacerts/` 路径，不应作为所有 Android 版本的通用安装教程。先核对镜像版本和信任配置；装入系统 CA 也不代表绑定校验自动通过。
 
 ## 四、App 如何检测代理
 
@@ -212,23 +211,9 @@ fun detectByEnvAndSettings(context: Context): Boolean {
 
 ### 4.5 链路 / DNS 旁路探测
 
-风控常见：对比有无代理时的延迟；DNS 是否解析到内网。
+延迟和 DNS 结果只能做线索，不是代理存在的证明。原稿的固定 150 ms 阈值缺少基准数据；网络拥塞、路径变化和服务器负载都会产生相似差异。内网 DNS、企业网络也会合法返回私网地址，`172.16.` 更没有覆盖完整的 `172.16.0.0/12`。
 
-```kotlin
-suspend fun detectByLatency(): Boolean {
-    val baseline = measureLatency(proxy = Proxy.NO_PROXY)
-    val current = measureLatency(proxy = null) // null = 走系统代理
-    return current - baseline > 150
-}
-
-fun detectByDns(host: String): Boolean {
-    val addresses = InetAddress.getAllByName(host)
-    return addresses.any { addr ->
-        val ip = addr.hostAddress ?: return@any false
-        ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("172.16.")
-    }
-}
-```
+这里撤下直接输出“检测到代理”的启发式函数。要使用这些观测，应记录环境、采样分布和误报率，与明确的配置证据分开报告。
 
 ### 4.6 业务侧串联示例
 
@@ -252,12 +237,9 @@ fun isProxyEnabled(context: Context): Boolean {
 }
 ```
 
-### 4.7 大厂常见做法（观察向）
+### 4.7 实现位置不能直接归给某个产品
 
-- **微信**：初始化网络栈时读 `http(s).proxyHost`，并多次问 `ProxySelector`；命中后支付等模块降级
-- **支付宝**：`NetworkProxyUtils` 一类逻辑遍历代理属性，交易链路强制关代理
-- **抖音系**：结合 `getDefaultProxy` 与 `ProxySelector`，上报埋点并拦敏感接口
-- **银行类**：启动即检代理 + VPN，常配合 JNI `getprop` / 读系统配置
+Java 系统属性、ProxySelector、LinkProperties 和 Native 网络配置都可能成为检查入口。但本文没有附带具体 App 版本、调用日志和反编译依据，因此撤下原稿对微信、支付宝、抖音及银行 App 的逐项归属。看到 API 入口，只能先提出定位假设；最终需要沿调用链确认返回值怎样影响业务。
 
 ### 4.8 进阶对抗面（不只是「有没有代理」）
 
@@ -339,14 +321,7 @@ XposedHelpers.findAndHookMethod(linkProperties, "getHttpProxy", new XC_MethodHoo
 });
 ```
 
-无 Hook 时的临时反射（脆弱，仅作了解）：
-
-```kotlin
-val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-val field = ConnectivityManager::class.java.getDeclaredField("sDefaultProxy")
-field.isAccessible = true
-field.set(null, null)
-```
+原稿反射 `ConnectivityManager.sDefaultProxy` 的片段已撤下：这个私有字段不是 SDK 契约，也没有本文所依据的系统构建证明。不要将其他版本的字段名直接当成通用入口。
 
 ### 5.3 重写 ProxySelector / OkHttp
 

@@ -1,0 +1,393 @@
+/* Long-form and highlighted code styling: loaded only by article routes. */
+/* ==========================================================================
+   正文排版（.prose）
+   ========================================================================== */
+@layer components {
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  .prose p {
+    text-wrap: pretty;
+  }
+
+  .prose > * + * {
+    margin-top: 1.15em;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    color: var(--color-text-strong);
+    font-weight: 650;
+    line-height: 1.35;
+    scroll-margin-top: calc(var(--nav-offset) + 1.5rem);
+    position: relative;
+    text-wrap: balance;
+  }
+
+  .prose h2 {
+    margin-top: 2.75em;
+    margin-bottom: 0.9em;
+    font-size: 1.5rem;
+  }
+
+  .prose h3 {
+    margin-top: 2.1em;
+    margin-bottom: 0.7em;
+    font-size: 1.2rem;
+  }
+
+  .prose h4 {
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    font-size: 1.05rem;
+    color: var(--color-text-strong);
+  }
+
+  .prose a:not(.heading-anchor) {
+    color: var(--color-link);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.25s var(--ease-out-expo);
+  }
+
+  .prose a:not(.heading-anchor):hover {
+    background-size: 0% 1px;
+    color: var(--color-accent);
+  }
+
+  .prose strong {
+    color: var(--color-text-strong);
+    font-weight: 650;
+  }
+
+  .prose em {
+    color: var(--color-text-strong);
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4em;
+  }
+
+  .prose li + li {
+    margin-top: 0.4em;
+  }
+
+  .prose ul > li {
+    list-style: none;
+    position: relative;
+  }
+
+  .prose ul > li::before {
+    content: '▸';
+    position: absolute;
+    left: -1.2em;
+    color: var(--color-accent-soft);
+    font-size: 0.9em;
+  }
+
+  .prose ol > li {
+    list-style: decimal;
+  }
+
+  .prose ol > li::marker {
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .prose blockquote {
+    font-family: var(--font-editorial);
+    font-weight: 450;
+    letter-spacing: 0.01em;
+    line-height: 1.9;
+    border: 1px solid var(--color-line);
+    border-left: 2px solid var(--color-accent-soft);
+    padding: 0.8em 1rem;
+    color: var(--color-dim);
+    font-style: normal;
+    background: linear-gradient(90deg, rgb(61 220 132 / 5%), transparent 55%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 2%);
+  }
+
+  .prose hr {
+    border: 0;
+    height: 1px;
+    background: var(--color-line);
+    margin: 3em 0;
+  }
+
+  .prose img,
+  .prose video {
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    display: block;
+    margin-inline: auto;
+    box-shadow: 0 24px 70px -38px rgb(0 0 0 / 90%);
+  }
+
+  /* 行内代码。中文段落里往往一句话塞好几个，用满饱和的强调色会很吵，这里压到七成 */
+  .prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    color: color-mix(in srgb, var(--color-accent) 62%, var(--color-text-strong));
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .prose :not(pre) > code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+  }
+
+  /* 表格 */
+  .prose .table-wrap {
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .prose thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-dim);
+    font-weight: 500;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line-bright);
+    white-space: nowrap;
+  }
+
+  .prose tbody td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    vertical-align: top;
+  }
+
+  .prose tbody tr:hover {
+    background: var(--color-bg-soft);
+  }
+
+  /* 标题锚点，hover 才出现。符号用 ::after 画，避免混进 Astro 提取的标题文本 */
+  .heading-anchor {
+    margin-left: 0.5em;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    color: var(--color-accent-soft);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .heading-anchor::after {
+    content: '#';
+  }
+
+  .prose :is(h1, h2, h3, h4, h5, h6):hover .heading-anchor {
+    opacity: 1;
+  }
+
+  .prose .footnotes {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+}
+
+/* ==========================================================================
+   代码块：做成反汇编器 / 编辑器窗口的样子
+   ========================================================================== */
+@layer components {
+  .code-block {
+    margin-top: 1.6em;
+    margin-bottom: 1.6em;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-panel);
+    overflow: hidden;
+    box-shadow:
+      var(--shadow-panel),
+      inset 0 1px 0 rgb(255 255 255 / 2%);
+  }
+
+  .code-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem 0.4rem 0.85rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-dim);
+  }
+
+  .code-head::before {
+    content: '';
+    width: 0.42rem;
+    height: 0.42rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 12px rgb(61 220 132 / 45%);
+    opacity: 0.72;
+  }
+
+  .code-lang {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-faint);
+    font-size: 0.7rem;
+  }
+
+  .code-title {
+    color: var(--color-text);
+  }
+
+  .code-copy {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    background: transparent;
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      background 0.15s;
+  }
+
+  .code-copy:hover {
+    color: var(--color-accent);
+    border-color: var(--color-line-bright);
+    background: var(--color-surface-2);
+  }
+
+  .code-copy[data-copied='true'] {
+    color: var(--color-accent);
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 0.9rem 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    background: transparent !important;
+    font-size: 0.83rem;
+    line-height: 1.65;
+    tab-size: 4;
+  }
+
+  .code-block pre code {
+    font-family: var(--font-mono);
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+  }
+
+  /* block + 外层 fit-content，让高亮行的背景在横向滚动时也铺满 */
+  .code-block .line {
+    display: block;
+    padding-inline: 1rem;
+  }
+
+  .code-block .line:last-child:empty {
+    display: none;
+  }
+
+  /* 行号 */
+  .code-block[data-line-numbers] code {
+    counter-reset: line;
+  }
+
+  .code-block[data-line-numbers] .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 2.2rem;
+    margin-right: 1rem;
+    margin-left: -0.5rem;
+    text-align: right;
+    color: var(--color-faint);
+    opacity: 0.55;
+    user-select: none;
+  }
+
+  /* 高亮行：用 markdown 的 {1,3-5} 元信息标注 */
+  .code-block .line.highlighted {
+    background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .code-block .line.diff-add {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+
+  .code-block .line.diff-remove {
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--color-danger);
+  }
+
+  /* 超长代码块折叠 */
+  .code-block[data-collapsible][data-code-ready] .code-scroll {
+    max-height: 26rem;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .code-block[data-collapsible][data-open='true'] .code-scroll {
+    max-height: none;
+  }
+
+  .code-expand {
+    width: 100%;
+    padding: 0.45rem;
+    background: var(--color-surface);
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-dim);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .code-expand:hover {
+    color: var(--color-accent);
+  }
+}

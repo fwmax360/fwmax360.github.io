@@ -9,7 +9,6 @@
  * PingFang / Microsoft YaHei / Songti keep their native screen-tuned glyphs.
  */
 @import '@fontsource-variable/geist/wght.css';
-@import '@fontsource-variable/noto-sans-sc/wght.css';
 
 /* JetBrains Mono only needs latin / latin-ext; Chinese falls through to the native CJK stack. */
 

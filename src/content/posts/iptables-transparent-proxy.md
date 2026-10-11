@@ -2,20 +2,21 @@
 title: 'iptables / netfilter：透明代理需要哪几条链'
 description: '理清 PREROUTING、INPUT、FORWARD、OUTPUT、POSTROUTING 与 DNAT/SNAT/MASQUERADE，为按 UID 做透明代理打基础，并附常见排障。'
 pubDate: 2026-02-10
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['抓包', 'iptables', 'netfilter', '透明代理', 'root']
 series: '抓包实战'
 order: 3
 ---
 
-透明代理不改 App 的代理设置，而是在内核把指定流量 DNAT 到本机 `redsocks` / `tproxy` 一类进程。Android 上通常要 root，规则写在 `nat` 表的 `OUTPUT`。本文先把 netfilter 链讲清楚；下一篇给完整抓包方案。
+透明代理不改 App 的代理设置，而是在内核把指定流量 DNAT 到本机 `redsocks` 这类进程；TPROXY 是另一条路线，涉及 mangle 表、透明 socket 和策略路由，不等同于 DNAT。Android 上通常要 root，规则写在 `nat` 表的 `OUTPUT`。本文先把 netfilter 链讲清楚；下一篇给完整抓包方案。
 
 ## 包在内核里怎么走
 
 应用用户态 `send()` / `connect()` → 包进内核网络栈 → 按路由决定后续：
 
 - **目的是本机**：`PREROUTING` → `INPUT` → 本机进程收
-- **本机发出去**：`OUTPUT` → 路由决策 →（若转发）`FORWARD` → `POSTROUTING` → 出网卡
+- **本机发出去**：`OUTPUT` → 路由决策 → `POSTROUTING` → 出网卡
 - **外来包要转发到别的主机**（当路由器）：`PREROUTING` → `FORWARD` → `POSTROUTING`
 
 记三句：
@@ -85,7 +86,7 @@ iptables -A INPUT -p tcp --dport 22 -j DROP
 
 - **何时**：包不是给本机，要转发到其他接口/主机
 - **对象**：路由器 / NAT 网关场景
-- **普通手机终端**：App 出站很少走 FORWARD，除非做桥接或开 IP 转发
+- **普通手机终端**：本机 App 生成的出站包走 OUTPUT，不因打开 IP 转发就改走 FORWARD；热点转发的其他设备流量是另一个来源
 
 ```bash
 iptables -A FORWARD -i eth0 -o eth1 -s 192.168.1.0/24 -j ACCEPT
@@ -98,7 +99,7 @@ iptables -A FORWARD -j DROP
 - **对象**：应用 `socket` 发出的连接
 - **常见用途**：
   - 对本机流量做透明重定向：`-j REDIRECT` / `DNAT`
-  - 按进程 UID 限制：`-m owner --uid-owner`（只在 OUTPUT 对本机进程有效）
+  - 按进程 UID 限制：`-m owner --uid-owner`（用于本机生成包，本文放在 OUTPUT；也可用于相应 POSTROUTING 路径，不适用于转发包）
 
 例：UID=1000 发往 80 的 TCP → 本机 12345
 
@@ -129,8 +130,8 @@ App(UID) → iptables OUTPUT DNAT → redsocks2 → Charles/Reqable SOCKS5 → �
 
 两条必记：
 
-1. **排除 `127.0.0.1`**：否则 redsocks 自己的回环流量再被 DNAT，死循环
-2. **HTTPS 明文仍靠系统 CA**：iptables 只解决「流量怎么被拽过来」
+1. **排除 `127.0.0.1`**：回环排除不等于排除了代理的所有上游连接，还要保证代理 UID 不被规则捕获
+2. **HTTPS 明文另看应用信任配置和证书绑定**：iptables 只解决「流量怎么被拽过来」
 
 ## 常见问题（对接 Charles + redsocks 时）
 
@@ -152,8 +153,8 @@ adb shell su -c "cat /data/local/tmp/redsocks.log"
 
 ### HTTPS 无法解密
 
-- 证书必须进 **系统分区** `/system/etc/security/cacerts/`
-- 只装用户证书不够
+- target SDK 24+ 默认不信任用户 CA，应用可以通过配置显式允许
+- 系统 CA 也不自动绕过证书绑定；Android 版本、TLS 栈与证书部署位置要分别核对
 
 ### 脚本报「设备未连接」
 
@@ -182,3 +183,8 @@ adb shell ps -ef | grep <你的包名>
 ```
 
 下一篇用知到 App（`com.able.wisdomtree`）走一遍完整搭建与自动化脚本。
+
+## 机制依据
+
+- [Netfilter 的包路径与 hook](https://www.netfilter.org/documentation/HOWTO/netfilter-hacking-HOWTO-3.html)
+- [Android Network Security Configuration](https://developer.android.com/privacy-and-security/security-config)

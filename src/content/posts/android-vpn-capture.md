@@ -2,13 +2,14 @@
 title: 'Android VPN 抓包：VpnService、Reqable 与 VPN 检测对抗'
 description: '系统如何把流量导到 tun0，为何 VPN 能绕过系统代理检测，Reqable 协同与系统证书安装，以及 App 枚举网卡 / 路由 / NetworkCapabilities 的对抗。'
 pubDate: 2026-02-06
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['抓包', 'VPN', 'VpnService', 'Reqable', 'Frida']
 series: '抓包实战'
 order: 2
 ---
 
-系统代理靠 App 自觉走 `ProxySelector`；VPN 则改写路由，几乎所有 Socket 发出的包都会进 `tun0`。Reqable、HttpCanary 一类工具的「VPN 模式」就是这个模型。
+系统代理靠 App 自觉走 `ProxySelector`；VPN 通过路由和应用范围接管匹配的流量；排除的应用、未覆盖的 IPv6 路由，以及被 `protect()` 保护的隧道 socket 不在同一范围内。Reqable、HttpCanary 一类工具的「VPN 模式」就是这个模型。
 
 ## 一、VPN 工作原理
 
@@ -62,14 +63,14 @@ $ ip route show
 default via 192.168.1.1 dev wlan0
 192.168.1.0/24 dev wlan0
 
-# VPN 启动后（典型写法）
+# 路由覆盖的简化示意，不是所有 Android 设备的实际输出
 $ ip route show
 0.0.0.0/1 dev tun0        # 半个地址空间
 128.0.0.0/1 dev tun0      # 另一半
 192.168.1.1/32 dev wlan0  # 保留到网关，方便再转发
 ```
 
-`0.0.0.0/1` + `128.0.0.0/1` 覆盖全部 IPv4，且比默认路由更具体、优先级更高。模拟器默认常是 `eth0`，起 VPN 后多出 `tun0`。
+`0.0.0.0/1` + `128.0.0.0/1` 覆盖全部 IPv4，且比默认路由更具体、优先级更高。Android 还使用策略路由和独立路由表；只看 `ip route show` 的主表可能漏掉 VPN 路由。检查时同时记录 `ip rule`、相关 table 和应用范围。
 
 ### 1.4 VPN vs 代理
 
@@ -89,7 +90,9 @@ VPN 模式：应用 → Socket → 内核 → 路由重写 → tun0 → VPN App 
 3. **绕过「系统代理」检测**：没设 WLAN Proxy，读属性那套打空
 4. **包级可见**：能看到 IP 头、端口、TLS 握手前字节；HTTPS 明文仍依赖 CA / Pinning 处理
 
-## 三、最小 VpnService 实现
+## 三、VpnService 的接口片段
+
+这部分只展示接口与包的方向，不是一份可直接部署的 VPN 服务。入口需要先处理 `VpnService.prepare()` 的用户许可，Manifest 声明 `BIND_VPN_SERVICE`，并按系统版本处理前台服务、重建隧道和关闭 FD。[Android 官方 VPN 指南](https://developer.android.com/develop/connectivity/vpn) 给出了生命周期要求。
 
 ### 3.1 建立隧道
 
@@ -118,30 +121,16 @@ class PacketCaptureVpnService : VpnService() {
 - `Builder` 配虚拟 IP、路由、DNS，相当于往路由表注册新出口
 - `establish()` 返回对应 `tun0` 的 FD
 
-### 3.2 读包并转发
+### 3.2 读写方向别反了
 
-```kotlin
-private fun startPacketCapture() {
-    thread {
-        val buffer = ByteBuffer.allocate(32767)
-        val input = FileInputStream(vpnInterface!!.fileDescriptor)
-        val output = FileOutputStream(vpnInterface!!.fileDescriptor)
-
-        while (true) {
-            val length = input.read(buffer.array())
-            if (length > 0) {
-                buffer.limit(length)
-                val packet = parsePacket(buffer)
-                logPacket(packet)
-                output.write(buffer.array(), 0, length) // 写回才能连通
-                buffer.clear()
-            }
-        }
-    }
-}
+```text
+读 TUN：应用发出的 IP 包 → VPN → 隧道网关 / 用户态协议栈
+写 TUN：网关 / 用户态协议栈返回的 IP 包 → 内核 → 应用
 ```
 
-读 `tun0` ≈ 读经过虚拟网卡的 IP 报文；必须再写回，系统才认为网络仍然通。
+原稿把刚读到的出站包原样写回 TUN，并标注“写回才能连通”，这个方向有误。写入是在向应用侧注入入站包，不是把包发到互联网。
+
+完整转发有两条常见路线：把 IP 包装进通往网关的隧道，或用用户态 TCP/IP 栈转换成真实连接。前者的隧道 socket 需要 `protect()`，否则可能再次被 VPN 捕获。两者都还要处理返回包、连接状态、超时与关闭；只做 `read()` / `write()` 没有实现这些行为。
 
 ### 3.3 粗解析
 
@@ -160,7 +149,7 @@ private fun parsePacket(buffer: ByteBuffer): PacketInfo {
 }
 ```
 
-首字节高 4 位是 IP 版本；`protocol` 区分 TCP/UDP，再按偏移拆端口与载荷。
+上面的解析只是偏移示意：访问任何字段前都要检查实际包长、IPv4 IHL、总长度、分片与传输层头部；IPv6 还涉及扩展头。`PacketInfo`、`parseTCP` 和 `parseUDP` 未在本文实现。首字节高 4 位是 IP 版本；`protocol` 区分 TCP/UDP，再按偏移拆端口与载荷。
 
 ## 四、Reqable 协同抓包
 
@@ -182,7 +171,7 @@ private fun parsePacket(buffer: ByteBuffer): PacketInfo {
 首次可能提示 root certificate 未安装：
 
 - `Install` → 用户级证书，部分场景够用
-- Chrome / 多数 App / Google 系 → 往往要**系统证书**
+- 是否信任用户 CA 取决于应用的 target SDK、Network Security Configuration 和自己的 TLS 实现，不能按品牌一概判断。target SDK 24+ 默认不信任用户添加的 CA，应用可以显式配置；见 [官方信任配置](https://developer.android.com/privacy-and-security/security-config)。
 
 模拟器常见坑：
 
@@ -191,6 +180,8 @@ private fun parsePacket(buffer: ByteBuffer): PacketInfo {
 - 证书已装仍提示 → Reqable 提醒，可在 Certificate Management 关掉重复提示
 
 ### 系统证书安装（需 adb root）
+
+下面是原笔记 Android 12 可写模拟器的路径示例，不代表 Android 14+ Conscrypt APEX 或生产设备的证书部署方式。先记录系统镜像、证书原状及回滚方案；安装 CA 也不会自动绕过证书绑定。
 
 思路：导出 `.0` → 可写 system → 推到 `cacerts` → 权限 / SELinux → 重启。
 

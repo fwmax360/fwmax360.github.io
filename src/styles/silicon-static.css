@@ -1,0 +1,11 @@
+/* Loaded only by <noscript>. Retire the animated/sticky positioning, not the content.
+   Important declarations deliberately override component-scoped scene positioning. */
+.journey{height:auto!important;min-height:0!important}
+.stage{display:flex;flex-direction:column;position:relative!important;top:auto!important;height:auto!important;min-height:0!important;overflow:visible!important;padding:112px 24px 48px;container-type:normal!important}
+.copy{position:static!important;inset:auto!important;width:100%!important;order:0;text-align:center}
+.noscript-note{position:static!important;inset:auto!important;max-width:none!important;margin:24px 0 0;font-size:.875rem!important;line-height:1.6;color:#a8b8c0}
+.viewport{position:static!important;inset:auto!important;width:100%;height:auto!important;order:1}
+.scene-poster{position:static!important;inset:auto!important;display:block!important;width:min(100%,420px)!important;height:auto!important;max-height:none;transform:none!important;object-fit:contain;margin:32px auto}
+.controls{position:static!important;inset:auto!important;width:100%!important;margin:0;order:2}
+.phase,.annotations,.fallback,.dual-captions,.scene-note,.scene-tools,.chapters,.scroll-cue,.side-mark{display:none!important}
+.read-notes{font-size:.875rem!important}

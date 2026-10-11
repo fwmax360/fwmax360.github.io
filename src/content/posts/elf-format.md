@@ -2,6 +2,7 @@
 title: 'ELF 文件格式解析'
 description: 'ELF Header、Program Header、Section Header 与加载视图/链接视图的结构梳理。'
 pubDate: 2025-07-20
+updatedDate: 2026-10-11
 category: 'Binary'
 tags: ['ELF', 'Linux', '可执行文件']
 ---
@@ -26,6 +27,8 @@ tags: ['ELF', 'Linux', '可执行文件']
 
     .shstrtab 是节名字符串表，索引由 e_shstrndx 指定
 
+下面是字段关系示意，不要求文件中的表与节按图示顺序排列；SHT_NOBITS 节有内存大小，但不占对应的文件内容。
+
 详细一点为
 
     +----------------------+
@@ -45,7 +48,7 @@ tags: ['ELF', 'Linux', '可执行文件']
         uint16_t      e_type;      // 文件类型，如 ET_EXEC、ET_REL、ET_DYN
         uint16_t      e_machine;   // 架构，如 x86、ARM、AARCH64 等
         uint32_t      e_version;   // 版本，通常为 1
-        uint64_t      e_entry;     // 程序入口点虚拟地址（main 函数地址）
+        uint64_t      e_entry;     // 映像入口虚拟地址，不等于 main；ET_DYN 还需考虑 load bias
         uint64_t      e_phoff;     // 程序头表（Program Header）偏移
         uint64_t      e_shoff;     // 节头表（Section Header）偏移
         uint32_t      e_flags;     // 特定平台的标志位
@@ -138,12 +141,7 @@ ELF (Linux/Android)
 - 零初始化 .bss 区段（p_memsz \> p_filesz 的部分）
 
 
-    for (i = 0; i < e_phnum; ++i) {
-        if (phdr[i].p_type == PT_LOAD) {
-            mmap(phdr[i].p_vaddr, phdr[i].p_memsz, phdr[i].p_flags, ...);
-            memcpy(phdr[i].p_vaddr, file + phdr[i].p_offset, phdr[i].p_filesz);
-        }
-    }
+这里不把“mmap 后 memcpy”当成完整加载器：`PF_R/PF_W/PF_X` 不是 `mmap` 的 `PROT_*`，需要显式转换；文件偏移和地址要按页处理，还需校验 `p_filesz <= p_memsz`、文件边界、整数溢出和 load bias。文件映射后，超过 `p_filesz` 的内存尾部应为零。具体约束见 [ELF gABI 的程序头与加载规则](https://gabi.xinuos.com/elf/07-pheader.html)。
 
 ### 构造用户栈
 
@@ -157,10 +155,8 @@ ELF (Linux/Android)
 
 ### 跳转入口点 e_entry
 
-内核最终设置好寄存器：
+以 x86-64 为例，初始栈指针使用 `rsp`，指令指针使用 `rip`；AArch64 使用另一套寄存器和启动 ABI。
 
-- rsp 指向用户栈顶
+有 `PT_INTERP` 的动态链接程序，内核先将控制权交给解释器入口。解释器完成必要的动态链接后，再进入主映像的入口；主映像的 `e_entry` 还要结合 load bias。没有解释器的程序才是另一条路径。
 
-- rip 跳转至 e_entry 处（通常是 \_start）
-
-- \_start → \_\_libc_start_main(main, …) → main()
+常见 glibc 程序由 `_start` 经 libc 启动代码走到 `main`，这不是所有裸机程序、Android bionic 或自定义启动代码都固定采用的调用链。

@@ -1,6 +1,9 @@
 ---
 import Base from '../layouts/Base.astro'
-import HomeMotion from '../components/HomeMotion.astro'
+import { noteAccent } from '../lib/note-accent'
+import NoteHoverPreview from '../components/NoteHoverPreview.astro'
+import { coverSvgUrl } from '../lib/covers'
+import ResearchHero from '../components/ResearchHero.astro'
 import HomeDetails from '../components/HomeDetails.astro'
 import { SITE } from '../consts'
 import { categoryUrl, formatDate, getCategories, getPostsByDateDesc, postUrl, readingStats } from '../lib/posts'
@@ -18,27 +21,16 @@ const series = await getSeriesSummaries()
 
 <Base title={SITE.title} description={SITE.description} width="wide" bodyClass="home-editorial">
   <div class="home" data-home-motion>
-    <HomeMotion />
     <HomeDetails />
-    <div class="home-hero">
-    <header class="masthead" data-hero-enter>
-      <div>
-        <p class="eyebrow">逆向 · 安全 · 底层</p>
-        <h1 class="wordmark">{SITE.title}<span class="wordmark-dot" aria-hidden="true">.</span></h1>
-      </div>
-      <div class="intro">
-        <p class="hero-statement">先拆开看看，<br />再慢慢写明白。</p>
-        <p class="hero-description">{SITE.description}</p>
-        <nav class="intro-links" aria-label="作者与文章"><a href="/archive">浏览文章 <span aria-hidden="true">↗</span></a><a href="/about">关于我 <span aria-hidden="true">↗</span></a></nav>
-      </div>
-    </header>
+    <NoteHoverPreview />
+    <ResearchHero count={timeline.length} />
 
     {featured ? (
       <>
-      <section class="feature-section" aria-labelledby="featured-heading" data-hero-enter>
+      <section class="feature-section" aria-labelledby="featured-heading" data-hero-enter data-reading-preview>
         <div class="section-head"><h2 id="featured-heading">最新笔记</h2></div>
         <article class="featured">
-          <div class="feature-copy" data-reading-preview>
+          <div class="feature-copy">
             <div class="meta"><a href={categoryUrl(featured.data.category)}>{featured.data.category}</a><span aria-hidden="true">·</span><time datetime={featured.data.pubDate.toISOString()}>{formatDate(featured.data.pubDate)}</time></div>
             <h3><a href={postUrl(featured)}>{featuredTitleParts ? <><span class="feature-title-context">{featuredTitleParts[1]}</span><span class="feature-title-main">{featuredTitleParts[2]}</span></> : featured.data.title}</a></h3>
             <p class="feature-desc">{featured.data.description}</p>
@@ -46,56 +38,29 @@ const series = await getSeriesSummaries()
           </div>
         </article>
       </section>
-          <div class="feature-art">
-            <div class="art-stage" data-art-stage tabindex="0" role="group" aria-label="分层插画：可左右拖动，或用方向键调整角度">
-            <svg viewBox="0 0 520 460" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="sheet" x1="120" y1="100" x2="440" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#eef1f0"/><stop offset=".5" stop-color="#9ca7a3"/><stop offset="1" stop-color="#515b57"/></linearGradient>
-                <linearGradient id="edge" x1="100" y1="100" x2="410" y2="330" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".65"/><stop offset="1" stop-color="#fff" stop-opacity=".06"/></linearGradient>
-                <radialGradient id="halo"><stop stop-color="#a3c9b5" stop-opacity=".13"/><stop offset="1" stop-color="#a3c9b5" stop-opacity="0"/></radialGradient>
-              </defs>
-              <ellipse cx="275" cy="245" rx="245" ry="205" fill="url(#halo)"/>
-              <g class="art-float">
-              <g stroke="url(#edge)" stroke-width="1.2" stroke-linejoin="round">
-                <g class="art-layer art-layer-bottom"><path d="m86 289 173-99 179 102-174 101Z" fill="#222a27"/><path d="m86 289 178 102v12L86 301Z" fill="#151b18"/><path d="m264 391 174-99v12l-174 99Z" fill="#313c36"/></g>
-                <g class="art-layer art-layer-middle"><path d="m86 229 173-99 179 102-174 101Z" fill="#46514b" fill-opacity=".65"/><path d="m86 229 178 102v9L86 238Z" fill="#29312d"/><path d="m264 331 174-99v9l-174 99Z" fill="#58655e"/></g>
-                <g class="art-layer art-layer-top"><path d="m86 165 173-99 179 102-174 101Z" fill="url(#sheet)"/><path d="m86 165 178 102v9L86 174Z" fill="#77837d"/><path d="m264 267 174-99v9l-174 99Z" fill="#4b5750"/></g>
-              </g>
-              <g class="art-layer art-layer-core"><g transform="matrix(.87 .5 -.87 .5 260 99)">
-                <rect x="26" y="26" width="142" height="142" rx="14" fill="#23372c"/>
-                <rect x="38" y="38" width="118" height="118" rx="7" stroke="#a4b8aa" stroke-opacity=".5"/>
-                <path d="M59 64h76M59 80h45M59 112h76M91 128h44" stroke="#b3c4b9" stroke-width="4" stroke-linecap="round"/>
-                <rect x="58" y="123" width="17" height="10" rx="2" fill="#b5dac0"/>
-                {[0,1,2,3,4,5].map(i => <g stroke="#46534b" stroke-width="3"><path d={`M${45+i*21} 10v12M${45+i*21} 172v12M10 ${45+i*21}h12M172 ${45+i*21}h12`}/></g>)}
-              </g>
-              </g>
-              <path d="m121 286 138-79 141 80-136 80Z" stroke="#a1c1ad" stroke-opacity=".4" stroke-dasharray="3 7"/>
-              <circle cx="264" cy="367" r="4" fill="#a4cbb2"/>
-              </g>
-            </svg>
-            </div>
-            <div class="art-caption"><span>Android · Binary · Systems</span><div class="art-controls"><button type="button" class="motion-toggle" data-home-motion-toggle aria-label="停用插画交互动效" aria-pressed="false" hidden><span class="motion-icon" aria-hidden="true"></span><span data-motion-label class="motion-label">停用交互动效</span></button><button type="button" data-art-reset aria-label="恢复插画角度" title="恢复插画角度">↺</button></div></div>
-          </div>
+
       </>
     ) : <p class="empty">第一篇笔记，正在路上。</p>}
 
-    </div>
 
-    <div class="reading-grid">
+    <section class="research-paths" aria-labelledby="paths-heading">
+      <header class="section-head"><div><h2 id="paths-heading">研究方向</h2></div><a href="/map/">打开图谱 <span aria-hidden="true">↗</span></a></header>
+      <div class="path-grid" style={`--path-columns: ${Math.min(4, categories.length)}`}>{categories.map((category) => <a class="research-path" href={categoryUrl(category.name)}><h3>{category.name}</h3><span class="path-count">{category.count} 篇笔记</span><span class="path-arrow" aria-hidden="true">↗</span></a>)}</div>
+    </section>
+
+    <div class="reading-grid" id="notes">
       {recent.length > 0 && <section class="list" aria-labelledby="recent-heading">
-        <header class="section-head" data-reveal><h2 id="recent-heading">最近的笔记</h2><a href="/archive">全部文章 <span aria-hidden="true">↗</span></a></header>
-        <ol id="recent-posts">{recent.map((post, index) => <li data-extra-post={index >= initialRecentCount ? true : undefined} hidden={index >= initialRecentCount}><article data-reveal data-reading-preview>
+        <header class="section-head"><div><h2 id="recent-heading">笔记</h2></div><a href="/archive">全部文章 <span aria-hidden="true">↗</span></a></header>
+        <ol id="recent-posts">{recent.map((post, index) => <li data-extra-post={index >= initialRecentCount ? true : undefined} hidden={index >= initialRecentCount}><article data-reading-preview data-note-hover data-note-cover={coverSvgUrl(post)} data-note-color={noteAccent(post.data)} style={`--note-color:${noteAccent(post.data)}`}>
           <div class="meta"><a href={categoryUrl(post.data.category)}>{post.data.category}</a><span aria-hidden="true">·</span><time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time></div>
-          <h3><a href={postUrl(post)}>{post.data.title}</a></h3>
+          <h3><a href={postUrl(post)}>{post.data.title}<span class="note-arrow" aria-hidden="true">↗</span></a></h3>
           <p class="row-desc">{post.data.description}</p>
-          <a class="row-read" href={postUrl(post)} aria-label={`阅读：${post.data.title}`}>{readingStats(post.body ?? '').minutes} 分钟阅读 <span aria-hidden="true">↗</span></a>
+          <a class="row-read" href={postUrl(post)} aria-label={`${readingStats(post.body ?? '').minutes} 分钟阅读：${post.data.title}`}>{readingStats(post.body ?? '').minutes} 分钟阅读 <span aria-hidden="true">↗</span></a>
         </article></li>)}</ol>
-        {recent.length > initialRecentCount && <div class="more-notes"><button type="button" class="more-posts" data-more-posts aria-controls="recent-posts" aria-describedby="more-notes-hint"><span data-more-label>展开更多笔记</span><span class="more-arrow" data-more-icon aria-hidden="true">↓</span></button><p id="more-notes-hint">点击或向下轻拉，继续阅读。</p><p class="details-status" data-notes-status role="status" aria-live="polite"></p></div>}
+        {recent.length > initialRecentCount && <div class="more-notes"><button type="button" class="more-posts" data-more-posts hidden aria-controls="recent-posts" aria-describedby="more-notes-hint"><span data-more-label>展开更多笔记</span><span class="more-arrow" data-more-icon aria-hidden="true">↓</span></button><a class="more-fallback" data-more-fallback href="/archive/">浏览全部 {timeline.length} 篇笔记 <span aria-hidden="true">↗</span></a><p id="more-notes-hint" hidden>点击或向下轻拉，继续阅读。</p><p class="details-status" data-notes-status role="status" aria-live="polite"></p></div>}
       </section>}
-      <aside class="browse" aria-label="探索笔记" data-reveal>
-        {series.length > 0 && <section><p class="eyebrow">按主题深入</p><h2>系列笔记</h2><ul>{series.map(item => <li><a href={seriesUrl(item.name)}><span class="browse-label">{item.name}</span><span class="browse-tail"><small>{item.count} 篇</small><span class="browse-arrow" aria-hidden="true">↗</span></span></a></li>)}</ul><a class="browse-more" href="/series">查看所有系列 <span aria-hidden="true">↗</span></a></section>}
-        {categories.length > 0 && <section class="categories"><h2>研究方向</h2><ul>{categories.map(category => <li><a href={categoryUrl(category.name)}><span class="browse-label">{category.name}</span><span class="browse-tail"><small>{category.count}</small><span class="browse-arrow" aria-hidden="true">↗</span></span></a></li>)}</ul></section>}
-      </aside>
+
     </div>
+    {series.length > 0 && <section class="series-shelf" aria-labelledby="series-heading"><header class="section-head"><div><h2 id="series-heading">系列</h2></div><a href="/series/">全部系列 <span aria-hidden="true">↗</span></a></header><div class="series-grid">{series.map(item => <a href={seriesUrl(item.name)}><span class="series-count">{String(item.count).padStart(2, '0')} 篇</span><h3>{item.name}</h3><p>{item.categories.join(' / ')}</p><span class="series-arrow" aria-hidden="true">↗</span></a>)}</div></section>}
   </div>
 </Base>

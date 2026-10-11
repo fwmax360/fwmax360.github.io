@@ -2,6 +2,7 @@
 title: '解包之后：怎样把压成一行的 JavaScript 读得下去'
 description: '解包成功不等于可读。先保护字符串/注释/正则，再做定点替换，最后交给语法感知的美化器——比全局正则靠谱得多。'
 pubDate: 2026-01-20
+updatedDate: 2026-10-11
 category: 'Android'
 tags: ['javascript', '解包', '美化', '小程序', '逆向基础']
 series: '逆向基础'
@@ -54,7 +55,7 @@ const re = /const\s+value/;
 ProtectedSpan(start=120, end=168)
 ```
 
-之后规则只在这些区域之外跑。这里不需要完整 JS 编译器，但必须有足够保守的词法扫描——否则 `/` 很难区分是除法还是正则开头。常见启发：看前一个有效字符是否在 `([{,:;=!&|?+-*%^~<>`，或前一个词是否是 `return` / `typeof` / `case` 等。
+之后规则只在这些区域之外跑。通用 JavaScript 变换应使用支持该语法的 parser / AST。下面的词法扫描仅适合已限定输入、识别失败就跳过的局部规则——否则 `/` 很难区分是除法还是正则开头。常见启发：看前一个有效字符是否在 `([{,:;=!&|?+-*%^~<>`，或前一个词是否是 `return` / `typeof` / `case` 等。
 
 ### 用编辑记录代替立即替换
 
@@ -95,7 +96,7 @@ for edit in sorted(edits, key=lambda e: e.start, reverse=True):
 ]
 ```
 
-只会命中普通代码区；字符串、注释、正则字面量被刻意跳过。注意用的是 Python `re` 语法，不是 JS 正则的全部特性。
+只有扫描和规则实现符合上述条件，才可以将编辑限定在代码区；模板字符串里的 `${...}`、正则与除法歧义、嵌套语法都需要处理。字符串、注释、正则字面量被刻意跳过。注意用的是 Python `re` 语法，不是 JS 正则的全部特性。
 
 ## 排版交给美化器
 
@@ -106,22 +107,17 @@ for edit in sorted(edits, key=lambda e: e.start, reverse=True):
 - 文件末尾补换行
 - 美化前后都做 Node 语法检查
 
+原稿引用的 `beatifual_js.py` 和工具目录的 `requirements.txt` 未随本仓库提供，因此也没有可核对的 `--dry-run`、备份或原子替换实现。这里不再将这些私有脚本参数作为可执行教程。纯格式化可使用 [Prettier 官方 CLI](https://prettier.io/docs/cli)，固定工具版本，并先在工作副本上运行：
+
 ```bash
-# 安装依赖（按你本机工具目录）
-python3 -m pip install -r requirements.txt
-
-# 只美化 JS / WXS
-python3 beatifual_js.py /path/to/unpacked
-
-# 顺带 WXSS / JSON，并备份
-python3 beatifual_js.py /path/to/unpacked \
-  --include-css --include-json --backup
-
-# 先看会改哪些文件
-python3 beatifual_js.py /path/to/unpacked --dry-run
+node --check file.js
+# 使用项目内已锁定版本的 prettier，而不是临时拉取未知版本
+./node_modules/.bin/prettier file.js --check
+./node_modules/.bin/prettier file.js --write
+node --check file.js
 ```
 
-`--dry-run` 只报告变化、不写回；确认后再加 `--backup`，写回前生成同名 `.bak`，并用临时文件 + `os.replace()` 做原子替换。
+这是假定你的工具目录已经安装 Prettier 的用法，不表示本博客项目含有该依赖。WXS、平台扩展语法和不同模块模式需另核对工具支持；Node 的语法检查不等于行为等价验证。
 
 ## 完整工作流
 
@@ -161,13 +157,7 @@ node --check file.js
 
 ### 美化器报错
 
-先用 `--dry-run` 定位文件。若 Node 语法检查失败，脚本应跳过并保留原文。确实存在非标准语法时，可临时：
-
-```bash
-python3 beatifual_js.py /path/to/unpacked --no-syntax-check
-```
-
-这时务必先复制工作目录，处理后手动抽查。
+先保留报错文件，检查 parser 和语法版本是否匹配，不以关闭检查后强制写回作为默认处理。分析差异时还要对照字符串、正则、自动分号插入和模块语义。
 
 ### 美化后仍然难以阅读
 
@@ -189,4 +179,4 @@ python3 beatifual_js.py /path/to/unpacked --no-syntax-check
 词法保护 → 定点编辑 → 美化器 → 语法检查 → 备份写回
 ```
 
-脚本实现可以很朴素：一段保守的词法扫描 + 规则 JSON + `jsbeautifier`。仓库里若有现成 `beatifual_js.py`，把它当成流水线执行器即可；文章本身只需要把这条边界守住——**字符串里的文本不是代码**。
+脚本实现可以很朴素：一段保守的词法扫描 + 规则 JSON + `jsbeautifier`。本仓库没有提供这个完整流水线实现；文章本身只需要把这条边界守住——**字符串里的文本不是代码**。
