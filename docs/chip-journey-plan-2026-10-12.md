@@ -78,3 +78,13 @@ V3 视觉复核：实际 Codex 650px 宽浏览器观察到玻璃控制透出芯�
 V3 发布检查记录：完整门禁首次在既有 test:archive 返回导航后的条目计数断言遇到 0≠14；未改动归档源代码或放宽断言。相同 CI=1 单独复查通过（包括返回/前进、筛选恢复），继续重新跑完整不可变快照门禁。该记录不被误归因于毛玻璃或氛围模块，也不声明已找到偶发根因。
 
 V3 最终交付：CI=1 完整门禁重新运行 41 项通过，509 个预览文件与构建一致，验证前后 source/build hash 相同；Astro check 0 错误/警告，GPU 氛围暂停恢复/原交互专项和移动阅读 24 fixtures 通过。没有为通过检查削弱断言。仅本地验证，不代表新提交的 Linux Actions 或线上部署。独立本地提交，用户负责 push。
+
+## V4 · Real multidirectional studio lighting
+
+- Reuse the two existing DirectionalLights: key sweeps on a 24-second orbit, rim sweeps oppositely on a 32-second orbit, with restrained vertical movement. Preserve the environment, materials, grey palette and existing exposure.
+- Accumulate only active visible time; the atmosphere toggle freezes real light positions as well as CSS ambience. Resume continues from the frozen phase. Reduced motion uses the original stationary rig. The `/chip-preview/` fixture stays static.
+- Reuse the renderer's animation loop, with idle illumination capped at 20 fps desktop / 12 fps narrow viewport (and existing quality limits). No extra render pass, shadow maps, texture or RAF loop.
+- GPU browser assertions verify both light positions change, pause freezes the clock and positions, resume does not skip paused time, and idle frame count stays bounded. Existing native scroll, raycast, layer lift, touch UI and offscreen idle assertions remain intact.
+- Screenshots: `artifacts/chip-journey/lighting-sweep-a.png`, `lighting-sweep-b.png`, and `lighting-in-app.png`. Validation here is local, not Linux CI or a production deployment.
+- V4 verification: Astro check reports 0 errors/warnings/hints; rebuilt distribution; GPU journey passes the new lighting assertions and existing interactions; CI-mode local full release passes all 41 commands and verifies 509 preview files. This is not Linux CI evidence.
+- Mobile reading regression: all 24 local fixtures passed. Source/build hashes stayed unchanged throughout the full release verification.

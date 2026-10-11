@@ -414,9 +414,21 @@ function resize(){
 const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);owned.push(() => resizeObserver.disconnect());
 listen(reducedQuery,'change',configureMotion);
 let lastRender=0;let renderedFrames=0;let lastSubmitMs=0;
+// Accumulate only visible, unpaused studio time: resuming never skips ahead.
+let lightingSeconds=0;let lightingTick:number|null=null;
+const lightingActive=()=>editorial && !reducedQuery.matches && stage.dataset.atmosphere==='running';
 function render(time:number){
- if(destroyed||contextLost()||document.hidden||!inView||!dirty||time-lastRender<1000/quality.fps)return;
- lastRender=time;const mobile=host.clientWidth<760;
+ if(destroyed||contextLost()||document.hidden||!inView){lightingTick=null;return;}
+ const movingLight=lightingActive();
+ if(movingLight){
+  if(lightingTick!==null)lightingSeconds+=Math.min((time-lightingTick)/1000,.1);
+  lightingTick=time;
+ }else lightingTick=null;
+ const mobile=host.clientWidth<760;
+ // Existing interaction frames retain their quality budget; idle illumination is capped.
+ const fps=dirty?quality.fps:Math.min(quality.fps,mobile?12:20);
+ if((!dirty&&!movingLight)||time-lastRender<1000/fps)return;
+ lastRender=time;
  const orbitEnabled=editorial && finePointer.matches && !reducedQuery.matches;
  orbit.x=THREE.MathUtils.lerp(orbit.x,orbitEnabled?orbit.targetX:0,.22);orbit.y=THREE.MathUtils.lerp(orbit.y,orbitEnabled?orbit.targetY:0,.22);
  if(Math.abs(orbit.x-(orbitEnabled?orbit.targetX:0))<.0005)orbit.x=orbitEnabled?orbit.targetX:0;
@@ -443,9 +455,14 @@ function render(time:number){
  if(editorial && !reducedQuery.matches)layers.forEach((g,i)=>{if(g.visible)g.position.y+=lifts[i].amount;});
  domainField.visible=state.dual>.001;domainMaterial.uniforms.amount.value=state.dual;
  guideMat.opacity=0;
- // A slow reflection sweep, kept coherent across the reversible camera move.
- key.position.set(-4+state.progress*2,7,4);key.intensity=1.1+state.bright*.7;
- rim.intensity=.65+state.focus*.35;
+ // Two existing studio lights sweep in opposite directions, not camera rotation.
+ // Keep the preview fixture static and the reduced-motion view at its original light rig.
+ const lightTime=editorial&&!reducedQuery.matches?lightingSeconds:0;
+ const keyAngle=-Math.PI/4+lightTime*Math.PI*2/24;
+ const rimAngle=Math.atan2(4,-3)-lightTime*Math.PI*2/32;
+ key.position.set(Math.sin(keyAngle)*Math.sqrt(32)+state.progress*2,7+Math.sin(lightTime*.23)*.6,Math.cos(keyAngle)*Math.sqrt(32));
+ rim.position.set(Math.sin(rimAngle)*5,2+Math.sin(lightTime*.19)*.4,Math.cos(rimAngle)*5);
+ key.intensity=1.1+state.bright*.7;rim.intensity=.65+state.focus*.35;
  scene.environmentRotation.set(0,-.25+state.progress*.45,0);
  scene.environmentIntensity=.65+state.bright*.35+state.intro*.15;
  renderer.toneMappingExposure=.95;
@@ -488,7 +505,7 @@ function cleanup(){if(destroyed)return;destroyed=true;stop();trigger?.kill();tim
 listen(window,'pagehide',((e:PageTransitionEvent)=>{if(!e.persisted)cleanup();}) as EventListener);listen(window,'pageshow',()=>{dirty=true;});listen(document,'astro:before-swap',cleanup);
 slider.disabled=false;configureMotion();stage.classList.add('ready');
 // Deterministic inspection hook; it exposes only preview state and renderer statistics.
-Object.assign(window,{chipPreview:{seek,setProgress,select,setAntialias:(enabled:boolean)=>{if(fxaa){fxaa.enabled=enabled;dirty=true;}},getState:()=>({quality:quality.tier,pixelRatio:renderer.getPixelRatio(),progress:state.progress,selected,hovered,orbit:[orbit.x,orbit.y],cutPlayed,inView,layerY:layers.map(g=>g.position.y),camera:camera.position.toArray(),spread:state.spread,siliconCount:assembly.children.filter(child=>child.userData.isDie===true).length,domainAmount:state.dual,selectionVisible:selection.visible,reduced:reducedQuery.matches,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderedFrames,lastSubmitMs,antialias:fxaa?(fxaa.enabled?'fxaa':'off'):'msaa4',postBuffer:[composer.readBuffer.width,composer.readBuffer.height],aaResolution:fxaa?fxaa.material.uniforms.resolution.value.toArray():null,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,ready:stage.dataset.ready==='true'})}});
+Object.assign(window,{chipPreview:{seek,setProgress,select,setAntialias:(enabled:boolean)=>{if(fxaa){fxaa.enabled=enabled;dirty=true;}},getState:()=>({quality:quality.tier,pixelRatio:renderer.getPixelRatio(),progress:state.progress,selected,hovered,orbit:[orbit.x,orbit.y],cutPlayed,inView,layerY:layers.map(g=>g.position.y),camera:camera.position.toArray(),spread:state.spread,siliconCount:assembly.children.filter(child=>child.userData.isDie===true).length,domainAmount:state.dual,selectionVisible:selection.visible,reduced:reducedQuery.matches,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderedFrames,lastSubmitMs,lighting:{seconds:lightingSeconds,active:lightingActive()&&!document.hidden&&inView,key:key.position.toArray(),rim:rim.position.toArray()},antialias:fxaa?(fxaa.enabled?'fxaa':'off'):'msaa4',postBuffer:[composer.readBuffer.width,composer.readBuffer.height],aaResolution:fxaa?fxaa.material.uniforms.resolution.value.toArray():null,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,ready:stage.dataset.ready==='true'})}});
 
 } catch(error) {
  release();

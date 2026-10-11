@@ -46,6 +46,11 @@
     {
       "id": "polish-local-commit",
       "status": "done"
+    },
+    {
+      "id": "multidirectional-studio-lighting",
+      "status": "done",
+      "evidence": "artifacts/chip-journey/gpu-verification.json; artifacts/chip-journey/lighting-in-app.png; artifacts/release-check/verification.json: 41 local commands"
     }
   ]
 }

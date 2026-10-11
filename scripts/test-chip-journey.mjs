@@ -38,9 +38,25 @@ for(const [engine,type] of Object.entries({chromium,firefox,webkit})){
    await page.goto(origin+'/silicon/');await page.waitForFunction(()=>window.chipPreview?.getState().ready,{},{timeout:60000})
    await page.waitForFunction(()=>document.querySelector('.stage').dataset.atmosphere==='running');
    const atmosphere=page.locator('.atmosphere-toggle');
+   await page.waitForTimeout(300);
+   const lightA=await page.evaluate(()=>window.chipPreview.getState());
+   await page.screenshot({path:new URL('lighting-sweep-a.png',out).pathname});
+   await page.waitForTimeout(1200);
+   const lightB=await page.evaluate(()=>window.chipPreview.getState());
+   assert.notDeepEqual(lightB.lighting.key,lightA.lighting.key,'Main light moves across the metal');
+   assert.notDeepEqual(lightB.lighting.rim,lightA.lighting.rim,'Opposite rim light moves independently');
+   assert(lightB.renderedFrames-lightA.renderedFrames<=27,'Idle studio lighting stays below 20 fps budget with timing allowance');
+   await page.screenshot({path:new URL('lighting-sweep-b.png',out).pathname});
    await atmosphere.click();assert.equal(await atmosphere.getAttribute('aria-pressed'),'true');
    assert.equal(await page.locator('.ambient-field i').first().evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
+   await page.waitForTimeout(200);
+   const frozen=await page.evaluate(()=>window.chipPreview.getState().lighting);
+   await page.waitForTimeout(400);
+   assert.deepEqual(await page.evaluate(()=>window.chipPreview.getState().lighting),frozen,'Pause freezes both real light positions and their clock');
    await atmosphere.click();assert.equal(await atmosphere.getAttribute('aria-pressed'),'false');
+   await page.waitForTimeout(250);
+   assert((await page.evaluate(()=>window.chipPreview.getState().lighting.seconds))-frozen.seconds<.4,'Resume does not jump over paused time');
+   checks.push('Real counter-sweeping studio lights: motion, pause, continuous resume and idle frame budget');
    assert.equal(await page.locator('.ambient-field i').first().evaluate(el=>getComputedStyle(el).animationPlayState),'running');
    const frame=await page.evaluate(()=>({canvas:document.querySelector('canvas').getBoundingClientRect().toJSON(),stage:document.querySelector('.stage').getBoundingClientRect().toJSON(),headline:document.querySelector('h1').getBoundingClientRect().toJSON()}));
    assert(Math.abs(frame.canvas.height-frame.stage.height)<2 && Math.abs(frame.canvas.width-frame.stage.width)<2,'Canvas fills the product stage');
