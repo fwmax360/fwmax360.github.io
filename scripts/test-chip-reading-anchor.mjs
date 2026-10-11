@@ -22,7 +22,11 @@ for(const [engine,type] of Object.entries({chromium,webkit,firefox})){
    await page.goto(origin+'/silicon/',{waitUntil:'domcontentloaded'})
    await page.evaluate(scale=>document.documentElement.style.fontSize=16*scale+'px',scale)
    for(let n=0;n<100&&!held;n++)await new Promise(r=>setTimeout(r,25));assert(held)
-   await page.locator('.read-notes').scrollIntoViewIfNeeded();await page.locator('.read-notes').click();await page.waitForURL('**/silicon/#topics')
+   // Hash navigation must also avoid waiting for load while the scene is held.
+   await page.locator('.read-notes').scrollIntoViewIfNeeded();await page.locator('.read-notes').click();await page.waitForURL('**/silicon/#topics',{waitUntil:'domcontentloaded'})
+   assert.equal(await page.evaluate(()=>location.hash),'#topics')
+   assert(await page.locator('#topics').isVisible())
+   assert.equal(await page.locator('.stage').getAttribute('data-boot'),'loading','Scene remains pending while the reader enters notes')
    await page.evaluate(offset=>{window.scrollBy({top:offset,behavior:'instant'});document.querySelector('.silicon-reading').focus({preventScroll:true})},offset)
    await page.waitForTimeout(100)
    const state=()=>page.evaluate(()=>({top:document.querySelector('#topics').getBoundingClientRect().top,focus:document.activeElement?.getAttribute('href'),scroll:scrollY,hash:location.hash,journey:document.querySelector('.journey').getBoundingClientRect().height}))
