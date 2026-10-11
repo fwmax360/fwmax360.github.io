@@ -263,9 +263,18 @@ if(quality.tier!=='economy')composer.addPass(bloom);else owned.push(() => bloom.
 const fxaa=quality.tier==='full'?null:new FXAAPass();if(fxaa)composer.addPass(fxaa);
 checkpoint('postprocessing');
 // One reversible editorial timeline: edge reveal → exploded orbit → die macro → two worlds.
+const editorial=document.body.classList.contains('silicon-editorial');
 const state={spread:0,turn:-.7,reveal:0,progress:0,camX:5.5,camY:2.8,camZ:7.5,aimY:1.1,scale:1.15,bright:.35,focus:0,dual:0,intro:1};
+if(editorial)Object.assign(state,{camX:3.8,camY:4.8,camZ:5.2,aimY:.08,scale:1.08,bright:.8,turn:-.45});
 const timeline=gsap.timeline({paused:true});owned.push(() => timeline.kill());
-timeline
+if(editorial){
+ timeline
+ .to(state,{camX:4.1,camY:5.2,camZ:5.8,turn:-.2,bright:1,aimY:.12,scale:1.2,duration:2,ease:"power2.in"},0)
+ .to(state,{intro:0,duration:1,ease:"power2.inOut"},1.3)
+ .to(state,{spread:1,turn:.55,reveal:1,camX:6,camY:6,camZ:10,scale:1,aimY:.55,duration:3,ease:"power2.in"},2)
+ .to(state,{focus:1,turn:.1,camX:.8,camY:7.2,camZ:3.2,aimY:1,scale:1.15,bright:.85,duration:3,ease:"power3.inOut"},5)
+ .to(state,{dual:1,focus:0,turn:0,camX:0,camY:2,camZ:8.8,aimY:.25,scale:1.2,bright:1,duration:4,ease:"power3.inOut"},8);
+}else timeline
  .to(state,{camX:5.8,camY:5.2,camZ:9.3,scale:1.05,bright:1,aimY:.55,duration:2,ease:'power2.inOut'},0)
  .to(state,{intro:0,duration:1,ease:'power2.inOut'},1.3)
  .to(state,{spread:1,turn:.55,reveal:1,camX:6,camY:6,camZ:10,scale:1,aimY:.55,duration:3,ease:'power3.inOut'},2)
@@ -306,7 +315,7 @@ const parts=[
 ].map(part=>({...part,element:document.querySelector<HTMLElement>(`[data-part="${part.name}"]`)!}));
 function updateAnnotations(mobile:boolean){
  const w=host.clientWidth,h=host.clientHeight,macro=state.focus>.5;
- const active=!labelsVisible||state.dual>.15?[]:macro?['banks','core']:state.spread>.15?['lid','silicon','interposer','substrate']:['lid'];
+ const active=(editorial && state.progress<.12)||!labelsVisible||state.dual>.15?[]:macro?['banks','core']:state.spread>.15?['lid','silicon','interposer','substrate']:['lid'];
  const left=macro,tx=left?(mobile?16:80):w-(mobile?112:235);
  const rows=active.length===4?[.16,.35,.55,.75]:macro?[.55,.28]:[.6];
  let paths='';
@@ -325,11 +334,31 @@ let auto:gsap.core.Tween|null=null;owned.push(() => auto?.kill());
 let selected=-1;
 let phase=-1;
 let dirty=true;
+const finePointer=matchMedia('(hover:hover) and (pointer:fine)');
+const orbit={x:0,y:0,targetX:0,targetY:0};
+let pointerInside=false;let hovered=-1;
+const lifts=layers.map(()=>({amount:0}));
+const liftTweens:(gsap.core.Tween|undefined)[]=[];
+owned.push(()=>liftTweens.forEach(t=>t?.kill()));
+function setLayerLift(index:number){
+ if(!editorial)return;
+ lifts.forEach((lift,i)=>{liftTweens[i]?.kill();liftTweens[i]=gsap.to(lift,{amount:i===index && !reducedQuery.matches ? .13 : 0,duration:reducedQuery.matches?0:.18,ease:'power2.out',onUpdate:()=>{dirty=true;}});});
+}
+let inView=true;
+const visibilityObserver=new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;dirty=true;},{rootMargin:'80px'});
+visibilityObserver.observe(host);owned.push(()=>visibilityObserver.disconnect());
+const cut=document.querySelector<HTMLElement>('.digital-cut');
+let cutPlayed=false;let cutTimer:ReturnType<typeof setTimeout>|undefined;
+owned.push(()=>clearTimeout(cutTimer));
+
 function setProgress(p:number){
  if(Math.abs(p-state.progress)>.002 && selected>=0)clearSelection();
+ if(editorial && !cutPlayed && !reducedQuery.matches && state.progress<.76 && p>=.76 && p-state.progress<.15){
+  cutPlayed=true;if(cut){cut.dataset.active='true';cutTimer=setTimeout(()=>{cut.dataset.active='false';},180);}
+ }
  state.progress=THREE.MathUtils.clamp(p,0,1);timeline.progress(state.progress);slider.value=String(Math.round(state.progress*1000));output.value=`${Math.round(state.progress*100).toString().padStart(2,'0')}%`;
  const idx=state.progress<.18?0:state.progress<.43?1:state.progress<.76?2:3;
- if(idx!==phase){phase=idx;number.textContent=`0${idx+1} / 04`;title.textContent=phases[idx][0];description.textContent=phases[idx][1];document.querySelectorAll('.chapters button').forEach((b,i)=>{if(i===idx)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});}dirty=true;
+ if(idx!==phase){phase=idx;number.textContent=`0${idx+1} / 04`;title.textContent=phases[idx][0];description.textContent=phases[idx][1];document.querySelectorAll('.chapters button').forEach((b,i)=>{if(i===idx)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});}stage.dataset.shot=String(phase);dirty=true;
 }
 function stop(){auto?.kill();auto=null;play.innerHTML=`Play ${play.dataset.playLabel || 'Preview'} <span aria-hidden="true">▷</span>`;}
 function seek(p:number){stop();if(reducedQuery.matches){setProgress(p);return;}const section=document.querySelector<HTMLElement>('.journey')!;window.scrollTo({top:section.offsetTop+p*(section.offsetHeight-stage.offsetHeight),behavior:'instant'});setProgress(p);}
@@ -347,12 +376,22 @@ const structureInfo=[
  ['Silicon die','The silicon surface carries circuits. This layout is conceptual.'],
  ['Package lid','Protects the internal structure and helps transfer heat.'],
 ];
-function clearSelection(){selected=-1;phase=-1;structureSelect.value='-1';}
+function clearSelection(){setLayerLift(-1);selected=-1;phase=-1;structureSelect.value='-1';document.querySelectorAll('[data-structure]').forEach(b=>b.setAttribute('aria-pressed','false'));}
 function select(i:number){
  stop();if(!Number.isInteger(i)||i<0||i>=layers.length){clearSelection();setProgress(state.progress);return;}
- selected=i;structureSelect.value=String(i);title.textContent=structureInfo[i][0];description.textContent=structureInfo[i][1];dirty=true;
+ selected=i;setLayerLift(i);structureSelect.value=String(i);document.querySelectorAll<HTMLElement>('[data-structure]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.structure)===i)));title.textContent=structureInfo[i][0];description.textContent=structureInfo[i][1];dirty=true;
 }
 listen(structureSelect,'change',()=>select(Number(structureSelect.value)));
+document.querySelectorAll<HTMLButtonElement>('[data-structure]').forEach(button=>{
+ button.disabled=false;listen(button,'click',()=>{const i=Number(button.dataset.structure);if(selected===i){select(-1);return;}seek(.36);select(i);});
+});
+listen(renderer.domElement,'pointermove',((event:PointerEvent)=>{
+ if(!editorial || !finePointer.matches || reducedQuery.matches || event.pointerType==='touch')return;
+ pointerInside=true;const box=host.getBoundingClientRect();mouse.set((event.clientX-box.left)/box.width*2-1,-(event.clientY-box.top)/box.height*2+1);orbit.targetX=THREE.MathUtils.clamp((event.clientX-box.left)/box.width*2-1,-1,1)*.28;
+ orbit.targetY=THREE.MathUtils.clamp((event.clientY-box.top)/box.height*2-1,-1,1)*.16;dirty=true;
+}) as EventListener);
+listen(renderer.domElement,'pointerleave',()=>{pointerInside=false;orbit.targetX=0;orbit.targetY=0;dirty=true;});
+
 const topicNames=['Silicon & Connections','XBL / ABL','Android Internals','TEE'];
 const topicStatus=document.querySelector<HTMLElement>('#topic-status');
 document.querySelectorAll<HTMLButtonElement>('[data-module]').forEach(b=>listen(b,'click',()=>{
@@ -363,7 +402,7 @@ const ray=new THREE.Raycaster();const mouse=new THREE.Vector2();let pointerStart
 listen(renderer.domElement,'pointerdown',((e:PointerEvent)=>{pointerStart={x:e.clientX,y:e.clientY};}) as EventListener);
 listen(renderer.domElement,'pointerup',((event:PointerEvent)=>{if(Math.hypot(event.clientX-pointerStart.x,event.clientY-pointerStart.y)>8)return;const box=host.getBoundingClientRect();mouse.set((event.clientX-box.left)/box.width*2-1,-(event.clientY-box.top)/box.height*2+1);ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(layers,true).find(h=>{let o:THREE.Object3D|null=h.object;while(o){if(!o.visible)return false;o=o.parent;}return true;});if(hit){let parent:THREE.Object3D|null=hit.object;while(parent && parent.userData.structure===undefined)parent=parent.parent;if(parent)select(parent.userData.structure);}else select(-1);}) as EventListener);
 let trigger:ScrollTrigger|undefined;owned.push(() => trigger?.kill());
-function configureMotion(){stop();trigger?.kill();if(reducedQuery.matches){play.disabled=true;setProgress(1);document.querySelector('[data-status]')!.textContent='REDUCED MOTION';}else{play.disabled=false;trigger=ScrollTrigger.create({trigger:'.journey',start:'top top',end:'bottom bottom',onUpdate:s=>{if(!auto)setProgress(s.progress);}});document.querySelector('[data-status]')!.textContent='REAL-TIME 3D';}resize();}
+function configureMotion(){stop();setLayerLift(selected);trigger?.kill();if(reducedQuery.matches){play.disabled=true;setProgress(1);document.querySelector('[data-status]')!.textContent='REDUCED MOTION';}else{play.disabled=false;trigger=ScrollTrigger.create({trigger:'.journey',start:'top top',end:'bottom bottom',onUpdate:s=>{if(!auto)setProgress(s.progress);}});setProgress(trigger.progress);document.querySelector('[data-status]')!.textContent='REAL-TIME 3D';}resize();}
 function resize(){
  const ratio=Math.min(devicePixelRatio,quality.dpr,innerWidth<760?1.5:2);
  renderer.setPixelRatio(ratio);const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h);
@@ -376,10 +415,14 @@ const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);own
 listen(reducedQuery,'change',configureMotion);
 let lastRender=0;let renderedFrames=0;let lastSubmitMs=0;
 function render(time:number){
- if(destroyed||contextLost()||document.hidden||!dirty||time-lastRender<1000/quality.fps)return;
+ if(destroyed||contextLost()||document.hidden||!inView||!dirty||time-lastRender<1000/quality.fps)return;
  lastRender=time;const mobile=host.clientWidth<760;
- camera.position.set(state.camX,state.camY,state.camZ);
- if(mobile)camera.position.multiplyScalar(1.4+state.intro*.6);
+ const orbitEnabled=editorial && finePointer.matches && !reducedQuery.matches;
+ orbit.x=THREE.MathUtils.lerp(orbit.x,orbitEnabled?orbit.targetX:0,.22);orbit.y=THREE.MathUtils.lerp(orbit.y,orbitEnabled?orbit.targetY:0,.22);
+ if(Math.abs(orbit.x-(orbitEnabled?orbit.targetX:0))<.0005)orbit.x=orbitEnabled?orbit.targetX:0;
+ if(Math.abs(orbit.y-(orbitEnabled?orbit.targetY:0))<.0005)orbit.y=orbitEnabled?orbit.targetY:0;
+ camera.position.set(state.camX+orbit.x,state.camY+orbit.y,state.camZ);
+ if(mobile)camera.position.multiplyScalar(editorial?Math.max(1,.85/camera.aspect):1.4+state.intro*.6);
  camera.lookAt(0,state.aimY,0);
  camera.clearViewOffset();
  assembly.rotation.set(0,state.turn,0);assembly.position.y=mobile?0:.08;assembly.scale.setScalar(state.scale);
@@ -397,6 +440,7 @@ function render(time:number){
  silicon.position.y=THREE.MathUtils.lerp(THREE.MathUtils.lerp(heights[3],1,state.spread),.7,state.dual);
  silicon.rotation.x=state.dual*(Math.PI/2-.12);
  silicon.rotation.y=THREE.MathUtils.lerp(.065*state.spread,.1,state.dual);
+ if(editorial && !reducedQuery.matches)layers.forEach((g,i)=>{if(g.visible)g.position.y+=lifts[i].amount;});
  domainField.visible=state.dual>.001;domainMaterial.uniforms.amount.value=state.dual;
  guideMat.opacity=0;
  // A slow reflection sweep, kept coherent across the reversible camera move.
@@ -412,17 +456,28 @@ function render(time:number){
  copy.style.setProperty('--intro',String(state.intro));
  dualCaptions.style.opacity=String(selected>=0?0:THREE.MathUtils.smoothstep(state.dual,.8,1));
  stage.dataset.inspecting=String(selected>=0);
+ stage.style.setProperty('--intro',String(state.intro));
  stage.style.setProperty('--light',String(.18+state.spread*.16+state.dual*.14));
  stage.dataset.shot=String(phase);
- const selectedRoot=layers[selected];
- selection.visible=selected>=0&&Boolean(selectedRoot?.visible);if(selection.visible&&selectedRoot){
+ scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+ hovered=-1;
+ if(editorial && pointerInside && orbitEnabled){
+  ray.setFromCamera(mouse,camera);
+  const hit=ray.intersectObjects(layers,true).find(h=>{let o:THREE.Object3D|null=h.object;while(o){if(!o.visible)return false;o=o.parent;}return true;});
+  if(hit){let parent:THREE.Object3D|null=hit.object;while(parent && parent.userData.structure===undefined)parent=parent.parent;if(parent)hovered=parent.userData.structure;}
+ }
+ document.querySelectorAll<HTMLElement>('[data-structure]').forEach(b=>{b.dataset.hovered=String(Number(b.dataset.structure)===hovered);});
+ renderer.domElement.style.cursor=hovered>=0?'pointer':'';
+ const outlined=selected>=0?selected:hovered;
+ const selectedRoot=layers[outlined];
+ selection.visible=outlined>=0&&Boolean(selectedRoot?.visible);if(selection.visible&&selectedRoot){
   if(selection.parent!==selectedRoot)selectedRoot.add(selection);
-  selection.position.set(0,[.11,.14,.08,.16,.15][selected]);selection.scale.set([3.85,3.7,3.3,2.69,3.34][selected],1,[3.85,3.7,3.3,2.69,3.34][selected]);
+  selection.position.set(0,[.11,.14,.08,.16,.15][outlined]);selection.scale.set([3.85,3.7,3.3,2.69,3.34][outlined],1,[3.85,3.7,3.3,2.69,3.34][outlined]);
  }
  core.scale.setScalar(1);
  for(const option of structureSelect.options){const i=Number(option.value);option.disabled=i>=0&&(!layers[i].visible||((state.focus>.5||state.dual>.2)&&i!==3));}
  scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);updateAnnotations(mobile);
- renderer.info.reset();const submittedAt=performance.now();composer.render();lastSubmitMs=performance.now()-submittedAt;if(renderedFrames===0)checkpoint('firstRender');renderedFrames++;dirty=false;stage.dataset.ready='true';
+ renderer.info.reset();const submittedAt=performance.now();composer.render();lastSubmitMs=performance.now()-submittedAt;if(renderedFrames===0)checkpoint('firstRender');renderedFrames++;dirty=Math.abs(orbit.x-(orbitEnabled?orbit.targetX:0))>.0005||Math.abs(orbit.y-(orbitEnabled?orbit.targetY:0))>.0005;stage.dataset.ready='true';
 }
 await yieldTask();
 checkpoint('beforeCompile');await renderer.compileAsync(scene,camera);checkpoint('compiled');
@@ -433,7 +488,7 @@ function cleanup(){if(destroyed)return;destroyed=true;stop();trigger?.kill();tim
 listen(window,'pagehide',((e:PageTransitionEvent)=>{if(!e.persisted)cleanup();}) as EventListener);listen(window,'pageshow',()=>{dirty=true;});listen(document,'astro:before-swap',cleanup);
 slider.disabled=false;configureMotion();stage.classList.add('ready');
 // Deterministic inspection hook; it exposes only preview state and renderer statistics.
-Object.assign(window,{chipPreview:{seek,setProgress,select,setAntialias:(enabled:boolean)=>{if(fxaa){fxaa.enabled=enabled;dirty=true;}},getState:()=>({quality:quality.tier,pixelRatio:renderer.getPixelRatio(),progress:state.progress,selected,siliconCount:assembly.children.filter(child=>child.userData.isDie===true).length,domainAmount:state.dual,selectionVisible:selection.visible,reduced:reducedQuery.matches,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderedFrames,lastSubmitMs,antialias:fxaa?(fxaa.enabled?'fxaa':'off'):'msaa4',postBuffer:[composer.readBuffer.width,composer.readBuffer.height],aaResolution:fxaa?fxaa.material.uniforms.resolution.value.toArray():null,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,ready:stage.dataset.ready==='true'})}});
+Object.assign(window,{chipPreview:{seek,setProgress,select,setAntialias:(enabled:boolean)=>{if(fxaa){fxaa.enabled=enabled;dirty=true;}},getState:()=>({quality:quality.tier,pixelRatio:renderer.getPixelRatio(),progress:state.progress,selected,hovered,orbit:[orbit.x,orbit.y],cutPlayed,inView,layerY:layers.map(g=>g.position.y),camera:camera.position.toArray(),spread:state.spread,siliconCount:assembly.children.filter(child=>child.userData.isDie===true).length,domainAmount:state.dual,selectionVisible:selection.visible,reduced:reducedQuery.matches,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderedFrames,lastSubmitMs,antialias:fxaa?(fxaa.enabled?'fxaa':'off'):'msaa4',postBuffer:[composer.readBuffer.width,composer.readBuffer.height],aaResolution:fxaa?fxaa.material.uniforms.resolution.value.toArray():null,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,ready:stage.dataset.ready==='true'})}});
 
 } catch(error) {
  release();

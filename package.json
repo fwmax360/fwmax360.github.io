@@ -63,7 +63,9 @@
     "test:article-font-budget": "node scripts/test-article-font-budget.mjs",
     "test:build-inputs": "node --test scripts/test-build-inputs.mjs",
     "test:build-current": "node scripts/verify-build.mjs",
-    "test:type-hierarchy": "node scripts/test-type-hierarchy.mjs"
+    "test:type-hierarchy": "node scripts/test-type-hierarchy.mjs",
+    "test:chip-journey": "node scripts/test-chip-journey.mjs",
+    "test:chip-journey-gpu": "node scripts/test-chip-journey.mjs --gpu"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",

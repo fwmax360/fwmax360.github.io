@@ -64,6 +64,7 @@ const readingPaths = [
             </dl>
           </div>
         </div>
+        {!preview && <><div class="digital-cut" aria-hidden="true"><span>CONTEXT / SHIFT</span></div><nav class="structure-hotspots" aria-label="Explore chip structures">{["Package lid", "Silicon die", "Interconnect", "Substrate", "Contacts"].map((name, i) => <button type="button" data-structure={4-i} aria-pressed="false" disabled><span>0{i+1}</span>{name}<b aria-hidden="true">↗</b></button>)}</nav></>}
         <div class="fallback" role="status"><p>Explore the notes below. The interactive model is available when its scripts are ready.</p><button type="button" data-start-3d hidden>Start interactive model ↗</button></div>
         <div class="copy"><p class="eyebrow">A WORLD WITHIN</p><h1>Small in scale.<br/><span>Deep by design.</span></h1><p class="description">A journey into the systems beneath.</p><noscript><p class="noscript-note">This is the static preview. Enable JavaScript for the interactive model, or explore the notes below.</p></noscript><div class="phase" aria-live="polite" aria-atomic="true"><span class="phase-number">01 / 04</span><h2>Beneath the surface.</h2><p class="phase-description">Explore the structures behind the systems.</p></div></div>
         <div class="scene-note"><span class="dot"></span><span data-status>STATIC PREVIEW</span><span class="scene-hint">Scroll to explore · Select a topic below</span></div>
@@ -75,11 +76,11 @@ const readingPaths = [
     {preview ? <section id="topics" class="topics" tabindex="-1"><div class="topics-heading"><p class="eyebrow">FROM HARDWARE TO UNDERSTANDING</p><h2>Start with structure.<br/><span>Go deeper into systems.</span></h2><p>These topics guide the visual study, not the physical chip layout.<br/>Articles will be connected once the content is ready.</p></div><div class="topic-grid"><button data-module="0"><span>01 / FOUNDATION</span><h3>Silicon & Connections</h3><p>Substrates, interconnects, and the physical foundations of a system.</p><b>Preview Topic</b></button><button data-module="1"><span>02 / BOOT</span><h3>XBL / ABL</h3><p>The boot chain · Articles coming later</p><b>Preview Topic</b></button><button data-module="2"><span>03 / EXECUTION</span><h3>Android Internals</h3><p>From system interfaces to execution and interaction.</p><b>Preview Topic</b></button><button data-module="3"><span>04 / TRUST</span><h3>TEE</h3><p>Trusted execution · Articles coming later</p><b>Preview Topic</b></button></div><p id="topic-status" role="status">Select a topic for its availability. Articles are not connected yet.</p><footer><span>Visual concept · Not a real chip architecture</span><a href="/archive">Browse Articles ↗</a></footer></section> : <section id="topics" class="topics" tabindex="-1">
       <div class="topics-heading"><p class="eyebrow">VISUAL FIELD NOTES / 001</p><h2>From the layers.<br/><span>To the boundary.</span></h2><p>A visual introduction to the systems beneath.<br/>Follow the notes from physical structure to boot and trusted execution.</p></div>
       <a class="silicon-reading" href="/posts/chip-package-interconnect/"><div><span class="reading-kicker">STRUCTURE · RESEARCH NOTES</span><h3>Beyond<br/>the package.</h3><p>Die, substrate and interconnects: what the physical layers actually represent.</p><b>Read the field note <span aria-hidden="true">↗</span></b></div><img src="/images/silicon/layers.webp" width="840" height="580" alt="Exploded conceptual chip with separated package layers" loading="lazy"/></a>
-      <div class="silicon-paths">{readingPaths.map(note => <a href={`/posts/${note.slug}/`}><span>{note.label}</span><h3>{note.title}</h3><p>{note.copy}</p><b>Read the note ↗</b></a>)}</div>
+      <div class="shelf-heading"><div><p class="eyebrow">CONTINUE THE INVESTIGATION</p><h3>Choose a boundary.</h3></div><div class="shelf-controls" hidden><button type="button" data-shelf-step="-1" aria-label="Previous research notes" aria-controls="research-shelf">←</button><button type="button" data-shelf-step="1" aria-label="Next research notes" aria-controls="research-shelf">→</button></div></div><div id="research-shelf" class="silicon-paths" role="region" aria-label="Research note showcase" tabindex="0">{readingPaths.map((note, i) => <a href={`/posts/${note.slug}/`}><div class="shelf-visual" aria-hidden="true"><em>0{i+1}</em><i></i><small>SYSTEM / FIELD NOTE</small></div><span>{note.label}</span><h3>{note.title}</h3><p>{note.copy}</p><b>Read the note ↗</b></a>)}</div>
       <p class="sample-note">Public-documentation notes · Sources and platform limits in each article.</p><footer><span>Conceptual model · Not a physical SoC floorplan</span><a href="/archive">Browse all articles ↗</a></footer>
     </section> }
   </main>
-  <script>import '../scripts/chip-entry';</script>
+  <script>import '../scripts/chip-entry'; import '../scripts/research-shelf';</script>
 </body>
 </html>
 <style is:global>
@@ -196,4 +197,43 @@ html[data-experience=static] .journey:has(>.stage){height:max(100svh,50rem);min-
 html[data-experience=static] .scroll-cue{display:none}
 @media(min-width:761px) and (max-height:740px){.scene-poster{top:65%;height:30%}}
 @media(max-width:760px){h1{font-size:clamp(32px,10vw,46px)}.fallback{inset:auto 24px 220px;max-width:none}.scene-poster{inset:210px 20px auto;width:calc(100% - 40px);height:clamp(130px,calc(100svh - 640px),200px);transform:none;padding:0}}
+</style>
+
+<style is:global>
+/* The field-note shelf stays native: wheel scrolling belongs to the page. */
+.shelf-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-top:80px}.shelf-heading .eyebrow{color:#93999f;margin-bottom:16px}.shelf-heading h3{font-size:clamp(28px,3vw,44px);font-weight:500;letter-spacing:-1px;margin:0}.shelf-controls:not([hidden]){display:flex;gap:8px}.shelf-controls button{width:48px;height:48px;border:1px solid #ffffff30;background:transparent;border-radius:50%;font-size:20px}.shelf-controls button:disabled{opacity:.3;cursor:default}.shelf-controls button:hover:not(:disabled){background:#ffffff0c}
+.silicon-editorial .silicon-paths{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:6px;gap:24px;margin:32px 0 40px;padding:6px 6px 20px;scrollbar-width:thin;scrollbar-color:#72767a #111316;overscroll-behavior-x:contain}.silicon-editorial .silicon-paths>a{flex:0 0 clamp(280px,35vw,420px);scroll-snap-align:start;border:1px solid #ffffff20;border-radius:14px;padding:24px;background:#0a0c0f;transition:border-color .2s}.silicon-editorial .silicon-paths>a:hover{border-color:#ffffff55}.silicon-editorial .silicon-paths>a:focus-visible{outline-offset:0}.shelf-visual{height:180px;position:relative;overflow:hidden;border-bottom:1px solid #ffffff20;margin-bottom:24px;background:radial-gradient(ellipse at 60% 50%,#ffffff0b,transparent 70%)}.shelf-visual em{font-size:100px;line-height:1.4;font-weight:250;font-style:normal;letter-spacing:-8px;color:#d1d4d8}.shelf-visual i{position:absolute;right:10px;top:20px;height:112px;width:88px;border:1px solid #ffffff30;transform:skewY(-12deg);box-shadow:8px 8px 0 #0a0c0f,9px 9px 0 #ffffff20,16px 16px 0 #0a0c0f,17px 17px 0 #ffffff12}.shelf-visual small{position:absolute;bottom:14px;right:0;font:8px 'JetBrains Mono Variable',monospace;letter-spacing:1px;color:#878b91}
+.structure-hotspots{position:absolute;left:5.5vw;right:5.5vw;top:96px;z-index:2;display:flex;justify-content:center;gap:24px}.structure-hotspots button{min-width:124px}.structure-hotspots button{display:flex;align-items:center;gap:12px;padding:8px 0;min-height:44px;text-align:left;border:0;border-bottom:1px solid #ffffff18;background:transparent;font-size:11px;color:#a9afb6}.structure-hotspots button>span{font:9px 'JetBrains Mono Variable',monospace;color:#74797f}.structure-hotspots button>b{margin-left:auto;font-weight:400}.structure-hotspots button[aria-pressed=true],.structure-hotspots button[data-hovered=true],.structure-hotspots button:hover:not(:disabled){color:#f4f5f6;border-bottom-color:#ffffff70}.stage:not(.ready) .structure-hotspots{display:none}.stage[data-shot="3"] .structure-hotspots{visibility:hidden}
+.digital-cut{position:absolute;inset:88px 0 176px;pointer-events:none;z-index:3;opacity:0}.digital-cut span{position:absolute;top:46%;left:8%;font:9px 'JetBrains Mono Variable',monospace;letter-spacing:3px;color:#c5c9ce}.digital-cut[data-active=true]{animation:context-cut 180ms steps(3,end) both;background:linear-gradient(transparent 43%,#aeb5bc18 43%,#aeb5bc18 44%,transparent 44%,transparent 64%,#aeb5bc0d 64%,#aeb5bc0d 66%,transparent 66%)}
+@keyframes context-cut{0%{opacity:0;transform:translateX(0)}25%{opacity:.65;transform:translateX(4px)}60%{opacity:.25;transform:translateX(-3px)}100%{opacity:0;transform:none}}
+@media(max-width:760px){.shelf-heading{margin-top:56px;align-items:center}.shelf-heading h3{font-size:28px}.shelf-heading .eyebrow{font-size:8px;letter-spacing:1px}.shelf-controls button{width:44px;height:44px}.silicon-editorial .silicon-paths>a{flex-basis:min(82vw,360px);padding:22px}.structure-hotspots{display:none}.structure-hotspots button{font-size:.6875rem;gap:8px;min-height:44px}.structure-hotspots button>b{display:none}.digital-cut{bottom:20rem}.shelf-visual{height:148px}.shelf-visual em{font-size:80px}}
+@media(prefers-reduced-motion:reduce){.digital-cut{display:none}.silicon-editorial .silicon-paths>a{transition:none}}
+@container silicon-stage (max-width:14rem){.structure-hotspots{display:none}}
+</style>
+
+<style is:global>
+/* V2: one full-viewport product shot, not a header above a technical viewer. */
+.silicon-editorial .stage.ready .viewport{inset:0}
+.silicon-editorial .stage.ready .copy{inset:0;width:100%;text-align:left}
+.silicon-editorial .stage.ready .copy>h1{position:absolute;left:5.5vw;bottom:140px;font-size:clamp(24px,2.5vw,36px);line-height:1.15;letter-spacing:-1.2px;max-width:350px}
+.silicon-editorial .stage.ready .copy>.eyebrow{position:absolute;left:5.5vw;bottom:236px;margin:0;font-size:8px;letter-spacing:2px}
+.silicon-editorial .stage.ready .copy>.description{position:absolute;left:5.5vw;bottom:105px;margin:0;font-size:12px;line-height:1.6;max-width:310px}
+.silicon-editorial .stage.ready .phase{left:5.5vw;bottom:148px;max-width:300px}
+.silicon-editorial .stage.ready .phase h2{font-size:28px}
+.silicon-editorial .stage.ready[data-shot="0"] .structure-hotspots{visibility:hidden}
+.silicon-editorial .stage.ready[data-shot="0"]:not([data-inspecting="true"]) .phase{visibility:hidden}
+.silicon-editorial .stage.ready .digital-cut{inset:0}
+.silicon-editorial .stage.ready .controls{width:300px}
+.silicon-editorial .stage.ready .dual-captions{bottom:280px}
+@media(max-width:760px){
+ .silicon-editorial .stage.ready .copy>h1{left:24px;bottom:18rem;font-size:1.625rem;letter-spacing:-.04em;max-width:calc(100% - 48px)}
+ .silicon-editorial .stage.ready .copy>.eyebrow{left:24px;bottom:24rem;font-size:.625rem;letter-spacing:.12em}
+ .silicon-editorial .stage.ready .copy>.description{left:24px;bottom:15.5rem;font-size:.875rem;max-width:calc(100% - 48px)}
+ .silicon-editorial .stage.ready .phase,.silicon-editorial .stage.ready[data-shot="3"] .phase{left:24px;top:auto;bottom:14rem;max-width:calc(100% - 48px)}
+ .silicon-editorial .stage.ready .phase h2{font-size:1.375rem}
+ .silicon-editorial .stage.ready .controls{width:auto}
+ .silicon-editorial .stage.ready .dual-captions{bottom:32rem}
+ .silicon-editorial .stage.ready:has(.scene-tools[open]) .phase{top:auto;bottom:24rem}
+}
+@container silicon-stage (max-width:14rem){.silicon-editorial .stage.ready:has(.scene-tools[open]) .phase{bottom:29rem}}
 </style>

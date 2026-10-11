@@ -1,0 +1,37 @@
+{
+  "updated": "2026-10-12",
+  "items": [
+    {
+      "id": "research",
+      "status": "done",
+      "evidence": "chip-journey-plan-2026-10-12.md"
+    },
+    {
+      "id": "plan",
+      "status": "done"
+    },
+    {
+      "id": "implement",
+      "status": "done"
+    },
+    {
+      "id": "browser-tests",
+      "status": "done",
+      "evidence": "artifacts/chip-journey/gpu-verification.json"
+    },
+    {
+      "id": "release-validation",
+      "status": "done",
+      "evidence": "artifacts/release-check/verification.json: 41 checks, 509 preview files, immutable source/build"
+    },
+    {
+      "id": "visual-review",
+      "status": "done",
+      "evidence": "artifacts/chip-journey/desktop-layers.png; mobile-layers.png; chromium-shelf.png"
+    },
+    {
+      "id": "local-commit",
+      "status": "done"
+    }
+  ]
+}
