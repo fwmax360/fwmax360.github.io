@@ -21,6 +21,8 @@ for(const [engine,type] of Object.entries({chromium,firefox,webkit})){
   assert.equal(await shelf.locator('a').count(),7)
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true)
   assert.equal(await page.locator('.digital-cut').evaluate(e=>getComputedStyle(e).display),'none')
+  assert(await page.locator('.atmosphere-toggle').isHidden())
+  assert.equal(await page.locator('.ambient-field i').first().evaluate(el=>getComputedStyle(el).animationName),'none')
   await page.screenshot({path:new URL(`${engine}-shelf.png`,out).pathname})
   await shelf.locator('a[href="/posts/abl-android-handoff/"]').focus();await page.keyboard.press('Enter')
   await page.waitForURL('**/posts/abl-android-handoff/')
@@ -34,6 +36,12 @@ for(const [engine,type] of Object.entries({chromium,firefox,webkit})){
   if(gpu && engine==='chromium'){
    await page.emulateMedia({reducedMotion:'no-preference'})
    await page.goto(origin+'/silicon/');await page.waitForFunction(()=>window.chipPreview?.getState().ready,{},{timeout:60000})
+   await page.waitForFunction(()=>document.querySelector('.stage').dataset.atmosphere==='running');
+   const atmosphere=page.locator('.atmosphere-toggle');
+   await atmosphere.click();assert.equal(await atmosphere.getAttribute('aria-pressed'),'true');
+   assert.equal(await page.locator('.ambient-field i').first().evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
+   await atmosphere.click();assert.equal(await atmosphere.getAttribute('aria-pressed'),'false');
+   assert.equal(await page.locator('.ambient-field i').first().evaluate(el=>getComputedStyle(el).animationPlayState),'running');
    const frame=await page.evaluate(()=>({canvas:document.querySelector('canvas').getBoundingClientRect().toJSON(),stage:document.querySelector('.stage').getBoundingClientRect().toJSON(),headline:document.querySelector('h1').getBoundingClientRect().toJSON()}));
    assert(Math.abs(frame.canvas.height-frame.stage.height)<2 && Math.abs(frame.canvas.width-frame.stage.width)<2,'Canvas fills the product stage');
    assert(frame.headline.height<90,'Editorial headline stays secondary');
@@ -76,12 +84,15 @@ for(const [engine,type] of Object.entries({chromium,firefox,webkit})){
    await page.evaluate(()=>window.chipPreview.seek(1));await page.waitForTimeout(150)
    await page.screenshot({path:new URL('desktop-worlds.png',out).pathname})
    await shelf.scrollIntoViewIfNeeded();await page.waitForTimeout(200)
+   assert.equal(await page.locator('.stage').getAttribute('data-atmosphere'),'still','Atmosphere pauses outside the viewport');
    const frames=await page.evaluate(()=>window.chipPreview.getState().renderedFrames);await page.waitForTimeout(500)
    assert.equal(await page.evaluate(()=>window.chipPreview.getState().renderedFrames),frames)
    checks.push('Full viewport product composition and slow-to-fast disassembly curve');
    const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
    await mobile.goto(origin+'/silicon/');await mobile.waitForFunction(()=>window.chipPreview?.getState().ready,{},{timeout:60000});
    await mobile.evaluate(()=>window.chipPreview.seek(.36));await mobile.waitForTimeout(200);
+   const touchUi=await mobile.evaluate(()=>({pause:document.querySelector('.atmosphere-toggle').getBoundingClientRect().toJSON(),controls:document.querySelector('.controls').getBoundingClientRect().toJSON()}));
+   assert(touchUi.pause.bottom<touchUi.controls.top,'Touch atmosphere control stays outside the reading controls');
    await mobile.screenshot({path:new URL('mobile-layers.png',out).pathname});
    await mobile.locator('.scene-tools summary').click();await mobile.locator('#structure-select').selectOption('3');
    await mobile.waitForFunction(()=>window.chipPreview.getState().selected===3);

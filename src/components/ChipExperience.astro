@@ -50,6 +50,7 @@ const readingPaths = [
   <main>
     <section class="journey" aria-label="Exploded chip animation">
       <div class="stage">
+        {!preview && <div class="ambient-field" aria-hidden="true"><i></i><i></i><span></span></div>}
         <div class="viewport" aria-label="Interactive 3D chip study">
           <img class="scene-poster" src="/images/silicon/layers.webp" width="840" height="580" alt="" fetchpriority="high" decoding="async" />
           <div class="annotations" aria-label="Conceptual structure labels">
@@ -67,7 +68,7 @@ const readingPaths = [
         {!preview && <><div class="digital-cut" aria-hidden="true"><span>CONTEXT / SHIFT</span></div><nav class="structure-hotspots" aria-label="Explore chip structures">{["Package lid", "Silicon die", "Interconnect", "Substrate", "Contacts"].map((name, i) => <button type="button" data-structure={4-i} aria-pressed="false" disabled><span>0{i+1}</span>{name}<b aria-hidden="true">↗</b></button>)}</nav></>}
         <div class="fallback" role="status"><p>Explore the notes below. The interactive model is available when its scripts are ready.</p><button type="button" data-start-3d hidden>Start interactive model ↗</button></div>
         <div class="copy"><p class="eyebrow">A WORLD WITHIN</p><h1>Small in scale.<br/><span>Deep by design.</span></h1><p class="description">A journey into the systems beneath.</p><noscript><p class="noscript-note">This is the static preview. Enable JavaScript for the interactive model, or explore the notes below.</p></noscript><div class="phase" aria-live="polite" aria-atomic="true"><span class="phase-number">01 / 04</span><h2>Beneath the surface.</h2><p class="phase-description">Explore the structures behind the systems.</p></div></div>
-        <div class="scene-note"><span class="dot"></span><span data-status>STATIC PREVIEW</span><span class="scene-hint">Scroll to explore · Select a topic below</span></div>
+        <div class="scene-note"><span class="dot"></span><span data-status>STATIC PREVIEW</span><span class="scene-hint">Scroll to explore · Select a topic below</span>{!preview && <button class="atmosphere-toggle" type="button" aria-pressed="false" hidden>Pause atmosphere</button>}</div>
         <div class="dual-captions" aria-hidden="true"><p class="domain-note">ONE CHIP · TWO EXECUTION CONTEXTS</p><div><span>01 / NORMAL WORLD</span><strong>The everyday world.</strong><small>Runs the regular OS and applications.</small></div><div><span>02 / SECURE WORLD</span><strong>A trusted boundary.</strong><small>Sensitive operations, isolated from the regular OS.</small></div></div>
         <div class="controls"><div class="experience-actions">{!preview && <a class="read-notes" href="#topics">Explore the notes <span aria-hidden="true">↗</span></a>}</div><details class="scene-tools" open={preview}><summary>Playback &amp; layers</summary><div class="tool-panel"><div class="inspection-tools"><select id="structure-select" aria-label="Inspect a structure"><option value="-1">Inspect a layer</option><option value="4">Package lid</option><option value="3">Silicon die</option><option value="2">Interconnect layer</option><option value="1">Package substrate</option><option value="0">Package contacts</option></select><button id="labels-toggle" type="button" aria-pressed="true">Labels <span>On</span></button></div><div class="control-top"><button id="play" data-play-label={preview ? "Preview" : "journey"} type="button" disabled>{preview ? "Play Preview" : "Play journey"} <span aria-hidden="true">▷</span></button><label for="progress">Progress</label><output for="progress" id="percent">00%</output></div><input id="progress" type="range" min="0" max="1000" value="0" aria-label="Chip animation progress" disabled/></div></details><nav class="chapters" aria-label="Animation chapters"><button data-progress="0" aria-current="step">01 Reveal</button><button data-progress="0.36">02 Layers</button><button data-progress="0.7">03 Inside</button><button data-progress="1">04 Worlds</button></nav></div>
         <p class="scroll-cue">SCROLL TO EXPLORE <span>↓</span></p>
@@ -128,6 +129,55 @@ h1,h2,h3{text-wrap:balance}#topics{scroll-margin-top:100px}.stage:not(.ready) .a
 @media(max-width:760px){.domain-note{font-size:7px;letter-spacing:1px;top:-26px}#structure-select{max-width:190px}#topic-status{margin:-32px 0 32px}.stage[data-shot="3"] .phase h2{font-size:20px}}
 @media(max-width:760px){.stage[data-inspecting="true"] .phase{top:calc(max(100svh,760px) - 438px)}}
 </style>
+
+<style is:global>
+/* Atmosphere gives the hardware a studio setting; glass belongs to controls only. */
+.silicon-editorial .ambient-field{position:absolute;inset:0;overflow:hidden;pointer-events:none;contain:paint}
+.silicon-editorial .ambient-field i{position:absolute;width:80%;height:85%;border-radius:50%;background:radial-gradient(ellipse,#53677340,transparent 65%);left:-25%;top:-20%;animation:studio-drift 18s ease-in-out infinite alternate;animation-play-state:paused}
+.silicon-editorial .ambient-field i:nth-child(2){left:45%;top:20%;background:radial-gradient(ellipse,#6a647136,transparent 65%);animation-duration:23s;animation-delay:-9s}
+.silicon-editorial .ambient-field span{position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,#c4d2db0b 47%,transparent 62%);animation:studio-sweep 24s ease-in-out infinite alternate;animation-play-state:paused}
+.silicon-editorial .stage[data-atmosphere="running"] .ambient-field>*{animation-play-state:running}
+@keyframes studio-drift{from{transform:translate3d(-4%,-2%,0) scale(.92);opacity:.5}to{transform:translate3d(12%,10%,0) scale(1.12);opacity:1}}
+@keyframes studio-sweep{from{transform:translateX(-25%);opacity:.25}to{transform:translateX(20%);opacity:.7}}
+.silicon-editorial .topbar{background:#090c10a3;backdrop-filter:blur(14px) saturate(110%);-webkit-backdrop-filter:blur(14px) saturate(110%);border-bottom:1px solid #ffffff12}
+.silicon-editorial .stage.ready .controls{background:linear-gradient(125deg,#1c232bd9,#0b0f14c7);border:1px solid #ffffff26;border-radius:18px;padding:12px 16px;box-shadow:inset 0 1px #ffffff12,0 14px 40px #00000030;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.silicon-editorial .chapters button{padding:8px 7px;border-radius:7px;transition:background .15s,color .15s,transform .15s}
+.silicon-editorial .chapters button[aria-current]{background:#d4e5e318;box-shadow:inset 0 1px #ffffff12}
+.silicon-editorial .chapters button:hover:not(:disabled){background:#ffffff10;color:#eff4f4}
+.silicon-editorial .chapters button:active:not(:disabled){transform:scale(.96)}
+.silicon-editorial .structure-hotspots button{padding:8px 12px;border:1px solid #ffffff20;border-radius:10px;background:#11171cc7;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .15s,border-color .15s,transform .15s}
+.silicon-editorial .structure-hotspots button[aria-pressed="true"],.silicon-editorial .structure-hotspots button[data-hovered="true"]{background:#24302dd9;border-color:#b0e3d36b}
+.silicon-editorial .structure-hotspots button:active:not(:disabled){transform:translateY(1px)}
+.silicon-editorial .read-notes{transition:color .15s;background:none}
+.silicon-editorial .read-notes:hover{color:#b0e3d3}
+.silicon-editorial .scene-tools>summary::after{transition:transform .18s}
+.silicon-editorial .scene-tools[open]>summary::after{transform:rotate(180deg)}
+.silicon-editorial .atmosphere-toggle{background:transparent;border:1px solid #ffffff24;border-radius:20px;padding:6px 12px;min-height:32px;color:#b4c1c8;font:10px 'Geist Variable',sans-serif;letter-spacing:0;text-transform:none}
+.silicon-editorial .atmosphere-toggle:hover{background:#ffffff10;color:white}
+.silicon-editorial .atmosphere-toggle[hidden]{display:none}
+.silicon-editorial .silicon-paths>a{transition:border-color .18s,background .18s,box-shadow .18s}
+.silicon-editorial .silicon-paths>a:hover,.silicon-editorial .silicon-paths>a:focus-visible{background:#11171c;border-color:#a4b6bf66;box-shadow:inset 0 1px #ffffff14}
+.silicon-editorial .shelf-visual i{transition:transform .3s}
+.silicon-editorial .silicon-paths>a:hover .shelf-visual i{transform:skewY(-12deg) translateY(-5px)}
+.silicon-editorial .shelf-controls button{transition:background .15s,transform .15s}
+.silicon-editorial .shelf-controls button:active:not(:disabled){transform:scale(.94)}
+@media(max-width:760px){
+ .silicon-editorial .stage.ready .controls{padding:8px 12px;border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+ .silicon-editorial .chapters button{padding-inline:4px}
+ .silicon-editorial .atmosphere-toggle{position:fixed;top:80px;right:24px;min-height:44px;padding:4px 10px;font-size:.625rem;background:#10171adb;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+ .silicon-editorial .scene-note{bottom:.25rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .silicon-editorial .ambient-field i,.silicon-editorial .ambient-field span{animation:none}
+ .silicon-editorial .atmosphere-toggle{display:none}
+ .silicon-editorial .chapters button,.silicon-editorial .structure-hotspots button,.silicon-editorial .shelf-visual i,.silicon-editorial .shelf-controls button,.silicon-editorial .silicon-paths>a{transition:none;transform:none!important}
+}
+@supports not (backdrop-filter:blur(1px)){.silicon-editorial .stage.ready .controls,.silicon-editorial .structure-hotspots button{background:#10171af2}.silicon-editorial .topbar{background:#090c10f2}}
+</style>
+
+<script>
+ import '../scripts/silicon-atmosphere';
+</script>
 
 <style>
 .silicon-reading{display:grid;grid-template-columns:1fr 1.2fr;align-items:center;gap:32px;margin:64px 0 0;padding:48px;border:1px solid #ffffff20;border-radius:20px;background:#0b0e12;overflow:hidden}.reading-kicker{font-size:9px;letter-spacing:1.8px;color:#a8b5bc}.silicon-reading h3{font-size:clamp(40px,5vw,68px);line-height:1.08;letter-spacing:-2px;font-weight:500;margin:28px 0 24px}.silicon-reading p{font-size:14px;line-height:1.9;color:#a6b0b8;max-width:320px}.silicon-reading b,.silicon-paths b{display:block;font-size:12px;font-weight:450;margin-top:32px;color:#d7e5e1}.silicon-reading img{width:100%;height:auto;mix-blend-mode:lighten;mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(transparent,#000 6%,#000 94%,transparent);mask-composite:intersect;transition:transform .6s}.silicon-reading:hover img{transform:translateY(-6px)}.silicon-reading:hover{border-color:#ffffff45}.silicon-paths{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin:64px 0 48px}.silicon-paths>a{display:block;border-top:1px solid #ffffff26;padding-top:24px}.silicon-paths span{font-size:9px;letter-spacing:1.5px;color:#9ba7ae}.silicon-paths h3{font-size:22px;font-weight:450;margin:24px 0 12px}.silicon-paths p,.sample-note{font-size:12px;color:#9ba7ae;line-height:1.8}.sample-note{margin-bottom:40px}.silicon-paths>a:hover b{color:white}@media(max-width:760px){.silicon-reading{grid-template-columns:1fr;padding:28px;gap:8px;margin-top:40px}.silicon-reading img{grid-row:1}.silicon-reading h3{font-size:40px;margin:20px 0}.silicon-paths{grid-template-columns:1fr;gap:32px;margin-top:40px}.silicon-paths h3{margin-top:16px}.silicon-paths b{margin-top:16px}}@media(prefers-reduced-motion:reduce){.silicon-reading img{transition:none}.silicon-reading:hover img{transform:none}}

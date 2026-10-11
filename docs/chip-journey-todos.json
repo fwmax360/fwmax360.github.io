@@ -32,6 +32,20 @@
     {
       "id": "local-commit",
       "status": "done"
+    },
+    {
+      "id": "product-atmosphere-and-glass",
+      "status": "done",
+      "evidence": "src/scripts/silicon-atmosphere.ts; artifacts/chip-journey/product-polish-in-app.png"
+    },
+    {
+      "id": "polish-regression",
+      "status": "done",
+      "evidence": "artifacts/chip-journey/gpu-verification.json; artifacts/silicon-mobile-reading/verification.json"
+    },
+    {
+      "id": "polish-local-commit",
+      "status": "done"
     }
   ]
 }

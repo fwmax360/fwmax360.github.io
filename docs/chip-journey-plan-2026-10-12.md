@@ -67,3 +67,14 @@ V2 实际验收补充：
 V2 最终源码重新 check/build 后，CI=1 完整发布门禁 41 项全部通过，509 个预览资源与构建字节一致，验证前后源码和构建摘要一致。最终 GPU 交互专项及移动阅读 24 fixtures 通过；另有三引擎三质量档位、六次生命周期专项通过。证据为 `artifacts/release-check/verification.json`、`artifacts/chip-journey/gpu-verification.json`、`artifacts/chip-journey/native-scroll.json` 和 `artifacts/silicon-mobile-reading/verification.json`。实际 Codex 浏览器刷新并核验首屏单标题，截图 `artifacts/chip-journey/in-app-final.png`。记录限于本机浏览器，不是 Linux CI 或线上部署证明。
 
 实现、计划、待办与新增测试将一起提交本地 main；用户执行 `git push origin main` 后才进入远端发布。未自动 push，未改动文章、已有发布 workflow 或账户设置。
+
+## V3 产品氛围与 UI 反馈 / 2026-10-12
+用户认可 V2 全屏构图，要求结合实际补充动态背景、毛玻璃及 UI 交互。采用直接构建路径，锁定现有金属灰芯片与小字号边缘文案；参考 Scrolltide Components 的 Light Cove 光场层次、Liquid Glass Button 的控件反馈，Glass 示例仅作为局部玻璃材质方向（没有读取或复制其商业实现）。Refero bundled motion 用于反馈/层级原则。玻璃只归属顶栏、播放控制和结构菜单，不覆盖芯片或文章；色彩仅冷灰/低饱和灰紫，原有薄荷色保留选中含义。
+
+实现：CSS 合成层低频光晕（18/23 秒）及反射光带（24 秒），不新增 canvas/WebGL pass；IntersectionObserver、页面隐藏、减弱动态自动暂停，明确 Pause/Resume atmosphere 按钮支持键盘。毛玻璃有实体背景降级，触屏降低模糊范围。章节选中胶囊、热点抬边/选中、链接颜色反馈、展柜结构图轻抬升、按钮按压，均保留原生导航/滑动与可读文字。无脚本默认不播放氛围。文章内容与阅读页不变。验证增加暂停/恢复、离屏暂停、减弱动态静止断言，保留前一版全部测试。
+
+V3 视觉复核：实际 Codex 650px 宽浏览器观察到玻璃控制透出芯片层次、背景仅柔和光场。发现首次 390px 触屏暂停按钮与下方控制框接近，已移至上方边缘，并在离屏时隐藏；增加位置断言。首次 reduced-motion 动画名断言揭示 CSS specificity 未覆盖 i 元素，修正选择器后重跑，未删除断言。实看 Pause/Resume 状态与 animationPlayState 一致。最终截图 `artifacts/chip-journey/product-polish-in-app.png`，桌面/触屏截图复用最终 GPU 验收目录。
+
+V3 发布检查记录：完整门禁首次在既有 test:archive 返回导航后的条目计数断言遇到 0≠14；未改动归档源代码或放宽断言。相同 CI=1 单独复查通过（包括返回/前进、筛选恢复），继续重新跑完整不可变快照门禁。该记录不被误归因于毛玻璃或氛围模块，也不声明已找到偶发根因。
+
+V3 最终交付：CI=1 完整门禁重新运行 41 项通过，509 个预览文件与构建一致，验证前后 source/build hash 相同；Astro check 0 错误/警告，GPU 氛围暂停恢复/原交互专项和移动阅读 24 fixtures 通过。没有为通过检查削弱断言。仅本地验证，不代表新提交的 Linux Actions 或线上部署。独立本地提交，用户负责 push。
