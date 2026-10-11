@@ -18,7 +18,8 @@ for(const [engine,type] of Object.entries({chromium,webkit,firefox})){
   })
   await page.route('**/*chip-preview*.js',async route=>{held=true;await gate;try{await route.abort()}catch{/* Disposing a fixture can cancel its held request. */}})
   try{
-   await page.goto(origin+'/silicon/')
+   // Keep navigation independent of the deliberately held module request.
+   await page.goto(origin+'/silicon/',{waitUntil:'domcontentloaded'})
    await page.evaluate(scale=>document.documentElement.style.fontSize=16*scale+'px',scale)
    for(let n=0;n<100&&!held;n++)await new Promise(r=>setTimeout(r,25));assert(held)
    await page.locator('.read-notes').scrollIntoViewIfNeeded();await page.locator('.read-notes').click();await page.waitForURL('**/silicon/#topics')

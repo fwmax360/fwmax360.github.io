@@ -55,7 +55,9 @@ for(const [engine,type] of Object.entries({chromium,webkit,firefox})){
   let held=false
   await pending.route('**/*chip-preview*.js',async route=>{held=true;await gate;try{await route.abort()}catch{/* Page disposal may cancel the held request. */}})
   try{
-   await pending.goto(origin+'/silicon/')
+   // The held dynamic import can postpone Firefox's load event. Observe the DOM
+   // while that request is intentionally pending, then release it after assertions.
+   await pending.goto(origin+'/silicon/',{waitUntil:'domcontentloaded'})
    await pending.evaluate(()=>document.documentElement.style.fontSize='32px')
    for(let n=0;n<100&&!held;n++)await new Promise(resolve=>setTimeout(resolve,25))
    assert(held,'Actual scene-module request observed before pending-state assertions')
