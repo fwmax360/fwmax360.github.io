@@ -162,7 +162,8 @@ h1,h2,h3{text-wrap:balance}#topics{scroll-margin-top:100px}.stage:not(.ready) .a
 .silicon-editorial .shelf-controls button{transition:background .15s,transform .15s}
 .silicon-editorial .shelf-controls button:active:not(:disabled){transform:scale(.94)}
 @media(max-width:760px){
- .silicon-editorial .stage.ready .controls{padding:8px 12px;border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+ /* One translucent surface: keep the chip visible through expanded controls. */
+ .silicon-editorial .stage.ready .controls{background:linear-gradient(125deg,#1c232b80,#0b0f146b);padding:8px 12px;border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
  .silicon-editorial .chapters button{padding-inline:4px}
  .silicon-editorial .atmosphere-toggle{position:fixed;top:80px;right:24px;min-height:44px;padding:4px 10px;font-size:.625rem;background:#10171adb;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
  .silicon-editorial .scene-note{bottom:.25rem}
@@ -172,7 +173,24 @@ h1,h2,h3{text-wrap:balance}#topics{scroll-margin-top:100px}.stage:not(.ready) .a
  .silicon-editorial .atmosphere-toggle{display:none}
  .silicon-editorial .chapters button,.silicon-editorial .structure-hotspots button,.silicon-editorial .shelf-visual i,.silicon-editorial .shelf-controls button,.silicon-editorial .silicon-paths>a{transition:none;transform:none!important}
 }
-@supports not (backdrop-filter:blur(1px)){.silicon-editorial .stage.ready .controls,.silicon-editorial .structure-hotspots button{background:#10171af2}.silicon-editorial .topbar{background:#090c10f2}}
+/* Separate feature blocks keep the CSS optimizer from dropping the standard
+   property as an alias of the Safari-prefixed declaration. */
+@supports (backdrop-filter:blur(1px)){
+ .silicon-editorial .topbar{backdrop-filter:blur(14px) saturate(110%)}
+ .silicon-editorial .stage.ready .controls{backdrop-filter:blur(16px)}
+ .silicon-editorial .structure-hotspots button{backdrop-filter:blur(12px)}
+ @media(max-width:760px){.silicon-editorial .stage.ready .controls{backdrop-filter:blur(10px)}.silicon-editorial .atmosphere-toggle{backdrop-filter:blur(8px)}}
+}
+@supports not (backdrop-filter:blur(1px)){
+ @supports not (-webkit-backdrop-filter:blur(1px)){
+  .silicon-editorial .stage.ready .controls,.silicon-editorial .structure-hotspots button{background:#10171af2}
+  .silicon-editorial .topbar{background:#090c10f2}
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ .silicon-editorial .stage.ready .controls{background:#10171af2;-webkit-backdrop-filter:none}
+ @supports (backdrop-filter:blur(1px)){.silicon-editorial .stage.ready .controls{backdrop-filter:none}}
+}
 </style>
 
 <script>
@@ -213,8 +231,8 @@ body:not(.silicon-editorial) .scene-tools>summary{display:none}body:not(.silicon
  .silicon-editorial #structure-select{font-size:.875rem;min-width:0;min-height:44px;height:2.75rem;flex:1;appearance:none;padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23c1cdd6' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
  .silicon-editorial #labels-toggle,.silicon-editorial .control-top button{font-size:.875rem;min-height:44px}
  .silicon-editorial .control-top label,.silicon-editorial output{font-size:.75rem}
- .silicon-editorial .tool-panel{padding:10px}
- .silicon-editorial .controls:has(.scene-tools[open]){background:#080b0e;border:1px solid #ffffff20;border-radius:12px;padding:8px 12px}
+ .silicon-editorial .tool-panel{padding:10px;background:#0c11171f}
+ .silicon-editorial .controls:has(.scene-tools[open]){border:1px solid #ffffff20;border-radius:12px;padding:8px 12px}
  .silicon-editorial .controls:has(.scene-tools[open]) .experience-actions{display:none}
  .silicon-editorial .stage:has(.scene-tools[open]) .dual-captions{visibility:hidden}
  .silicon-editorial .stage:has(.scene-tools[open]) .phase{top:calc(max(100svh,50rem) - 29rem - 112px)}
