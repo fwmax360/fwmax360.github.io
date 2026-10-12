@@ -2,7 +2,8 @@ import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 const origin = process.env.PREVIEW_URL || 'http://127.0.0.1:4322';
-const browser = await chromium.launch(process.env.CI ? {} : { channel: 'chrome' });
+const softwareGPU = process.argv.includes('--software-gpu');
+const browser = await chromium.launch(softwareGPU ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : process.env.CI ? {} : { channel: 'chrome' });
 const checks = [], errors = [];
 try {
  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
@@ -30,6 +31,10 @@ try {
  assert.equal(await page.evaluate(() => window.chipPreview.getState().selected), 4);
  await page.screenshot({ path: new URL('../artifacts/chip-startup/economy-mobile.png', import.meta.url).pathname });
  checks.push('Explicit opt-in loads the full model at economy DPR while preserving layer selection');
+ // These are independent startup fixtures, not a multi-scene GPU stress test.
+ // Retaining completed scenes makes CI's shared software renderer spend the retry
+ // budget rendering unrelated pages. Close each fixture after its assertions.
+ await page.close();
  const delayed = await browser.newPage();
  await delayed.addInitScript(() => {
   Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, value: 8 });
@@ -49,7 +54,10 @@ try {
  await delayed.waitForFunction(() => window.chipPreview?.getState().ready);
  assert.equal(await delayed.locator('.scene-poster').isVisible(), false);
  checks.push('Slow module transfer keeps the poster visible until a real rendered frame is ready');
+ await delayed.close();
  const retry = await browser.newPage();
+ const retryConsole = [];
+ retry.on('console', message => { if (['error', 'warning'].includes(message.type())) retryConsole.push({ type: message.type(), text: message.text() }); });
  retry.on('pageerror', e => errors.push(e.message));
  await retry.addInitScript(() => {
   Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, value: 8 });
@@ -66,10 +74,17 @@ try {
  assert.equal(await retry.locator('canvas').count(), 0);
  await retry.evaluate(() => { window.__denyWebGL = false; });
  await retry.locator('[data-start-3d]').click();
- await retry.waitForFunction(() => window.chipPreview?.getState().ready);
+ try {
+  await retry.waitForFunction(() => window.chipPreview?.getState().ready);
+ } catch (error) {
+  const state = await retry.evaluate(() => ({ stage: { ...document.querySelector('.stage').dataset }, preview: window.chipPreview?.getState(), hidden: document.hidden, scrollY, viewport: document.querySelector('.viewport').getBoundingClientRect().toJSON() }));
+  await writeFile(new URL('../artifacts/chip-startup/failure.json', import.meta.url), JSON.stringify({ softwareGPU, state, console: retryConsole, errors }, null, 2));
+  await retry.screenshot({ path: new URL('../artifacts/chip-startup/failure.png', import.meta.url).pathname });
+  throw error;
+ }
  assert.equal(await retry.locator('.viewport canvas').count(), 1);
  checks.push('Failed WebGL initialization releases the partial scene and can be retried in place');
  assert.deepEqual(errors, []);
- await writeFile(new URL('../artifacts/chip-startup/verification.json', import.meta.url), JSON.stringify({ checks, errors, limits: ['Chromium emulation; quality policy is not a real mobile GPU benchmark.'] }, null, 2));
+ await writeFile(new URL('../artifacts/chip-startup/verification.json', import.meta.url), JSON.stringify({ checks, errors, softwareGPU, retryTimings: await retry.locator('.stage').getAttribute('data-boot-timings'), limits: ['Chromium emulation; quality policy is not a real mobile GPU benchmark.'] }, null, 2));
  console.log(checks.join('\n'));
 } finally { await browser.close(); }

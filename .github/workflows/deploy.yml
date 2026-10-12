@@ -78,6 +78,8 @@ jobs:
             artifacts/release-check/verification.json
             artifacts/home-human/failure.png
             artifacts/home-human/failure.json
+            artifacts/chip-startup/failure.json
+            artifacts/chip-startup/failure.png
 
       - uses: actions/configure-pages@v5
 
