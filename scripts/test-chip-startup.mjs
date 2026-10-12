@@ -1,6 +1,7 @@
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { startupScreenshot } from './lib/startup-screenshot.mjs';
 const origin = process.env.PREVIEW_URL || 'http://127.0.0.1:4322';
 const softwareGPU = process.argv.includes('--software-gpu');
 const browser = await chromium.launch(softwareGPU ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : process.env.CI ? {} : { channel: 'chrome' });
@@ -49,7 +50,12 @@ try {
  assert(await delayed.locator('h1').isVisible());
  assert(await delayed.evaluate(() => document.querySelector('.scene-poster').getBoundingClientRect().top >= document.querySelector('.description').getBoundingClientRect().bottom));
  assert.equal(await delayed.locator('canvas').count(), 0);
- await delayed.screenshot({ path: new URL('../artifacts/chip-startup/loading-desktop.png', import.meta.url).pathname });
+ const verifyLoading = async () => {
+  assert.equal(await delayed.locator('.stage').getAttribute('data-boot'), 'loading');
+  assert.equal(await delayed.locator('canvas').count(), 0);
+  assert(await delayed.locator('.scene-poster').isVisible());
+ };
+ await startupScreenshot(delayed, { path: new URL('../artifacts/chip-startup/loading-desktop.png', import.meta.url).pathname }, verifyLoading);
  unblock();
  await delayed.waitForFunction(() => window.chipPreview?.getState().ready);
  assert.equal(await delayed.locator('.scene-poster').isVisible(), false);
